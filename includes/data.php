@@ -1,188 +1,202 @@
 <?php
+/**
+ * Data layer — replaces src/lib/api.ts + Supabase.
+ *
+ * In production, replace these static arrays with database queries
+ * (e.g., PDO/MySQLi) using the same structure.
+ *
+ * Each "subject" has:
+ *   id, name, faculty, semester, notes[]
+ *
+ * Each "note" has:
+ *   id, title, author, date, size, url
+ */
 
-declare(strict_types=1);
-
-$subjects = [
+$SUBJECTS = [
+    // ── BCA ──────────────────────────────────────────────
     [
-        'id' => 'programming-c',
-        'faculty' => 'BCA',
+        'id'       => 'bca-prog-c',
+        'name'     => 'Programming in C',
+        'faculty'  => 'BCA',
         'semester' => '1st Semester',
-        'name' => 'Programming in C',
-        'notes' => [
-            [
-                'id' => 'c-intro',
-                'title' => 'Programming in C - Fundamentals',
-                'author' => 'Archive Team',
-                'date' => '2026-01-07',
-                'size' => '1.2 MB',
-                'url' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-            ],
-        ],
+        'notes'    => [],
     ],
     [
-        'id' => 'dsa',
-        'faculty' => 'BCA',
+        'id'       => 'bca-dsa',
+        'name'     => 'Data Structures & Algo',
+        'faculty'  => 'BCA',
         'semester' => '3rd Semester',
-        'name' => 'Data Structures & Algo',
-        'notes' => [
-            [
-                'id' => 'dsa-sorting',
-                'title' => 'Sorting and Searching Notes',
-                'author' => 'JBC Scholar',
-                'date' => '2026-02-18',
-                'size' => '2.8 MB',
-                'url' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-            ],
-        ],
+        'notes'    => [],
     ],
     [
-        'id' => 'dbms',
-        'faculty' => 'BCA',
+        'id'       => 'bca-dbms',
+        'name'     => 'Database Management',
+        'faculty'  => 'BCA',
         'semester' => '4th Semester',
-        'name' => 'Database Management',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'web-tech',
-        'faculty' => 'BCA',
+        'id'       => 'bca-web',
+        'name'     => 'Web Technology',
+        'faculty'  => 'BCA',
         'semester' => '4th Semester',
-        'name' => 'Web Technology',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'software-engineering',
-        'faculty' => 'BCA',
+        'id'       => 'bca-se',
+        'name'     => 'Software Engineering',
+        'faculty'  => 'BCA',
         'semester' => '5th Semester',
-        'name' => 'Software Engineering',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'system-architecture',
-        'faculty' => 'BCA',
+        'id'       => 'bca-sys-arch',
+        'name'     => 'System Architecture',
+        'faculty'  => 'BCA',
         'semester' => '4th Semester',
-        'name' => 'System Architecture',
-        'notes' => [
-            [
-                'id' => 'sys-arch-1',
-                'title' => 'Computer Architecture Midterm Prep',
-                'author' => 'A. Shrestha',
-                'date' => '2026-03-02',
-                'size' => '3.1 MB',
-                'url' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-            ],
-        ],
+        'notes'    => [],
     ],
     [
-        'id' => 'sw-intro',
-        'faculty' => 'BSW',
+        'id'       => 'bca-advanced',
+        'name'     => 'Advanced Project',
+        'faculty'  => 'BCA',
+        'semester' => '8th Semester',
+        'notes'    => [],
+    ],
+    // ── BSW ──────────────────────────────────────────────
+    [
+        'id'       => 'bsw-intro',
+        'name'     => 'Intro to Social Work',
+        'faculty'  => 'BSW',
         'semester' => '1st Year',
-        'name' => 'Intro to Social Work',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'sociology-concepts',
-        'faculty' => 'BSW',
+        'id'       => 'bsw-sociology',
+        'name'     => 'Sociology Concepts',
+        'faculty'  => 'BSW',
         'semester' => '2nd Year',
-        'name' => 'Sociology Concepts',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'psychology',
-        'faculty' => 'BSW',
+        'id'       => 'bsw-psychology',
+        'name'     => 'Basic Psychology',
+        'faculty'  => 'BSW',
         'semester' => '2nd Year',
-        'name' => 'Basic Psychology',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'community-org',
-        'faculty' => 'BSW',
+        'id'       => 'bsw-community',
+        'name'     => 'Community Organization',
+        'faculty'  => 'BSW',
         'semester' => '3rd Year',
-        'name' => 'Community Organization',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'field-work',
-        'faculty' => 'BSW',
+        'id'       => 'bsw-field',
+        'name'     => 'Field Work Practicum',
+        'faculty'  => 'BSW',
         'semester' => '4th Year',
-        'name' => 'Field Work Practicum',
-        'notes' => [],
+        'notes'    => [],
     ],
+    // ── BBS ──────────────────────────────────────────────
     [
-        'id' => 'microeconomics',
-        'faculty' => 'BBS',
+        'id'       => 'bbs-micro',
+        'name'     => 'Microeconomics',
+        'faculty'  => 'BBS',
         'semester' => '1st Year',
-        'name' => 'Microeconomics',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'management',
-        'faculty' => 'BBS',
+        'id'       => 'bbs-mgmt',
+        'name'     => 'Principles of Management',
+        'faculty'  => 'BBS',
         'semester' => '1st Year',
-        'name' => 'Principles of Management',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'financial-accounting',
-        'faculty' => 'BBS',
+        'id'       => 'bbs-acct',
+        'name'     => 'Financial Accounting',
+        'faculty'  => 'BBS',
         'semester' => '2nd Year',
-        'name' => 'Financial Accounting',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'business-statistics',
-        'faculty' => 'BBS',
+        'id'       => 'bbs-stats',
+        'name'     => 'Business Statistics',
+        'faculty'  => 'BBS',
         'semester' => '3rd Year',
-        'name' => 'Business Statistics',
-        'notes' => [],
+        'notes'    => [],
     ],
     [
-        'id' => 'marketing-strategy',
-        'faculty' => 'BBS',
+        'id'       => 'bbs-mkt',
+        'name'     => 'Marketing Strategy',
+        'faculty'  => 'BBS',
         'semester' => '4th Year',
-        'name' => 'Marketing Strategy',
-        'notes' => [],
+        'notes'    => [],
+    ],
+    // ── BICTE ─────────────────────────────────────────────
+    [
+        'id'       => 'bicte-infosec',
+        'name'     => 'Information Security',
+        'faculty'  => 'BICTE',
+        'semester' => '8th Semester',
+        'notes'    => [],
     ],
 ];
 
-$infoPages = [
-    'Terms of Service' => [
-        'By using JBC ATHENAEUM, you agree to these terms.',
-        'Resources are for academic and non-commercial use only.',
-        'Contributed content must be original or permission-backed.',
-    ],
-    'Privacy Policy' => [
-        'Only basic usage data is collected to improve access.',
-        'We do not sell user data to third parties.',
-    ],
-    'Academic Integrity' => [
-        'Use resources to learn concepts, not to plagiarize work.',
-        'Always cite your sources as required by your faculty.',
-    ],
-    'Copyright Guidelines' => [
-        'Upload only your own notes or permitted resources.',
-        'Do not upload commercial copyrighted content.',
-    ],
-    'Faculty Directory' => [
-        'Prof. Ram Sharma — Head of BCA Department',
-        'Dr. Sita Karki — Head of BSW Department',
-    ],
-    'Library Administration' => [
-        'Main Campus Building, Ground Floor',
-        'library@janabhawana.edu.np | +977-1-5555555',
-    ],
-    'IT Support Desk' => [
-        'it.support@janabhawana.edu.np',
-        '+977-1-4444444',
-    ],
-    'FAQ & Guides' => [
-        'Open a subject to view and download available notes.',
-        'If previews fail, open the document in a new tab.',
-    ],
-    'Upload Instructions' => [
-        'Use Contribute page and fill accurate subject details.',
-        'Attach PDF files before sending contribution email.',
-    ],
-    'Sitemap' => [
-        'Home, Semesters, Resources, Contribute, Library, Info, Admin',
-    ],
-];
+/**
+ * Get a subject by its name (case-insensitive).
+ */
+function get_subject_by_name(array $subjects, string $name): ?array {
+    foreach ($subjects as $subject) {
+        if (strtolower($subject['name']) === strtolower($name)) {
+            return $subject;
+        }
+    }
+    return null;
+}
+
+/**
+ * Group subjects by faculty, then by semester.
+ * Returns: ['BCA' => ['1st Semester' => [...subjects], ...], ...]
+ */
+function group_subjects(array $subjects): array {
+    $grouped = [];
+    foreach ($subjects as $sub) {
+        $grouped[$sub['faculty']][$sub['semester']][] = $sub;
+    }
+    // Sort semester keys within each faculty
+    foreach ($grouped as $faculty => &$semesters) {
+        ksort($semesters);
+    }
+    return $grouped;
+}
+
+/**
+ * Flatten all notes across all subjects for the Resources view.
+ * Returns a flat array of notes with subject/faculty/semester context.
+ */
+function get_all_notes(array $subjects): array {
+    $all = [];
+    foreach ($subjects as $sub) {
+        foreach ($sub['notes'] as $note) {
+            $all[] = array_merge($note, [
+                'subject_name' => $sub['name'],
+                'faculty'      => $sub['faculty'],
+                'semester'     => $sub['semester'],
+            ]);
+        }
+    }
+    // Sort newest first
+    usort($all, fn($a, $b) => strtotime($b['date']) - strtotime($a['date']));
+    return $all;
+}
+
+/**
+ * Admin credentials — in production, use environment variables or a secrets manager.
+ * Never hardcode real credentials in source code; read them from .env or server config.
+ */
+define('ADMIN_EMAIL',    getenv('ADMIN_EMAIL')    ?: 'admin@jbcathenaeum.edu.np');
+define('ADMIN_PASSWORD', getenv('ADMIN_PASSWORD') ?: 'change_me_in_production');
+define('ADMIN_NAME',     'Nirmal');
