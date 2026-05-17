@@ -1,0 +1,8 @@
+{
+  "name": "JBC ATHENAEUM",
+  "description": "A college note-sharing platform with a classic library layout header and mega-menu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
