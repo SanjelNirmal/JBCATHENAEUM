@@ -1,20 +1,37 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# JBC ATHENAEUM (PHP + HTML + Pure CSS)
 
-# Run and deploy your AI Studio app
+This website is now implemented using:
+- PHP (server-side rendering and routing)
+- Semantic HTML
+- Pure CSS (no CSS framework)
 
-This contains everything you need to run your app locally.
+## Run locally
 
-View your app in AI Studio: https://ai.studio/apps/e5ebad00-b883-42f0-a21f-30d52a8e391c
+### Option 1: PHP built-in server
 
-## Run Locally
+```bash
+php -S 127.0.0.1:8000 -t /home/runner/work/test-website/test-website
+```
 
-**Prerequisites:**  Node.js
+Open: `http://127.0.0.1:8000/index.php`
 
+### Option 2: Apache/Nginx + PHP
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Serve the repository root and ensure PHP is enabled.
+
+## Admin login
+
+Set environment variables before starting PHP:
+
+```bash
+export ADMIN_EMAIL="admin@example.com"
+export ADMIN_PASSWORD="your-password"
+```
+
+Then open `/index.php?view=admin`.
+
+## Structure
+
+- `/index.php` — front controller and page rendering
+- `/includes/data.php` — subjects, notes, and info page content
+- `/assets/styles.css` — all website styles
