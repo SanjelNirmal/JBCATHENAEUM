@@ -26,9 +26,16 @@ Set environment variables before starting PHP:
 ```bash
 export ADMIN_EMAIL="admin@example.com"
 export ADMIN_PASSWORD="your-password"
+export CONTRIBUTION_EMAIL="archive@example.com"
 ```
 
 Then open `/index.php?view=admin`.
+
+For stronger security, prefer a hash instead of `ADMIN_PASSWORD`:
+
+```bash
+export ADMIN_PASSWORD_HASH='$2y$10$...'
+```
 
 ## Structure
 

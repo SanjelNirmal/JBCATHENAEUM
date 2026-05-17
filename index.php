@@ -16,6 +16,7 @@ $subjectName = $_GET['subject'] ?? 'System Architecture';
 $infoTitle = $_GET['page'] ?? 'Terms of Service';
 $loginError = '';
 $contributeMailto = '';
+$contributionEmail = getenv('CONTRIBUTION_EMAIL') ?: 'hackingwithnirmal@gmail.com';
 
 if (isset($_GET['logout'])) {
     unset($_SESSION['admin']);
@@ -26,11 +27,19 @@ if (isset($_GET['logout'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login') {
     $adminEmail = getenv('ADMIN_EMAIL') ?: '';
     $adminPassword = getenv('ADMIN_PASSWORD') ?: '';
+    $adminPasswordHash = getenv('ADMIN_PASSWORD_HASH') ?: '';
 
     $email = trim($_POST['email'] ?? '');
     $password = (string) ($_POST['password'] ?? '');
 
-    if ($adminEmail !== '' && hash_equals($adminEmail, $email) && $adminPassword !== '' && hash_equals($adminPassword, $password)) {
+    $passwordMatches = false;
+    if ($adminPasswordHash !== '') {
+        $passwordMatches = password_verify($password, $adminPasswordHash);
+    } elseif ($adminPassword !== '') {
+        $passwordMatches = hash_equals($adminPassword, $password);
+    }
+
+    if ($adminEmail !== '' && hash_equals($adminEmail, $email) && $passwordMatches) {
         $_SESSION['admin'] = true;
         header('Location: /index.php?view=admin');
         exit;
@@ -48,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'contr
 
     $subjectLine = rawurlencode("Note Contribution: {$subject} - {$faculty} {$semester}");
     $body = rawurlencode("Hello Admin,\n\nI would like to contribute notes for the archive.\n\nUploader Name: {$name}\nFaculty: {$faculty}\nSemester: {$semester}\nSubject: {$subject}\n\nDescription/Remarks:\n{$description}\n\nPlease attach your PDF/document files before sending.\n");
-    $contributeMailto = "mailto:hackingwithnirmal@gmail.com?subject={$subjectLine}&body={$body}";
+    $safeEmail = str_replace(["\r", "\n"], '', $contributionEmail);
+    $contributeMailto = "mailto:{$safeEmail}?subject={$subjectLine}&body={$body}";
     $view = 'contribute';
 }
 
