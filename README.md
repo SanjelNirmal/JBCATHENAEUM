@@ -48,8 +48,6 @@ export ADMIN_PASSWORD_HASH='$2y$10$...'
 ## Validation
 
 ```bash
-npm run lint
-npm run build
 php -l index.php
 php -l includes/data.php
 ```
