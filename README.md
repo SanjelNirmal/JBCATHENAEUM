@@ -1,9 +1,11 @@
 # JBC ATHENAEUM (PHP + HTML + Pure CSS)
 
-This website is now implemented using:
+This website is fully implemented using:
 - PHP (server-side rendering and routing)
 - Semantic HTML
 - Pure CSS (no CSS framework)
+
+There is no React, TSX, or Vite runtime in the current implementation.
 
 ## Run locally
 
@@ -42,3 +44,10 @@ export ADMIN_PASSWORD_HASH='$2y$10$...'
 - `/index.php` — front controller and page rendering
 - `/includes/data.php` — subjects, notes, and info page content
 - `/assets/styles.css` — all website styles
+
+## Validation
+
+```bash
+php -l index.php
+php -l includes/data.php
+```
