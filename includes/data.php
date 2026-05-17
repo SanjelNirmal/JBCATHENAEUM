@@ -145,6 +145,9 @@ $SUBJECTS = [
     ],
 ];
 
+// Backward-compatible alias for pages expecting lowercase variable naming.
+$subjects = &$SUBJECTS;
+
 /**
  * Get a subject by its name (case-insensitive).
  */
