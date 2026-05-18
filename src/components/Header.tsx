@@ -25,7 +25,7 @@ export function Header({
   onNavigateContribute?: () => void,
   onNavigateLibrary?: () => void,
   onNavigateAdmin?: () => void,
-  user?: { name: string, faculty: string } | null,
+  user?: { name: string, faculty: string, role: string } | null,
   onLoginClick?: () => void,
   onLogoutClick?: () => void,
   subjects: Subject[],
@@ -195,7 +195,7 @@ export function Header({
           </button>
           {user ? (
             <div className="flex items-center space-x-4">
-              {user.faculty === 'Admin' && (
+              {user.role === 'admin' && (
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();

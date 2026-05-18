@@ -1,7 +1,34 @@
 // Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
-import { Mail, Facebook, Twitter, Instagram, Linkedin, Youtube, Github } from "lucide-react";
+import React, { useState } from "react";
+import { Mail, Facebook, Twitter, Instagram, Linkedin, Youtube, Github, CheckCircle, Loader2 } from "lucide-react";
+import { subscribeToNewsletter } from "../lib/api";
 
 export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => void }) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes("@")) {
+      setStatus("error");
+      setMessage("Please enter a valid academic email.");
+      return;
+    }
+
+    setStatus("loading");
+    try {
+      await subscribeToNewsletter(email);
+      setStatus("success");
+      setMessage("Wonderful! You're now subscribed to the JBC Archives.");
+      setEmail("");
+      setTimeout(() => setStatus("idle"), 5000);
+    } catch (err: any) {
+      setStatus("error");
+      setMessage(err.message || "Subscription failed. Please try again later.");
+    }
+  };
+
   return (
     <footer className="w-full font-sans">
       {/* Newsletter Strip */}
@@ -11,18 +38,38 @@ export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => 
             <h3 className="text-2xl font-serif font-bold text-[#002147] mb-2">Subscribe to the Archives</h3>
             <p className="text-slate-500 font-light text-sm">Receive monthly summaries of new thesis uploads and faculty notes.</p>
           </div>
-          <div className="flex w-full md:w-auto max-w-md">
-            <div className="relative w-full">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="email" 
-                placeholder="Your academic email..." 
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:border-[#002147] transition-colors text-sm"
-              />
-            </div>
-            <button className="bg-[#002147] hover:bg-[#001b3a] text-white px-6 py-3 uppercase tracking-widest text-xs font-bold transition-colors whitespace-nowrap">
-              Subscribe
-            </button>
+          <div className="w-full md:w-auto max-w-md">
+            <form onSubmit={handleSubscribe} className="flex flex-col gap-2">
+              <div className="flex w-full md:w-auto">
+                <div className="relative w-full">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input 
+                    type="email" 
+                    placeholder="Your academic email..." 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={status === "loading" || status === "success"}
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:border-[#002147] transition-colors text-sm disabled:opacity-50"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  disabled={status === "loading" || status === "success"}
+                  className="bg-[#002147] hover:bg-[#001b3a] text-white px-6 py-3 uppercase tracking-widest text-xs font-bold transition-colors whitespace-nowrap disabled:bg-slate-400 flex items-center justify-center min-w-[120px]"
+                >
+                  {status === "loading" ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : status === "success" ? (
+                    <CheckCircle size={16} />
+                  ) : "Subscribe"}
+                </button>
+              </div>
+              {status !== "idle" && (
+                <p className={`text-[11px] font-medium tracking-wide mt-1 ${status === "success" ? "text-green-600" : "text-red-500"}`}>
+                  {message}
+                </p>
+              )}
+            </form>
           </div>
         </div>
       </div>

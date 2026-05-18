@@ -21,6 +21,10 @@ To streamline the flow of academic intelligence and ensure that every student at
 - **Database/Storage**: Supabase (PostgreSQL) for resource metadata.
 - **Deployment**: Optimized for standard cloud environments.
 
+## 🚀 Getting Started
+To get the application fully operational, you must configure your Supabase instance.
+Please refer to [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for the required SQL schema and table structures.
+
 ## 📂 Project Structure
 ```text
 .

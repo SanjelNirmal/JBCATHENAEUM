@@ -107,7 +107,6 @@ export function Hero({
         transition={{ delay: 1.5, duration: 1 }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
       >
-        <span className="text-[9px] text-[#c49b63] uppercase tracking-[0.5em] font-black opacity-60">Insight</span>
         <div className="w-px h-12 bg-gradient-to-b from-[#c49b63] to-transparent"></div>
       </motion.div>
     </div>

@@ -6,6 +6,39 @@ const InfoContent = ({ pageTitle }: { pageTitle: string }) => {
   const [submitted, setSubmitted] = useState(false);
 
   switch (pageTitle) {
+    case 'Our Mission':
+      return (
+        <div className="space-y-6 text-slate-600">
+          <div className="bg-[#002147]/5 p-8 rounded-3xl border border-[#002147]/10 mb-8">
+            <h3 className="text-2xl font-serif font-bold text-[#002147] mb-4">Empowering Scholars Through Open Intelligence</h3>
+            <p className="leading-relaxed">
+              JBC ATHENAEUM was founded on the principle that academic resources should be accessible, organized, and shared freely among the student body. Our mission is to bridge the gap between classroom teaching and home study by providing a high-quality, peer-reviewed repository of academic notes and past exams.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+            <div className="p-6 bg-white border border-slate-100 rounded-2xl">
+              <h4 className="font-bold text-[#002147] mb-2">Preservation</h4>
+              <p className="text-sm">We preserve the academic legacy of Jana Bhawana Campus, ensuring that generations of students can build upon the knowledge of those who came before them.</p>
+            </div>
+            <div className="p-6 bg-white border border-slate-100 rounded-2xl">
+              <h4 className="font-bold text-[#002147] mb-2">Accessibility</h4>
+              <p className="text-sm">Our platform is designed to be lightning-fast and mobile-friendly, ensuring students can retrieve crucial information even on the go.</p>
+            </div>
+          </div>
+
+          <div className="pt-8 space-y-4">
+            <h3 className="text-xl font-bold text-[#002147]">Core Values</h3>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Commitment to Academic Excellence</li>
+              <li>Collaborative Knowledge Sharing</li>
+              <li>Integrity and Originality</li>
+              <li>Technological Innovation in Pedagogy</li>
+            </ul>
+          </div>
+        </div>
+      );
+
     case 'Terms of Service':
       return (
         <div className="space-y-6">

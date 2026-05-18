@@ -1,6 +1,7 @@
 // Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import { useEffect, useState } from "react";
 import { supabase } from "./supabase";
+import { User } from "@supabase/supabase-js";
 
 export interface Resource {
   id: string;
@@ -22,6 +23,126 @@ export interface UserProfile {
   faculty: string;
   role: 'scholar' | 'admin';
   created_at: string;
+}
+
+// Auth Functions
+export async function signIn(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) throw error;
+  
+  // Get profile
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', data.user.id)
+    .single();
+    
+  if (profileError) {
+    if (profileError.code === 'PGRST116') {
+      // Profile doesn't exist, create one
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert([{ 
+          id: data.user.id, 
+          name: email.split('@')[0], 
+          faculty: 'Unknown',
+          role: 'scholar' 
+        }])
+        .select()
+        .single();
+      
+      if (createError) throw createError;
+      return { user: data.user, profile: newProfile };
+    }
+    throw profileError;
+  }
+
+  return { user: data.user, profile };
+}
+
+export async function signUp(email: string, password: string, name: string, faculty: string) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) throw error;
+
+  if (data.user) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert([
+        {
+          id: data.user.id,
+          name,
+          faculty,
+          role: 'scholar',
+        },
+      ]);
+
+    if (profileError) throw profileError;
+  }
+
+  return data;
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
+export function useAuth() {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { user, profile, loading };
 }
 
 export interface Note {
@@ -120,6 +241,12 @@ export function useResourcesData() {
         .order('created_at', { ascending: false });
 
       if (error) {
+        // Handle case where table doesn't exist yet
+        if (error.code === 'PGRST116' || error.message.includes('relation "resources" does not exist')) {
+          console.warn("Resources table not found, using base subject structure");
+          setResources([]);
+          return;
+        }
         throw error;
       }
       setResources(data as Resource[] || []);
@@ -1036,4 +1163,28 @@ export function useResourcesData() {
     refresh: fetchFromSupabase,
     getSubjectById: (id: string) => subjects.find(s => s.id === id) || subjects[0]
   };
+}
+
+export async function subscribeToNewsletter(email: string) {
+  const { data, error } = await supabase
+    .from('newsletter_subscriptions')
+    .insert([{ email, created_at: new Date().toISOString() }]);
+
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error("This email is already subscribed!");
+    }
+    throw error;
+  }
+  return data;
+}
+
+export async function fetchSubscribers() {
+  const { data, error } = await supabase
+    .from('newsletter_subscriptions')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
 }

@@ -1,39 +1,49 @@
 // Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
-import { X, Mail, Lock } from "lucide-react";
+import { X, Mail, Lock, ShieldAlert, UserPlus, Info } from "lucide-react";
 import React, { useState } from "react";
+import { signIn, signUp, UserProfile } from "../lib/api";
 
 export function LoginModal({ 
   onClose, 
   onSuccess 
 }: { 
   onClose: () => void; 
-  onSuccess: (user: { name: string, faculty: string }) => void;
+  onSuccess: (profile: UserProfile) => void;
 }) {
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [faculty, setFaculty] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
-      const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
-
-      if (email === adminEmail && password === adminPassword) {
-        onSuccess({
-          name: "Nirmal Sanjel",
-          faculty: "Admin"
-        });
+    try {
+      if (isLogin) {
+        const { profile } = await signIn(email, password);
+        onSuccess(profile);
       } else {
-        setError("Invalid credentials. Please contact the admin for access.");
+        await signUp(email, password, name, faculty);
+        setError("Success! Verification email sent. Please check your inbox before logging in.");
+        setIsLogin(true);
       }
+    } catch (err: any) {
+      console.error("Auth error:", err);
+      if (err.message?.includes("Invalid login credentials")) {
+        setError("Invalid scholarly credentials. Please verify your identity.");
+      } else if (err.message?.includes("User already registered")) {
+        setError("This identity is already enrolled in the archives.");
+      } else {
+        setError(err.message || "Failed to establish secure session.");
+      }
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -42,8 +52,12 @@ export function LoginModal({
         <div className="bg-[#002147] p-10 text-white relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#c49b63]/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
           <div className="relative z-10">
-            <h2 className="text-3xl font-serif font-bold text-[#c49b63]">Academic Login</h2>
-            <p className="text-xs text-white/50 mt-2 uppercase tracking-widest font-black">Authorized Access Only</p>
+            <h2 className="text-3xl font-serif font-bold text-[#c49b63]">
+              {isLogin ? "Academic Login" : "Scholar Enrollment"}
+            </h2>
+            <p className="text-xs text-white/50 mt-2 uppercase tracking-widest font-black">
+              {isLogin ? "Authorized Access Only" : "Create your scholarly profile"}
+            </p>
           </div>
           <button 
             onClick={onClose} 
@@ -53,14 +67,52 @@ export function LoginModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-10 md:p-12 space-y-8">
+        <form onSubmit={handleSubmit} className="p-10 md:p-12 space-y-6">
           {error && (
-            <div className="bg-red-50 text-red-600 p-4 text-xs font-bold rounded-2xl border border-red-100 flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+            <div className={`p-4 text-xs font-bold rounded-2xl border flex items-center gap-3 ${
+              error.includes("Success") ? "bg-green-50 text-green-600 border-green-100" : "bg-red-50 text-red-600 border-red-100"
+            }`}>
+              <span className={`w-2 h-2 rounded-full animate-pulse ${
+                error.includes("Success") ? "bg-green-600" : "bg-red-600"
+              }`}></span>
               {error}
             </div>
           )}
           
+          {!isLogin && (
+            <>
+              <div className="space-y-3 group/field">
+                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 group-focus-within/field:text-[#002147] transition-all">Full Name</label>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    required
+                    className="w-full border-b-2 border-slate-100 py-3 text-lg font-medium text-[#002147] placeholder:text-slate-200 focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3 group/field">
+                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 group-focus-within/field:text-[#002147] transition-all">Faculty</label>
+                <select 
+                  required
+                  value={faculty}
+                  onChange={e => setFaculty(e.target.value)}
+                  className="w-full border-b-2 border-slate-100 py-3 text-lg font-medium text-[#002147] focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
+                >
+                  <option value="" disabled>Select Faculty</option>
+                  <option value="BCA">BCA</option>
+                  <option value="BSW">BSW</option>
+                  <option value="BBS">BBS</option>
+                  <option value="BICTE">BICTE</option>
+                </select>
+              </div>
+            </>
+          )}
+
           <div className="space-y-3 group/field">
             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 group-focus-within/field:text-[#002147] transition-all">Scholarly Identity (Email)</label>
             <div className="relative">
@@ -68,7 +120,7 @@ export function LoginModal({
               <input 
                 type="email" 
                 required
-                className="w-full border-b-2 border-slate-100 py-4 pl-8 text-lg font-medium text-[#002147] placeholder:text-slate-200 focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
+                className="w-full border-b-2 border-slate-100 py-3 pl-8 text-lg font-medium text-[#002147] placeholder:text-slate-200 focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
                 placeholder="nirmal@jbc.edu.np"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -83,7 +135,7 @@ export function LoginModal({
               <input 
                 type="password" 
                 required
-                className="w-full border-b-2 border-slate-100 py-4 pl-8 text-lg font-medium text-[#002147] placeholder:text-slate-200 focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
+                className="w-full border-b-2 border-slate-100 py-3 pl-8 text-lg font-medium text-[#002147] placeholder:text-slate-200 focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
                 placeholder="••••••••"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -97,13 +149,19 @@ export function LoginModal({
               disabled={loading}
               className="w-full bg-[#002147] hover:bg-[#c49b63] text-white py-5 rounded-2xl uppercase tracking-[0.3em] text-[10px] font-black transition-all duration-500 shadow-xl hover:shadow-[#c49b63]/20 hover:-translate-y-1"
             >
-              {loading ? "Authenticating Authority..." : "Initialize Session"}
+              {loading ? "Processing..." : isLogin ? "Initialize Session" : "Enroll as Scholar"}
             </button>
           </div>
           
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <p className="text-[10px] text-slate-400 uppercase tracking-widest font-medium">
-              Restricted Archive. <span className="text-[#002147] font-black cursor-pointer hover:text-[#c49b63] transition-colors">Request Credentials</span>
+              {isLogin ? "New user? " : "Already enrolled? "}
+              <span 
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-[#002147] font-black cursor-pointer hover:text-[#c49b63] transition-colors underline decoration-[#c49b63] underline-offset-4"
+              >
+                {isLogin ? "Request Enrollment" : "Back to Login"}
+              </span>
             </p>
           </div>
         </form>

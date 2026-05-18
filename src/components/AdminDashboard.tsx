@@ -1,16 +1,18 @@
 // Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import React, { useState, useEffect } from "react";
-import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus, Shield, UserX, CheckCircle2 } from "lucide-react";
-import { Subject, Note, createResource, deleteResource, UserProfile, fetchUsers, updateUserRole, deleteUser } from "../lib/api";
+import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus, Shield, UserX, CheckCircle2, Mail } from "lucide-react";
+import { Subject, Note, createResource, deleteResource, UserProfile, fetchUsers, updateUserRole, deleteUser, fetchSubscribers, subscribeToNewsletter } from "../lib/api";
 import { useResourcesData } from "../lib/api";
 import { Toast, ToastType } from "./Toast";
 import { motion, AnimatePresence } from "motion/react";
 
 export function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'notes' | 'users' | 'sql' | 'settings'>('notes');
+  const [activeTab, setActiveTab] = useState<'notes' | 'users' | 'subscribers' | 'sql' | 'settings'>('notes');
   const { resources, subjects, refresh } = useResourcesData();
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingSubscribers, setLoadingSubscribers] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: ToastType } | null>(null);
 
@@ -22,7 +24,38 @@ export function AdminDashboard() {
     if (activeTab === 'users') {
       loadUsers();
     }
+    if (activeTab === 'subscribers') {
+      loadSubscribers();
+    }
   }, [activeTab]);
+
+  const loadSubscribers = async () => {
+    setLoadingSubscribers(true);
+    try {
+      const data = await fetchSubscribers();
+      setSubscribers(data);
+    } catch (err: any) {
+      console.error(err);
+      if (err.message?.includes('relation "newsletter_subscriptions" does not exist')) {
+        showToast("Database Error: 'newsletter_subscriptions' table not found. Please run the SQL in SUPABASE_SETUP.md", 'error');
+      } else {
+        showToast("Failed to fetch newsletter subscribers.", 'error');
+      }
+    } finally {
+      setLoadingSubscribers(false);
+    }
+  };
+
+  const handleAddTestSubscriber = async () => {
+    try {
+      const testEmail = `scholar_${Math.floor(Math.random() * 1000)}@example.edu`;
+      await subscribeToNewsletter(testEmail);
+      showToast(`Added test subscriber: ${testEmail}`, 'success');
+      loadSubscribers();
+    } catch (err: any) {
+      showToast(err.message || "Failed to add test subscriber", 'error');
+    }
+  };
 
   const loadUsers = async () => {
     setLoadingUsers(true);
@@ -212,6 +245,16 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
           >
             <Users size={18} />
             <span className="font-medium text-sm">Manage Users</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('subscribers')}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
+              activeTab === 'subscribers' ? 'bg-[#002147] text-white' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Mail size={18} />
+            <span className="font-medium text-sm">Newsletter</span>
           </button>
 
           <button 
@@ -405,6 +448,83 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
                   <span className="font-bold uppercase tracking-tight mr-1">Note:</span>
                   User accounts are linked to Supabase Auth. Deleting a profile removes local metadata but doesn't delete the login account. Admin roles should be granted with extreme caution.
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'subscribers' && (
+            <div className="bg-white border border-slate-200 shadow-sm rounded-lg overflow-hidden">
+              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-lg font-bold text-[#002147] flex items-center gap-2">
+                    <Mail size={20} className="text-[#c49b63]" />
+                    Newsletter Subscribers
+                  </h2>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={handleAddTestSubscriber}
+                    disabled={loadingSubscribers}
+                    className="flex items-center gap-2 px-3 py-1.5 border border-[#002147]/20 text-[#002147] rounded text-[10px] font-bold uppercase tracking-wider hover:bg-white transition-colors"
+                  >
+                    <Plus size={12} />
+                    Add Test
+                  </button>
+                  {subscribers.length > 0 && (
+                    <button 
+                      onClick={() => {
+                        const bcc = subscribers.map(s => s.email).join(',');
+                        const subject = encodeURIComponent("JBC ATHENAEUM | Monthly Academic Archive Update");
+                        const body = encodeURIComponent(`Greetings Scholar,\n\nWe are pleased to share the latest additions to the JBC ATHENAEUM Archive for this month.\n\nNew Materials Available:\n- Verified BCA/BSW Faculty Notes\n- Recent Terminal Examination Questions\n- Student Research Theses\n\nAccess the full archive at: https://janabhawana.edu.np/\n\nStay curious, stay inspired.\n\nWarm regards,\nNirmal Sanjel\nJana Bhawana Campus`);
+                        window.location.href = `mailto:hackingwithnirmal@gmail.com?bcc=${bcc}&subject=${subject}&body=${body}`;
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#c49b63] text-white rounded text-xs font-bold uppercase tracking-wider hover:bg-[#b08b58] transition-colors shadow-sm"
+                    >
+                      <Mail size={14} />
+                      Compose Bulletin
+                    </button>
+                  )}
+                  <button 
+                    onClick={loadSubscribers}
+                    disabled={loadingSubscribers}
+                    className="p-2 text-slate-400 hover:text-[#002147] hover:bg-white rounded-full transition-all border border-transparent hover:border-slate-200"
+                  >
+                    <Database size={16} className={loadingSubscribers ? 'animate-spin' : ''} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                {loadingSubscribers ? (
+                  <div className="p-12 text-center">
+                    <div className="animate-spin w-8 h-8 border-4 border-[#002147] border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p className="text-slate-500 text-sm">Loading subscribers...</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left text-sm whitespace-nowrap">
+                    <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
+                      <tr>
+                        <th className="px-6 py-4">Email Address</th>
+                        <th className="px-6 py-4">Subscription Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {subscribers.map((sub) => (
+                        <tr key={sub.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-4 font-medium text-slate-800">{sub.email}</td>
+                          <td className="px-6 py-4 text-slate-500">{new Date(sub.created_at).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                      {subscribers.length === 0 && (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-12 text-center text-slate-500 italic">
+                            No one has subscribed yet.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           )}

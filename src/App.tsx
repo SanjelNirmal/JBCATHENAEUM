@@ -17,7 +17,7 @@ import { ContributeView } from "./components/ContributeView";
 import { InfoView } from "./components/InfoView";
 import { LibraryArchivesView } from "./components/LibraryArchivesView";
 import { AdminDashboard } from "./components/AdminDashboard";
-import { useResourcesData } from "./lib/api";
+import { useResourcesData, useAuth, signOut } from "./lib/api";
 import { LoginModal } from "./components/LoginModal";
 import { CookieConsent, getCookie } from "./components/CookieConsent";
 import { FileText, FileBadge, FileCheck, ArrowRight } from "lucide-react";
@@ -31,16 +31,11 @@ function NoteIcon({ type }: { type: string }) {
 
 type ViewState = 'home' | 'viewer' | 'semesters' | 'resources' | 'contribute' | 'info' | 'library' | 'admin';
 
-type UserData = { name: string, faculty: string } | null;
-
 export default function App() {
   const [view, setView] = useState<ViewState>('home');
   const [subjectId, setSubjectId] = useState<string>("bca-cfa");
   const [infoPage, setInfoPage] = useState<string>('Support');
-  const [user, setUser] = useState<UserData>(() => {
-    const saved = localStorage.getItem('jbc_user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const { profile: user, loading: authLoading } = useAuth();
   const [showLogin, setShowLogin] = useState<boolean>(false);
 
   const [cookieUserName, setCookieUserName] = useState<string | null>(null);
@@ -53,22 +48,26 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('jbc_user', JSON.stringify(user));
-      // Sync auth name to cookie name if they match the admin role
-      if (user.name && !cookieUserName) {
-        setCookieUserName(user.name);
-      }
-    } else {
-      localStorage.removeItem('jbc_user');
+    if (user && user.role === 'admin' && view === 'home') {
+      // Auto-navigate to admin if they were on home and just logged in
+      // Optional: setView('admin'); 
     }
-  }, [user, cookieUserName]);
+  }, [user]);
 
   const { subjects, getSubjectById, loading, resources } = useResourcesData();
 
   const handleSelectSubject = (subjectId: string) => {
     setSubjectId(subjectId);
     setView('viewer');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      if (view === 'admin') setView('home');
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   const currentSubjectData = getSubjectById(subjectId) || {
@@ -84,10 +83,9 @@ export default function App() {
       {showLogin && (
         <LoginModal 
           onClose={() => setShowLogin(false)} 
-          onSuccess={(u) => { 
-            setUser(u); 
+          onSuccess={(profile) => { 
             setShowLogin(false); 
-            if (u.faculty === 'Admin') setView('admin'); 
+            if (profile.role === 'admin') setView('admin'); 
           }} 
         />
       )}
@@ -99,9 +97,9 @@ export default function App() {
         onNavigateContribute={() => setView('contribute')}
         onNavigateLibrary={() => setView('library')}
         onNavigateAdmin={() => setView('admin')}
-        user={user}
+        user={user ? { name: user.name, faculty: user.faculty, role: user.role } : null}
         onLoginClick={() => setShowLogin(true)}
-        onLogoutClick={() => { setUser(null); if(view === 'admin') setView('home'); }}
+        onLogoutClick={handleLogout}
         subjects={subjects}
         resources={resources}
         cookieUserName={cookieUserName}
@@ -234,7 +232,10 @@ export default function App() {
                       </div>
 
                       <button 
-                         onClick={() => setView('info')}
+                         onClick={() => {
+                           setInfoPage('Our Mission');
+                           setView('info');
+                         }}
                          className="mt-12 group flex items-center justify-center md:justify-start gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#c49b63] hover:text-white transition-all w-full md:w-auto"
                       >
                         Learn about our mission <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
@@ -284,7 +285,7 @@ export default function App() {
         </main>
       )}
 
-      {view === 'admin' && user?.faculty === 'Admin' && (
+      {view === 'admin' && user?.role === 'admin' && (
         <main className="flex-1 w-full pb-24 bg-slate-50">
           <AdminDashboard />
         </main>
