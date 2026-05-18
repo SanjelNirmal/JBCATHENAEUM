@@ -40,40 +40,48 @@ Thank you!`);
   };
 
   return (
-    <div className="py-12 max-w-4xl mx-auto px-4 md:px-12 w-full font-sans">
-      <div className="mb-12 border-b border-slate-200 pb-6 text-center">
-        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4">Contribute Notes</h1>
-        <p className="text-slate-500 max-w-2xl mx-auto">Help grow the archive by submitting your class notes, summaries, or past papers.</p>
+    <div className="py-24 max-w-5xl mx-auto px-6 md:px-12 w-full font-sans animate-in fade-in duration-1000">
+      <div className="mb-20 text-center">
+        <div className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-6">
+          Academic Stewardship
+        </div>
+        <h1 className="text-5xl md:text-7xl font-serif font-black text-[#002147] mb-6 tracking-tighter">Submit Archive</h1>
+        <p className="text-slate-500 max-w-2xl mx-auto text-lg font-light leading-relaxed">Join a legacy of shared knowledge. Your contributions help future scholars navigate their academic journey with clarity.</p>
       </div>
 
-      <div className="bg-white border border-slate-200 shadow-sm p-8 md:p-12 mb-12">
-        <div className="flex items-start space-x-4 mb-8 bg-blue-50 p-4 border-l-4 border-[#002147]">
-          <Info className="text-[#002147] shrink-0 mt-0.5" size={20} />
-          <div className="text-sm text-slate-700">
-            <h4 className="font-bold text-[#002147] mb-1">How it works</h4>
-            <p>Fill out the details below to generate an email template. Your default email client will open, allowing you to easily attach your PDF files and send them to the administrator for verification. Once approved, they will be published in the archive.</p>
+      <div className="bg-white border-2 border-slate-100 rounded-[3rem] p-10 md:p-20 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] mb-20 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#c49b63]/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-[#c49b63]/10 transition-all duration-1000"></div>
+
+        <div className="flex items-start space-x-6 mb-16 bg-slate-50 p-8 rounded-[2rem] border border-slate-100 relative z-10">
+          <div className="w-12 h-12 bg-[#002147] text-white flex items-center justify-center rounded-2xl shrink-0 shadow-lg shadow-[#002147]/20">
+            <Info size={24} />
+          </div>
+          <div className="text-sm text-slate-600">
+            <h4 className="font-black text-[#002147] text-base uppercase tracking-tight mb-2">Pedagogical Verification</h4>
+            <p className="leading-relaxed font-light italic text-lg text-slate-400">"Quality is the soul of JBC Athenaeum."</p>
+            <p className="mt-4 leading-relaxed">Fill the parameters below to draft your submission. We verify every document for academic rigor before indexing into the master repository.</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Your Full Name</label>
+        <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="space-y-3 group/field">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-[#c49b63] group-focus-within/field:text-[#002147] transition-colors">Contributor Identity</label>
               <input 
                 type="text" 
                 required
-                className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] transition-colors bg-slate-50"
-                placeholder="e.g. Nirmal Sanjel"
+                className="w-full border-b-2 border-slate-100 py-4 text-lg font-medium text-[#002147] placeholder:text-slate-200 focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
+                placeholder="Nirmal Sanjel"
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
               />
             </div>
             
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Subject / Topic</label>
+            <div className="space-y-3 group/field">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-[#c49b63] group-focus-within/field:text-[#002147] transition-colors">Taxonomy Unit (Subject)</label>
               <select 
                 required
-                className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] transition-colors bg-slate-50 appearance-none rounded-none"
+                className="w-full border-b-2 border-slate-100 py-4 text-lg font-medium text-[#002147] focus:outline-none focus:border-[#c49b63] transition-all bg-transparent appearance-none"
                 value={formData.subject}
                 onChange={e => setFormData({...formData, subject: e.target.value})}
               >
@@ -86,10 +94,10 @@ Thank you!`);
               </select>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Faculty</label>
+            <div className="space-y-3 group/field">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-[#c49b63] group-focus-within/field:text-[#002147] transition-colors">Faculty Branch</label>
               <select 
-                className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] transition-colors bg-slate-50 appearance-none rounded-none"
+                className="w-full border-b-2 border-slate-100 py-4 text-lg font-medium text-[#002147] focus:outline-none focus:border-[#c49b63] transition-all bg-transparent appearance-none"
                 value={formData.faculty}
                 onChange={e => {
                   const newFaculty = e.target.value;
@@ -98,19 +106,19 @@ Thank you!`);
                   setFormData({...formData, faculty: newFaculty, semester: newSemester, subject: defaultSub ? defaultSub.name : ''});
                 }}
               >
-                <option value="BCA">Computer Applications (BCA)</option>
-                <option value="BICTE">Information & Communication Tech (BICTE)</option>
+                <option value="BCA">Comp Applications (BCA)</option>
+                <option value="BICTE">ICT Ed (BICTE)</option>
                 <option value="BSW">Social Work (BSW)</option>
-                <option value="BBS">Business Studies (BBS)</option>
+                <option value="BBS">Business (BBS)</option>
               </select>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                {(formData.faculty === 'BCA' || formData.faculty === 'BICTE') ? 'Semester' : 'Year'}
+            <div className="space-y-3 group/field">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-[#c49b63] group-focus-within/field:text-[#002147] transition-colors">
+                Academic Tier ({(formData.faculty === 'BCA' || formData.faculty === 'BICTE') ? 'Semester' : 'Year'})
               </label>
               <select 
-                className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] transition-colors bg-slate-50 appearance-none rounded-none"
+                className="w-full border-b-2 border-slate-100 py-4 text-lg font-medium text-[#002147] focus:outline-none focus:border-[#c49b63] transition-all bg-transparent appearance-none"
                 value={formData.semester}
                 onChange={e => {
                   const newSem = e.target.value;
@@ -141,24 +149,24 @@ Thank you!`);
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Additional Remarks (Optional)</label>
+          <div className="space-y-3 group/field">
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-[#c49b63] group-focus-within/field:text-[#002147] transition-colors">Manifest Description</label>
             <textarea 
               rows={4}
-              className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] transition-colors bg-slate-50 resize-y"
-              placeholder="Any details about the notes like chapters covered, references used, quality, etc."
+              className="w-full border-2 border-slate-50 p-8 rounded-[2rem] text-sm font-medium text-[#002147] focus:outline-none focus:border-[#c49b63] transition-all bg-slate-50/50 placeholder:text-slate-300 resize-none"
+              placeholder="What makes these notes valuable? List chapters, specific exam variants, or unique summaries provided."
               value={formData.description}
               onChange={e => setFormData({...formData, description: e.target.value})}
             ></textarea>
           </div>
 
-          <div className="pt-4 flex justify-end">
+          <div className="pt-10 flex justify-center">
             <button 
               type="submit" 
-              className="flex items-center space-x-2 bg-[#002147] hover:bg-[#001b3a] text-white px-8 py-4 uppercase tracking-widest text-xs font-bold transition-colors shadow-sm"
+              className="group flex items-center justify-center gap-6 bg-[#002147] hover:bg-[#c49b63] text-white px-12 py-6 uppercase tracking-[0.35em] text-[10px] font-black transition-all duration-500 rounded-2xl shadow-2xl hover:shadow-[#c49b63]/20 hover:-translate-y-1"
             >
-              <Mail size={16} />
-              <span>Generate Email to Submit</span>
+              <Mail size={18} strokeWidth={3} className="group-hover:rotate-12 transition-transform" />
+              <span>Broadcast Submission</span>
             </button>
           </div>
         </form>

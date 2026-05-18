@@ -21,7 +21,8 @@ import { AdminDashboard } from "./components/AdminDashboard";
 import { useResourcesData } from "./lib/api";
 import { LoginModal } from "./components/LoginModal";
 import { CookieConsent, getCookie } from "./components/CookieConsent";
-import { FileText, FileBadge, FileCheck } from "lucide-react";
+import { FileText, FileBadge, FileCheck, ArrowRight } from "lucide-react";
+import { motion } from "motion/react";
 
 function NoteIcon({ type }: { type: string }) {
   if (type === 'PDF') return <FileCheck size={20} />;
@@ -150,68 +151,97 @@ export default function App() {
             <PopularCollections onSelect={handleSelectSubject} onViewAll={() => setView('resources')} />
             
             {/* Recent Uploads Section */}
-            <section className="py-24 border-t border-slate-100">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-                <div>
-                  <h2 className="text-3xl font-serif font-bold text-[#002147] mb-6">Recently Added Resources</h2>
+            <section className="py-20 md:py-32 border-t border-slate-100">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+                <div className="lg:col-span-7">
+                  <div className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-[0.25em] rounded-full mb-5">
+                    Fresh Intel
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#002147] mb-8 md:mb-10 tracking-tight">Recent Dispatches</h2>
                   <div className="space-y-4">
-                    {resources.slice(0, 4).map((item) => (
-                      <div 
+                    {resources.slice(0, 5).map((item, index) => (
+                      <motion.div 
                         key={item.id} 
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 }}
                         onClick={() => {
                           setSubjectId(item.subject);
                           setView('viewer');
                         }}
-                        className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-lg group hover:border-[#c49b63] transition-all cursor-pointer"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-white border border-slate-100 rounded-2xl group hover:border-[#c49b63] hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer gap-4 sm:gap-0"
                       >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded bg-[#002147]/5 flex items-center justify-center text-[#002147]">
+                        <div className="flex items-center gap-4 md:gap-6">
+                          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#002147]/5 flex items-center justify-center text-[#002147] group-hover:bg-[#c49b63]/10 group-hover:text-[#c49b63] transition-all">
                             <NoteIcon type={item.resource_type || 'PDF'} />
                           </div>
-                          <div>
-                            <h4 className="font-bold text-[#002147] group-hover:text-[#c49b63] transition-colors">{item.title}</h4>
-                            <p className="text-xs text-slate-400">{item.faculty} — {item.semester}</p>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-[#002147] text-base md:text-lg group-hover:text-[#c49b63] transition-colors truncate">{item.title}</h4>
+                            <div className="flex flex-wrap items-center gap-2 mt-1">
+                              <span className="text-[9px] md:text-[10px] text-slate-400 uppercase font-black tracking-widest whitespace-nowrap">{item.faculty}</span>
+                              <span className="w-1 h-1 rounded-full bg-slate-300 hidden xs:block"></span>
+                              <span className="text-[9px] md:text-[10px] text-slate-400 uppercase font-black tracking-widest whitespace-nowrap">Sem {item.semester}</span>
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <span className="block text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                        <div className="text-right sm:block flex justify-between items-center bg-slate-50 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none mt-2 sm:mt-0">
+                          <span className="text-[9px] md:text-[10px] font-black text-slate-300 uppercase tracking-widest group-hover:text-[#c49b63] transition-colors">
                             {new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                           </span>
+                          <ArrowRight className="sm:hidden text-slate-200" size={14} />
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                     {resources.length === 0 && (
-                      <div className="p-8 text-center border border-dashed border-slate-200 rounded-lg">
-                        <p className="text-sm text-slate-400">Waiting for first contribution...</p>
+                      <div className="p-10 md:p-16 text-center border-2 border-dashed border-slate-200 rounded-[2rem] bg-slate-50/50">
+                        <p className="text-slate-400 font-serif italic text-lg">Curating the next wave of knowledge...</p>
                         <button 
                           onClick={() => setView('contribute')}
-                          className="mt-3 text-xs font-bold text-[#c49b63] uppercase tracking-widest hover:underline"
+                          className="mt-6 inline-flex items-center gap-2 text-[10px] font-black text-[#c49b63] uppercase tracking-[0.25em] hover:text-[#002147] transition-all"
                         >
-                          Be the first to upload
+                          Contribute to the archive <ArrowRight size={14} />
                         </button>
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="bg-[#002147] rounded-3xl p-10 text-white relative overflow-hidden shadow-2xl">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-[#c49b63]/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-                  <h2 className="text-3xl font-serif font-bold mb-8 relative z-10">Why JBC ATHENAEUM?</h2>
-                  <div className="space-y-6 relative z-10">
-                    {[
-                      'Organized semester-wise archives',
-                      'Verified academic materials',
-                      'Community-driven note sharing',
-                      'Secure digital preservation',
-                      'Designed specifically for JBC scholars'
-                    ].map((text, i) => (
-                      <div key={i} className="flex items-start gap-4">
-                        <div className="w-6 h-6 rounded-full bg-[#c49b63] flex items-center justify-center shrink-0 mt-0.5">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                        <p className="text-white/80 font-light">{text}</p>
+                <div className="lg:col-span-5">
+                  <div className="bg-[#002147] rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl group min-h-[400px] md:min-h-[500px] flex flex-col justify-center">
+                    {/* Decorative abstract elements */}
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-[#c49b63]/10 rounded-full blur-[100px] -mr-40 -mt-40 group-hover:bg-[#c49b63]/20 transition-all duration-1000"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px] -ml-32 -mb-32"></div>
+                    
+                    <div className="relative z-10 text-center md:text-left">
+                      <div className="text-[10px] font-black text-[#c49b63] uppercase tracking-[0.4em] mb-6">The JBC Advantage</div>
+                      <h2 className="text-3xl md:text-5xl font-serif font-bold mb-10 leading-[0.9] tracking-tighter">Academic Excellence Redefined.</h2>
+                      
+                      <div className="space-y-6 md:space-y-8 text-left">
+                        {[
+                          { title: 'Semantic Indexing', desc: 'Resources mapped to your specific course curriculum.' },
+                          { title: 'Peer-Verified', desc: 'Materials curated and vetted by the campus community.' },
+                          { title: 'Instant Retrieval', desc: 'High-speed access to thousands of past question variants.' }
+                        ].map((feature, i) => (
+                          <div key={i} className="flex gap-4 md:gap-5">
+                            <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border border-white/10 flex items-center justify-center text-[#c49b63] font-mono text-[10px]">
+                              0{i + 1}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-white text-sm md:text-base tracking-tight mb-1">{feature.title}</h4>
+                              <p className="text-white/40 text-xs md:text-sm font-light leading-relaxed">{feature.desc}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+
+                      <button 
+                         onClick={() => setView('info')}
+                         className="mt-12 group flex items-center justify-center md:justify-start gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#c49b63] hover:text-white transition-all w-full md:w-auto"
+                      >
+                        Learn about our mission <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

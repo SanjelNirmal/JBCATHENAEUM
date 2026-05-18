@@ -55,9 +55,8 @@ export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => 
             </div>
           </div>
 
-          {/* Utility Links Columns */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16 border-t border-white/10 pt-16">
-            <div className="text-center md:text-left">
+            <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between gap-10 md:gap-12 mb-16 border-t border-white/10 pt-16">
+            <div className="text-center md:text-left w-full">
               <h4 className="text-[#c49b63] font-serif text-lg italic mb-6">Policies</h4>
               <ul className="space-y-3 text-sm font-light">
                 <li><button onClick={() => onNavigateInfo?.('Terms of Service')} className="hover:text-white transition-colors">Terms of Service</button></li>
@@ -66,7 +65,7 @@ export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => 
                 <li><button onClick={() => onNavigateInfo?.('Copyright Guidelines')} className="hover:text-white transition-colors">Copyright Guidelines</button></li>
               </ul>
             </div>
-            <div className="text-center md:text-center md:border-x md:border-white/10 px-8">
+            <div className="text-center md:border-x md:border-white/10 px-0 md:px-8 w-full">
               <h4 className="text-[#c49b63] font-serif text-lg italic mb-6">Contacts</h4>
               <ul className="space-y-3 text-sm font-light">
                 <li><button onClick={() => onNavigateInfo?.('Faculty Directory')} className="hover:text-white transition-colors">Faculty Directory</button></li>
@@ -75,7 +74,7 @@ export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => 
                 <li><button onClick={() => onNavigateInfo?.('Submit Feedback')} className="hover:text-white transition-colors">Submit Feedback</button></li>
               </ul>
             </div>
-            <div className="text-center md:text-right">
+            <div className="text-center md:text-right w-full">
               <h4 className="text-[#c49b63] font-serif text-lg italic mb-6">Support</h4>
               <ul className="space-y-3 text-sm font-light">
                 <li><button onClick={() => onNavigateInfo?.('FAQ & Guides')} className="hover:text-white transition-colors">FAQ & Guides</button></li>

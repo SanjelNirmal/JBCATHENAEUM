@@ -24,9 +24,9 @@ export function NoteViewer({ subjectData }: { subjectData: Subject }) {
     };
 
   return (
-    <div className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 md:px-12 py-12 gap-8 font-sans">
+    <div className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 md:px-12 py-12 gap-8 font-sans animate-in zoom-in-95 duration-500">
       {/* Sidebar (25%) */}
-      <aside className="w-full md:w-1/4 flex flex-col border-r md:pr-8 border-slate-200">
+      <aside className="w-full md:w-1/4 flex flex-col md:border-r border-slate-200 md:pr-8">
         <div className="mb-6">
           <span className="px-3 py-1 bg-slate-200 text-slate-600 rounded-full text-[10px] font-bold uppercase tracking-widest">
             {subjectData.faculty} {subjectData.semester}

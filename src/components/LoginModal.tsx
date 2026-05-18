@@ -37,48 +37,53 @@ export function LoginModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 font-sans">
-      <div className="bg-white rounded shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="bg-[#002147] p-6 text-white flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-serif font-bold text-[#c49b63]">Student Login</h2>
-            <p className="text-xs text-white/70 mt-1">Access member features and saved nodes</p>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 font-sans animate-in fade-in duration-300">
+      <div className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+        <div className="bg-[#002147] p-10 text-white relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#c49b63]/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <h2 className="text-3xl font-serif font-bold text-[#c49b63]">Academic Login</h2>
+            <p className="text-xs text-white/50 mt-2 uppercase tracking-widest font-black">Authorized Access Only</p>
           </div>
-          <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
-            <X size={24} />
+          <button 
+            onClick={onClose} 
+            className="absolute top-8 right-8 text-white/30 hover:text-white transition-all hover:rotate-90"
+          >
+            <X size={28} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-10 md:p-12 space-y-8">
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 text-sm rounded border border-red-100">
+            <div className="bg-red-50 text-red-600 p-4 text-xs font-bold rounded-2xl border border-red-100 flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
               {error}
             </div>
           )}
           
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Email Address</label>
+          <div className="space-y-3 group/field">
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 group-focus-within/field:text-[#002147] transition-all">Scholarly Identity (Email)</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 text-slate-400" size={18} />
+              <Mail className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/field:text-[#c49b63] transition-all" size={20} />
               <input 
                 type="email" 
                 required
-                className="w-full border border-slate-300 p-3 pl-10 text-sm focus:outline-none focus:border-[#002147] bg-slate-50"
-                placeholder="name@example.com"
+                className="w-full border-b-2 border-slate-100 py-4 pl-8 text-lg font-medium text-[#002147] placeholder:text-slate-200 focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
+                placeholder="nirmal@jbc.edu.np"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
               />
             </div>
           </div>
           
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Password</label>
+          <div className="space-y-3 group/field">
+            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 group-focus-within/field:text-[#002147] transition-all">Secure Key (Password)</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 text-slate-400" size={18} />
+              <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/field:text-[#c49b63] transition-all" size={20} />
               <input 
                 type="password" 
                 required
-                className="w-full border border-slate-300 p-3 pl-10 text-sm focus:outline-none focus:border-[#002147] bg-slate-50"
+                className="w-full border-b-2 border-slate-100 py-4 pl-8 text-lg font-medium text-[#002147] placeholder:text-slate-200 focus:outline-none focus:border-[#c49b63] transition-all bg-transparent"
                 placeholder="••••••••"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -86,19 +91,19 @@ export function LoginModal({
             </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-6">
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#c49b63] hover:bg-[#b38a52] text-white p-3 uppercase tracking-widest text-xs font-bold transition-colors disabled:opacity-50"
+              className="w-full bg-[#002147] hover:bg-[#c49b63] text-white py-5 rounded-2xl uppercase tracking-[0.3em] text-[10px] font-black transition-all duration-500 shadow-xl hover:shadow-[#c49b63]/20 hover:-translate-y-1"
             >
-              {loading ? "Authenticating..." : "Sign In"}
+              {loading ? "Authenticating Authority..." : "Initialize Session"}
             </button>
           </div>
           
-          <div className="text-center mt-4">
-            <p className="text-xs text-slate-500">
-              Don't have an account? <span className="text-[#002147] font-bold cursor-pointer hover:underline">Contact IT Desk</span>
+          <div className="text-center">
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-medium">
+              Restricted Archive. <span className="text-[#002147] font-black cursor-pointer hover:text-[#c49b63] transition-colors">Request Credentials</span>
             </p>
           </div>
         </form>
