@@ -27,10 +27,14 @@ export interface UserProfile {
 
 const PROFILE_INSERT_BLOCKED_CODES = new Set(["42501", "42P01", "PGRST116"]);
 
-function isProfileWriteBlocked(error: any) {
-  const message = String(error?.message || "").toLowerCase();
+type ProfileDbError = { code?: string; message?: string };
+
+function isProfileWriteBlocked(error: unknown) {
+  const candidate: ProfileDbError =
+    typeof error === "object" && error !== null ? (error as ProfileDbError) : {};
+  const message = String(candidate.message || "").toLowerCase();
   return (
-    PROFILE_INSERT_BLOCKED_CODES.has(String(error?.code || "")) ||
+    PROFILE_INSERT_BLOCKED_CODES.has(String(candidate.code || "")) ||
     message.includes("row-level security") ||
     message.includes('relation "profiles" does not exist') ||
     message.includes("permission denied")
