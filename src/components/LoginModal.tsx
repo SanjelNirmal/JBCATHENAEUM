@@ -1,6 +1,6 @@
 // Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import { X, Mail, Lock, ShieldAlert, UserPlus, Info } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { signIn, signUp, UserProfile } from "../lib/api";
 
 export function LoginModal({ 
@@ -17,6 +17,17 @@ export function LoginModal({
   const [faculty, setFaculty] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handleEscClose = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscClose);
+    return () => window.removeEventListener("keydown", handleEscClose);
+  }, [onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,8 +58,14 @@ export function LoginModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 font-sans animate-in fade-in duration-300">
-      <div className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 font-sans animate-in fade-in duration-300"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-500"
+      >
         <div className="bg-[#002147] p-10 text-white relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#c49b63]/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
           <div className="relative z-10">

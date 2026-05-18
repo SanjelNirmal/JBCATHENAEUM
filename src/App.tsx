@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { Footer } from "./components/Footer";
@@ -37,6 +37,7 @@ export default function App() {
   const [infoPage, setInfoPage] = useState<string>('Support');
   const { profile: user, loading: authLoading } = useAuth();
   const [showLogin, setShowLogin] = useState<boolean>(false);
+  const closeLoginModal = useCallback(() => setShowLogin(false), []);
 
   const [cookieUserName, setCookieUserName] = useState<string | null>(null);
 
@@ -82,9 +83,9 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       {showLogin && (
         <LoginModal 
-          onClose={() => setShowLogin(false)} 
+          onClose={closeLoginModal} 
           onSuccess={(profile) => { 
-            setShowLogin(false); 
+            closeLoginModal(); 
             if (profile.role === 'admin') setView('admin'); 
           }} 
         />
@@ -302,5 +303,4 @@ export default function App() {
     </div>
   );
 }
-
 
