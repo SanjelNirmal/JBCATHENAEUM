@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import { User, Calendar, Share2, ExternalLink } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import { Subject, Note } from "../lib/api";

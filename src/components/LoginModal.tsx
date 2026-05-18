@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import { X, Mail, Lock } from "lucide-react";
 import React, { useState } from "react";
 

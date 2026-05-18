@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import React from 'react';
 import { FileText, HelpCircle, Users, BookOpen } from 'lucide-react';
 import { motion } from 'motion/react';

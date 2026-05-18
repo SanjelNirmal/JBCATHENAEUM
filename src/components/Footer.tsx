@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import { Mail, Facebook, Twitter, Instagram, Linkedin, Youtube, Github } from "lucide-react";
 
 export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => void }) {
@@ -93,7 +94,15 @@ export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => 
               <p>Affiliated with Tribhuvan University</p>
             </div>
             <div className="flex flex-col items-center md:items-end">
-              <p className="mb-2">Designed for Scholars</p>
+              <p className="mb-1">Designed for Scholars</p>
+              <a 
+                href="https://nirmalsanjel.com.np" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="mb-3 text-[#c49b63] hover:text-white transition-colors normal-case tracking-normal font-medium"
+              >
+                by Nirmal SANJEL
+              </a>
               <div className="w-24 h-1 bg-[#c49b63]"></div>
             </div>
           </div>

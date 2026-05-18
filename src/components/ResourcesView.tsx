@@ -1,7 +1,11 @@
-import { FileText, Download } from "lucide-react";
+// Copyright by nirmal sanjel
+import { FileText, Download, Search } from "lucide-react";
 import { Subject } from "../lib/api";
+import { useState } from "react";
 
 export function ResourcesView({ onSelectSubject, subjects }: { onSelectSubject: (id: string) => void, subjects: Subject[] }) {
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Flatten all notes
   const allNotes = subjects.flatMap(sub => 
     sub.notes.map(note => ({
@@ -11,13 +15,28 @@ export function ResourcesView({ onSelectSubject, subjects }: { onSelectSubject: 
       faculty: sub.faculty,
       semester: sub.semester
     }))
+  ).filter(note => 
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.subjectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.faculty.toLowerCase().includes(searchQuery.toLowerCase())
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="py-12 max-w-7xl mx-auto px-4 md:px-12 w-full">
-      <div className="mb-12 border-b border-slate-200 pb-6 text-center">
-        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4">All Resources</h1>
-        <p className="text-slate-500 max-w-2xl mx-auto">Browse the latest uploaded notes and study materials across all disciplines.</p>
+      <div className="mb-12 border-b border-slate-200 pb-12 flex flex-col items-center">
+        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4 text-center">All Resources</h1>
+        <p className="text-slate-500 max-w-2xl mx-auto text-center mb-8">Browse the latest uploaded notes and study materials across all disciplines.</p>
+        
+        <div className="w-full max-w-xl relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          <input 
+            type="text" 
+            placeholder="Search all notes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-xl focus:border-[#c49b63] outline-none transition-all shadow-sm"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

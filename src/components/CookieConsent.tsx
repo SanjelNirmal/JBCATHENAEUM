@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 

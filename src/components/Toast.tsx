@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import React, { useEffect } from 'react';
 import { AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';

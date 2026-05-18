@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import { Subject } from "../lib/api";
 
 export function SemestersView({ onSelectSubject, subjects }: { onSelectSubject: (id: string) => void, subjects: Subject[] }) {

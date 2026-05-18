@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import { Mail, Upload, FileCheck, Info } from "lucide-react";
 import React, { useState } from "react";
 

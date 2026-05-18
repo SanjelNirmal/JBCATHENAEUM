@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -102,6 +103,7 @@ export default function App() {
         onLoginClick={() => setShowLogin(true)}
         onLogoutClick={() => { setUser(null); if(view === 'admin') setView('home'); }}
         subjects={subjects}
+        resources={resources}
         cookieUserName={cookieUserName}
       />
       
@@ -135,11 +137,17 @@ export default function App() {
 
       {view === 'home' && (
         <>
-          <Hero onNavigateResources={() => setView('resources')} />
+          <Hero 
+            onNavigateResources={() => setView('resources')} 
+            onSelectSubject={handleSelectSubject}
+            onNavigateSemesters={() => setView('semesters')}
+            subjects={subjects}
+            resources={resources}
+          />
           <StatsSection />
           
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-12 pb-24">
-            <PopularCollections onSelect={handleSelectSubject} />
+            <PopularCollections onSelect={handleSelectSubject} onViewAll={() => setView('resources')} />
             
             {/* Recent Uploads Section */}
             <section className="py-24 border-t border-slate-100">

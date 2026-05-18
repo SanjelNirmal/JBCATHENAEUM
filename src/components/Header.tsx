@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import { Search, LogIn, ChevronDown, Library } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Subject } from "../lib/api";
@@ -14,6 +15,7 @@ export function Header({
   onLoginClick,
   onLogoutClick,
   subjects,
+  resources = [],
   cookieUserName
 }: { 
   onNavigateHome?: () => void, 
@@ -27,11 +29,21 @@ export function Header({
   onLoginClick?: () => void,
   onLogoutClick?: () => void,
   subjects: Subject[],
+  resources?: any[],
   cookieUserName?: string | null
 }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   // Close search on outside click
   useEffect(() => {
@@ -44,10 +56,20 @@ export function Header({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const searchResults = subjects.filter(sub => 
-    sub.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    sub.faculty.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const subjectResults = debouncedQuery.length > 2 
+    ? subjects.filter(sub => 
+        sub.name.toLowerCase().includes(debouncedQuery.toLowerCase()) || 
+        sub.faculty.toLowerCase().includes(debouncedQuery.toLowerCase())
+      ).slice(0, 5)
+    : [];
+
+  const noteResults = debouncedQuery.length > 2
+    ? resources.filter(res => 
+        res.title.toLowerCase().includes(debouncedQuery.toLowerCase())
+      ).slice(0, 5)
+    : [];
+
+  const hasResults = subjectResults.length > 0 || noteResults.length > 0;
 
   return (
     <header className="w-full relative font-sans flex flex-col z-50">
@@ -60,7 +82,7 @@ export function Header({
             <Search size={14} className="mr-2" />
             <input 
               type="text"
-              placeholder="Search Notes..."
+              placeholder="Search subjects or notes..."
               className="bg-transparent border-none outline-none text-slate-300 placeholder:text-slate-300/70 w-48 text-xs"
               value={searchQuery}
               onChange={(e) => {
@@ -72,28 +94,77 @@ export function Header({
           </div>
           
           {/* Search Dropdown */}
-          {showSearch && searchQuery.length > 0 && (
-            <div className="absolute top-full mt-2 right-0 w-64 bg-white shadow-xl border border-slate-200 rounded text-slate-800 z-50 max-h-80 overflow-y-auto">
-              {searchResults.length > 0 ? (
-                <div className="py-2">
-                  <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 border-b border-slate-100 mb-1">Matching Subjects</div>
-                  {searchResults.map(sub => (
-                    <div 
-                      key={sub.id} 
-                      className="px-4 py-2 hover:bg-slate-50 cursor-pointer border-l-2 border-transparent hover:border-[#002147]"
-                      onClick={() => {
-                        setShowSearch(false);
-                        setSearchQuery('');
-                        onSelectSubject?.(sub.name);
-                      }}
-                    >
-                      <div className="text-sm font-semibold text-[#002147]">{sub.name}</div>
-                      <div className="text-[10px] text-slate-500 mt-0.5 uppercase">{sub.faculty} &bull; {sub.semester}</div>
+          {showSearch && debouncedQuery.length > 2 && (
+            <div className="absolute top-full mt-2 right-0 w-80 bg-white shadow-2xl border border-slate-200 rounded-lg text-slate-800 z-50 max-h-[32rem] overflow-hidden">
+              {hasResults ? (
+                <div className="flex flex-col">
+                  {subjectResults.length > 0 && (
+                    <div className="py-2">
+                      <div className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50 border-y border-slate-100 flex items-center justify-between">
+                        <span>Matching Subjects</span>
+                        <span className="bg-slate-200 text-slate-500 px-1.5 rounded-sm">{subjectResults.length}</span>
+                      </div>
+                      {subjectResults.map(sub => (
+                        <div 
+                          key={sub.id} 
+                          className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-l-4 border-transparent hover:border-[#c49b63] transition-all"
+                          onClick={() => {
+                            setShowSearch(false);
+                            setSearchQuery('');
+                            onSelectSubject?.(sub.id);
+                          }}
+                        >
+                          <div className="text-sm font-bold text-[#002147] flex items-center justify-between">
+                            {sub.name}
+                            <ChevronDown size={12} className="-rotate-90 text-slate-300" />
+                          </div>
+                          <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-medium">
+                            <span className="text-[#c49b63]">{sub.faculty}</span> &bull; {sub.semester}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+
+                  {noteResults.length > 0 && (
+                    <div className="py-2 border-t border-slate-100">
+                      <div className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50 border-y border-slate-100 flex items-center justify-between">
+                        <span>Specific Documents</span>
+                        <span className="bg-slate-200 text-slate-500 px-1.5 rounded-sm">{noteResults.length}</span>
+                      </div>
+                      {noteResults.map(note => (
+                        <div 
+                          key={note.id} 
+                          className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-l-4 border-transparent hover:border-[#002147] transition-all"
+                          onClick={() => {
+                            setShowSearch(false);
+                            setSearchQuery('');
+                            onSelectSubject?.(note.subject);
+                            // we navigate to subject then viewer handles specific note if we wanted
+                          }}
+                        >
+                          <div className="text-sm font-medium text-[#002147] truncate">{note.title}</div>
+                          <div className="text-[10px] text-slate-400 mt-1 uppercase font-light">
+                            {note.faculty} &bull; {note.semester}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <button 
+                    onClick={() => { setShowSearch(false); onNavigateResources?.(); }}
+                    className="w-full py-3 bg-slate-50 text-[10px] font-bold text-[#c49b63] uppercase tracking-[0.2em] hover:bg-amber-50 transition-colors border-t border-slate-100"
+                  >
+                    View All results for "{debouncedQuery}"
+                  </button>
                 </div>
               ) : (
-                <div className="p-4 text-xs text-slate-500 text-center">No subjects found matching "{searchQuery}"</div>
+                <div className="p-8 text-center bg-white">
+                  <Search size={32} className="mx-auto text-slate-100 mb-3" />
+                  <p className="text-xs text-slate-500 font-medium italic">No subjects or notes found matching "{debouncedQuery}"</p>
+                  <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">Try searching for a faculty like "BCA"</p>
+                </div>
               )}
             </div>
           )}

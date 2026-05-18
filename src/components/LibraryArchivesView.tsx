@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import { Search, ExternalLink, BookOpen } from "lucide-react";
 import React, { useState } from "react";
 

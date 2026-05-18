@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import { ArrowRight } from "lucide-react";
 
 export function FeatureSplit({ onNavigateViewer }: { onNavigateViewer?: () => void }) {

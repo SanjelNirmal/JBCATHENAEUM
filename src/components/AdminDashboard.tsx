@@ -1,3 +1,4 @@
+// Copyright by nirmal sanjel
 import React, { useState, useEffect } from "react";
 import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus, Shield, UserX, CheckCircle2 } from "lucide-react";
 import { Subject, Note, createResource, deleteResource, UserProfile, fetchUsers, updateUserRole, deleteUser } from "../lib/api";

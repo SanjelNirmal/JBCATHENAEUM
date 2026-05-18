@@ -1,17 +1,18 @@
+// Copyright by nirmal sanjel
 import React from 'react';
 import { Code, Database, Cpu, BarChart, Users, Calculator, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
 const collections = [
-  { id: 'bca-cfa', name: 'BCA Programming', icon: <Code size={20} />, color: 'bg-blue-50 text-blue-600 border-blue-100' },
+  { id: 'bca-c-programming', name: 'BCA Programming', icon: <Code size={20} />, color: 'bg-blue-50 text-blue-600 border-blue-100' },
   { id: 'bca-dbms', name: 'Database Systems', icon: <Database size={20} />, color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
-  { id: 'bca-micro', name: 'Microprocessors', icon: <Cpu size={20} />, color: 'bg-purple-50 text-purple-600 border-purple-100' },
-  { id: 'bca-stats', name: 'Statistics', icon: <BarChart size={20} />, color: 'bg-amber-50 text-amber-600 border-amber-100' },
-  { id: 'bsw-intro', name: 'Social Work', icon: <Users size={20} />, color: 'bg-rose-50 text-rose-600 border-rose-100' },
-  { id: 'bbs-acc', name: 'Accountancy', icon: <Calculator size={20} />, color: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
+  { id: 'bca-microprocessor', name: 'Microprocessors', icon: <Cpu size={20} />, color: 'bg-purple-50 text-purple-600 border-purple-100' },
+  { id: 'bca-probability', name: 'Statistics', icon: <BarChart size={20} />, color: 'bg-amber-50 text-amber-600 border-amber-100' },
+  { id: 'bsw-intro-social-work', name: 'Social Work', icon: <Users size={20} />, color: 'bg-rose-50 text-rose-600 border-rose-100' },
+  { id: 'mgt-211', name: 'Accountancy', icon: <Calculator size={20} />, color: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
 ];
 
-export function PopularCollections({ onSelect }: { onSelect: (id: string) => void }) {
+export function PopularCollections({ onSelect, onViewAll }: { onSelect: (id: string) => void, onViewAll: () => void }) {
   return (
     <section className="py-24">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -20,7 +21,7 @@ export function PopularCollections({ onSelect }: { onSelect: (id: string) => voi
           <p className="text-slate-500 font-light">Direct access to our most frequently accessed academic archives.</p>
         </div>
         <button 
-          onClick={() => {}} // Could link to resources view
+          onClick={onViewAll}
           className="text-sm font-bold text-[#c49b63] hover:text-[#002147] transition-colors flex items-center gap-2 group"
         >
           View All Subjects <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />

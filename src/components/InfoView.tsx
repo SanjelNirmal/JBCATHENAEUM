@@ -1,3 +1,4 @@
+// Copyright by nirmalsanjel
 import { Info, Mail, Phone, MapPin, Send, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 
