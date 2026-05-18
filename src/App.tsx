@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { Footer } from "./components/Footer";
@@ -39,6 +39,7 @@ export default function App() {
   const { profile: user, loading: authLoading } = useAuth();
   const [showLogin, setShowLogin] = useState<boolean>(false);
   const closeLoginModal = useCallback(() => setShowLogin(false), []);
+  const hasProcessedSharedLink = useRef(false);
 
   const [cookieUserName, setCookieUserName] = useState<string | null>(null);
 
@@ -59,6 +60,8 @@ export default function App() {
   const { subjects, getSubjectById, loading, resources } = useResourcesData();
 
   useEffect(() => {
+    if (hasProcessedSharedLink.current || subjects.length === 0) return;
+    hasProcessedSharedLink.current = true;
     const searchParams = new URLSearchParams(window.location.search);
     const sharedSubjectId = searchParams.get('subject');
     const sharedNoteId = searchParams.get('note');
