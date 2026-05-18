@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { Footer } from "./components/Footer";
@@ -34,10 +34,12 @@ type ViewState = 'home' | 'viewer' | 'semesters' | 'resources' | 'contribute' | 
 export default function App() {
   const [view, setView] = useState<ViewState>('home');
   const [subjectId, setSubjectId] = useState<string>("bca-cfa");
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [infoPage, setInfoPage] = useState<string>('Support');
   const { profile: user, loading: authLoading } = useAuth();
   const [showLogin, setShowLogin] = useState<boolean>(false);
   const closeLoginModal = useCallback(() => setShowLogin(false), []);
+  const hasProcessedSharedLink = useRef(false);
 
   const [cookieUserName, setCookieUserName] = useState<string | null>(null);
 
@@ -57,8 +59,26 @@ export default function App() {
 
   const { subjects, getSubjectById, loading, resources } = useResourcesData();
 
-  const handleSelectSubject = (subjectId: string) => {
-    setSubjectId(subjectId);
+  useEffect(() => {
+    if (hasProcessedSharedLink.current || subjects.length === 0) return;
+    hasProcessedSharedLink.current = true;
+    const searchParams = new URLSearchParams(window.location.search);
+    const sharedSubjectId = searchParams.get('subject');
+    const sharedNoteId = searchParams.get('note');
+    if (!sharedSubjectId) return;
+    const sharedSubject = subjects.find((subject) => subject.id === sharedSubjectId);
+    if (!sharedSubject) return;
+    const hasSharedNote = sharedNoteId
+      ? sharedSubject.notes.some((note) => note.id === sharedNoteId)
+      : false;
+    setSubjectId(sharedSubjectId);
+    setSelectedNoteId(hasSharedNote ? sharedNoteId : null);
+    setView('viewer');
+  }, [subjects]);
+
+  const handleSelectSubject = (nextSubjectId: string, nextNoteId?: string) => {
+    setSubjectId(nextSubjectId);
+    setSelectedNoteId(nextNoteId || null);
     setView('viewer');
   };
 
@@ -164,8 +184,7 @@ export default function App() {
                         viewport={{ once: true }}
                         transition={{ delay: index * 0.1 }}
                         onClick={() => {
-                          setSubjectId(item.subject);
-                          setView('viewer');
+                          handleSelectSubject(item.subject, item.id);
                         }}
                         className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-white border border-slate-100 rounded-2xl group hover:border-[#c49b63] hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer gap-4 sm:gap-0"
                       >
@@ -252,7 +271,7 @@ export default function App() {
 
       {view === 'viewer' && (
         <main className="flex-1 w-full pb-24">
-          <NoteViewer subjectData={currentSubjectData} />
+          <NoteViewer subjectData={currentSubjectData} initialNoteId={selectedNoteId} />
         </main>
       )}
 
@@ -303,4 +322,3 @@ export default function App() {
     </div>
   );
 }
-

@@ -4,7 +4,7 @@ import { Subject } from "../lib/api";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
-export function ResourcesView({ onSelectSubject, subjects }: { onSelectSubject: (id: string) => void, subjects: Subject[] }) {
+export function ResourcesView({ onSelectSubject, subjects }: { onSelectSubject: (id: string, noteId?: string) => void, subjects: Subject[] }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Flatten all notes
@@ -53,7 +53,7 @@ export function ResourcesView({ onSelectSubject, subjects }: { onSelectSubject: 
             viewport={{ once: true }}
             transition={{ delay: (index % 6) * 0.05 }}
             className="group relative cursor-pointer"
-            onClick={() => onSelectSubject(note.subjectId)}
+            onClick={() => onSelectSubject(note.subjectId, note.id)}
           >
             <div className="absolute inset-0 bg-[#002147] rounded-[2rem] translate-y-2 translate-x-2 opacity-0 group-hover:opacity-5 transition-all duration-500"></div>
             <div className="relative bg-white border border-slate-100 rounded-[2rem] p-8 shadow-[0_5px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_25px_60px_rgba(0,33,71,0.08)] transition-all duration-500 flex flex-col h-full hover:-translate-y-2">
