@@ -25,7 +25,7 @@ export function LoginModal({
 
       if (email === adminEmail && password === adminPassword) {
         onSuccess({
-          name: "Nirmal",
+          name: "Nirmal Sanjel",
           faculty: "Admin"
         });
       } else {

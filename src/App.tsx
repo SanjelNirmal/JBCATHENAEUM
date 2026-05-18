@@ -72,11 +72,27 @@ export default function App() {
         subjects={subjects}
       />
       
-      {cookieUserName && (
-        <div className="bg-[#c49b63] text-[#002147] py-2 px-4 text-center">
-          <p className="text-sm font-medium">✨ Welcome back, <span className="font-bold">{cookieUserName}</span>! We're glad you're here.</p>
+      {cookieUserName ? (
+        <div className="bg-[#002147] border-b border-[#c49b63]/20 py-3 px-4 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#c49b63]/5 to-transparent pointer-events-none"></div>
+          <div className="max-w-7xl mx-auto flex items-center justify-between relative z-10">
+            <p className="text-sm font-medium text-white flex items-center gap-2">
+              <span className="text-[#c49b63] animate-pulse">✨</span>
+              Welcome back, <span className="font-serif font-bold text-[#c49b63] text-base tracking-tight">{cookieUserName}</span>
+              <span className="hidden sm:inline text-slate-400 font-light ml-1">| Continuing your academic journey.</span>
+            </p>
+            <button 
+              onClick={() => {
+                document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                setCookieUserName(null);
+              }}
+              className="text-[10px] uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
+            >
+              Not you?
+            </button>
+          </div>
         </div>
-      )}
+      ) : null}
 
       {view === 'home' && (
         <>

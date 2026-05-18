@@ -1,12 +1,56 @@
 import React, { useState, useEffect } from "react";
-import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus } from "lucide-react";
-import { Subject, Note, createResource, deleteResource } from "../lib/api";
+import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus, Shield, UserX } from "lucide-react";
+import { Subject, Note, createResource, deleteResource, UserProfile, fetchUsers, updateUserRole, deleteUser } from "../lib/api";
 import { useResourcesData } from "../lib/api";
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'notes' | 'users' | 'sql' | 'settings'>('notes');
   const { resources, subjects } = useResourcesData();
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      loadUsers();
+    }
+  }, [activeTab]);
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const data = await fetchUsers();
+      setUsers(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handleUpdateRole = async (id: string, currentRole: string) => {
+    const newRole = currentRole === 'admin' ? 'scholar' : 'admin';
+    if (!window.confirm(`Change user role to ${newRole}?`)) return;
+    
+    try {
+      await updateUserRole(id, newRole);
+      setUsers(users.map(u => u.id === id ? { ...u, role: newRole } : u));
+    } catch (err: any) {
+      alert("Failed to update role. Ensure profiles table exists.");
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this user profile?")) return;
+    
+    try {
+      await deleteUser(id);
+      setUsers(users.filter(u => u.id !== id));
+    } catch (err: any) {
+      alert("Failed to delete user profile.");
+    }
+  };
+
   const [newResource, setNewResource] = useState({
     title: '', subject: '', faculty: 'BCA', semester: '1st Semester', author_name: 'Admin', file_url: '', file_size: '2MB', resource_type: 'PDF'
   });
@@ -246,12 +290,108 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
           )}
 
           {activeTab === 'users' && (
-            <div className="bg-white border border-slate-200 shadow-sm p-8 text-center rounded-lg">
-              <Users size={32} className="mx-auto text-slate-300 mb-4" />
-              <h3 className="text-lg font-medium text-slate-800 mb-2">User Management</h3>
-              <p className="text-slate-500 mb-6 max-w-sm mx-auto">
-                User management will be available once the database integration is complete.
-              </p>
+            <div className="bg-white border border-slate-200 shadow-sm rounded-lg overflow-hidden">
+              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-lg font-bold text-[#002147] flex items-center gap-2">
+                    <Users size={20} className="text-[#c49b63]" />
+                    User Accounts
+                  </h2>
+                  <div className="text-xs text-slate-500 font-medium bg-slate-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                    {users.length} Total Users
+                  </div>
+                </div>
+                <button 
+                  onClick={loadUsers}
+                  disabled={loadingUsers}
+                  className="p-2 text-slate-400 hover:text-[#002147] hover:bg-white rounded-full transition-all border border-transparent hover:border-slate-200"
+                  title="Refresh Users"
+                >
+                  <Database size={16} className={loadingUsers ? 'animate-spin' : ''} />
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto">
+                {loadingUsers ? (
+                  <div className="p-12 text-center">
+                    <div className="animate-spin w-8 h-8 border-4 border-[#002147] border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p className="text-slate-500 text-sm">Loading user directory...</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left text-sm whitespace-nowrap">
+                    <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
+                      <tr>
+                        <th className="px-6 py-4">User</th>
+                        <th className="px-6 py-4">Faculty</th>
+                        <th className="px-6 py-4">Role</th>
+                        <th className="px-6 py-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {users.map((user) => (
+                        <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-[#002147] font-bold text-xs">
+                                {user.name.charAt(0)}
+                              </div>
+                              <div>
+                                <div className="font-medium text-slate-800">{user.name}</div>
+                                <div className="text-xs text-slate-400 mt-0.5">Joined {new Date(user.created_at).toLocaleDateString()}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-slate-600">{user.faculty || 'Unspecified'}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold uppercase tracking-widest ${
+                              user.role === 'admin' 
+                                ? 'bg-red-50 text-red-600 border border-red-100' 
+                                : 'bg-blue-50 text-[#002147] border border-blue-100'
+                            }`}>
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button 
+                                onClick={() => handleUpdateRole(user.id, user.role)}
+                                className="p-2 text-slate-400 hover:text-[#c49b63] hover:bg-amber-50 rounded transition-colors" 
+                                title="Change Role"
+                              >
+                                <Shield size={16} />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteUser(user.id)}
+                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" 
+                                title="Delete Profile"
+                              >
+                                <UserX size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {users.length === 0 && (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-12 text-center text-slate-500 italic">
+                            No user profiles found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+              
+              <div className="p-4 bg-amber-50 border-t border-amber-100 flex items-start gap-3">
+                <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-xs text-amber-800 leading-relaxed">
+                  <span className="font-bold uppercase tracking-tight mr-1">Note:</span>
+                  User accounts are linked to Supabase Auth. Deleting a profile removes local metadata but doesn't delete the login account. Admin roles should be granted with extreme caution.
+                </div>
+              </div>
             </div>
           )}
 

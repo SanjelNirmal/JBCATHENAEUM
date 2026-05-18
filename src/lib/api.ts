@@ -15,6 +15,14 @@ export interface Resource {
   created_at: string;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  faculty: string;
+  role: 'scholar' | 'admin';
+  created_at: string;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -54,6 +62,46 @@ export async function deleteResource(id: string) {
   if (error) {
     throw error;
   }
+}
+
+export async function fetchUsers() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    // If table doesn't exist yet, return mock users
+    if (error.code === 'PGRST116' || error.message.includes('relation "profiles" does not exist')) {
+      console.warn("Profiles table not found, using mock data");
+      return [
+        { id: '1', name: 'Nirmal Sanjel', faculty: 'Admin', role: 'admin', created_at: new Date().toISOString() },
+        { id: '2', name: 'Nirmal Sanjel (BCA)', faculty: 'BCA', role: 'scholar', created_at: new Date(Date.now() - 86400000).toISOString() },
+        { id: '3', name: 'Nirmal Sanjel (BBS)', faculty: 'BBS', role: 'scholar', created_at: new Date(Date.now() - 172800000).toISOString() },
+      ] as UserProfile[];
+    }
+    throw error;
+  }
+  return data as UserProfile[];
+}
+
+export async function updateUserRole(id: string, role: 'scholar' | 'admin') {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ role })
+    .eq('id', id);
+
+  if (error) throw error;
+}
+
+export async function deleteUser(id: string) {
+  // Usually we delete the profile, actual user deletion requires admin API
+  const { error } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
 }
 
 export function useResourcesData() {
