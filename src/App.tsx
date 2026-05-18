@@ -17,6 +17,7 @@ import { LibraryArchivesView } from "./components/LibraryArchivesView";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { useResourcesData } from "./lib/api";
 import { LoginModal } from "./components/LoginModal";
+import { CookieConsent } from "./components/CookieConsent";
 
 type ViewState = 'home' | 'viewer' | 'semesters' | 'resources' | 'contribute' | 'info' | 'library' | 'admin';
 
@@ -28,6 +29,7 @@ export default function App() {
   const [infoPage, setInfoPage] = useState<string>('Support');
   const [user, setUser] = useState<UserData>(null);
   const [showLogin, setShowLogin] = useState<boolean>(false);
+  const [cookieUserName, setCookieUserName] = useState<string | null>(null);
 
   const { subjects, getSubjectById, loading } = useResourcesData();
 
@@ -70,6 +72,12 @@ export default function App() {
         subjects={subjects}
       />
       
+      {cookieUserName && (
+        <div className="bg-[#c49b63] text-[#002147] py-2 px-4 text-center">
+          <p className="text-sm font-medium">✨ Welcome back, <span className="font-bold">{cookieUserName}</span>! We're glad you're here.</p>
+        </div>
+      )}
+
       {view === 'home' && (
         <>
           <Hero onNavigateResources={() => setView('resources')} />
@@ -125,6 +133,8 @@ export default function App() {
         setInfoPage(page);
         setView('info');
       }} />
+
+      <CookieConsent onNameClaimed={setCookieUserName} />
     </div>
   );
 }
