@@ -3,7 +3,7 @@ import { User, Calendar, Share2, ExternalLink } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import { Subject, Note } from "../lib/api";
 
-export function NoteViewer({ subjectData }: { subjectData: Subject }) {
+export function NoteViewer({ subjectData, initialNoteId }: { subjectData: Subject; initialNoteId?: string | null }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
   // Try to default to the first note available
@@ -12,13 +12,31 @@ export function NoteViewer({ subjectData }: { subjectData: Subject }) {
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
-      setSelectedNote(subjectData.notes[0] || null);
-    }, [subjectData]);
+      if (!subjectData.notes.length) {
+        setSelectedNote(null);
+        return;
+      }
 
-    const handleShare = () => {
-      // Create a shareable URL (even if hash routing isn't fully implemented, it looks correct)
-      const url = `${window.location.origin}${window.location.pathname}#${subjectData.name.replace(/\s+/g, '-').toLowerCase()}`;
-      navigator.clipboard.writeText(url);
+      if (initialNoteId) {
+        const sharedNote = subjectData.notes.find((note) => note.id === initialNoteId);
+        if (sharedNote) {
+          setSelectedNote(sharedNote);
+          return;
+        }
+      }
+
+      setSelectedNote(subjectData.notes[0] || null);
+    }, [subjectData, initialNoteId]);
+
+    const handleShare = async () => {
+      if (!selectedNote) return;
+
+      const params = new URLSearchParams({
+        subject: subjectData.id,
+        note: selectedNote.id,
+      });
+      const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     };
