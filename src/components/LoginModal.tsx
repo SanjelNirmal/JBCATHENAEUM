@@ -19,8 +19,8 @@ export function LoginModal({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const handleEscClose = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+    const handleEscClose = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
         onClose();
       }
     };
@@ -63,7 +63,7 @@ export function LoginModal({
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 font-sans animate-in fade-in duration-300"
     >
       <div 
-        onClick={(event) => event.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-500"
       >
         <div className="bg-[#002147] p-10 text-white relative">
