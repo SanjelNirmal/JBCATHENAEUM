@@ -100,9 +100,7 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 -- BOOTSTRAP: Set yourself as Admin
 -- Run this AFTER you have signed up in the app
 -----------------------------------------------------------
--- UPDATE public.profiles
--- SET role = 'admin'
--- WHERE id = (SELECT id FROM auth.users WHERE email = 'your-email@example.com');
+-- UPDATE public.profiles SET role = 'admin' WHERE id = (SELECT id FROM auth.users WHERE email = 'your-email@example.com');
 ```
 
 ## How to use:
