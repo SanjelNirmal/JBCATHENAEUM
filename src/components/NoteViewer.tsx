@@ -36,9 +36,13 @@ export function NoteViewer({ subjectData, initialNoteId }: { subjectData: Subjec
         note: selectedNote.id,
       });
       const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (error) {
+        console.error("Failed to copy share URL:", error);
+      }
     };
 
   return (
