@@ -25,6 +25,44 @@ export interface UserProfile {
   created_at: string;
 }
 
+const PROFILE_INSERT_BLOCKED_CODES = new Set(["42501", "42P01", "PGRST116"]);
+
+function isProfileWriteBlocked(error: any) {
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    PROFILE_INSERT_BLOCKED_CODES.has(String(error?.code || "")) ||
+    message.includes("row-level security") ||
+    message.includes('relation "profiles" does not exist') ||
+    message.includes("permission denied")
+  );
+}
+
+function getUserMetaString(
+  user: Pick<User, "email" | "user_metadata">,
+  key: "name" | "faculty",
+  fallback: string
+) {
+  const rawValue = user.user_metadata?.[key];
+  if (typeof rawValue === "string" && rawValue.trim().length > 0) {
+    return rawValue.trim();
+  }
+  if (key === "name") {
+    const emailPrefix = user.email?.split("@")[0]?.trim();
+    return emailPrefix || fallback;
+  }
+  return fallback;
+}
+
+function createFallbackProfile(user: Pick<User, "id" | "email" | "user_metadata">): UserProfile {
+  return {
+    id: user.id,
+    name: getUserMetaString(user, "name", "Scholar"),
+    faculty: getUserMetaString(user, "faculty", "Unknown"),
+    role: "scholar",
+    created_at: new Date().toISOString(),
+  };
+}
+
 // Auth Functions
 export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -39,26 +77,45 @@ export async function signIn(email: string, password: string) {
     .from('profiles')
     .select('*')
     .eq('id', data.user.id)
-    .single();
-    
+    .maybeSingle();
+     
   if (profileError) {
-    if (profileError.code === 'PGRST116') {
-      // Profile doesn't exist, create one
-      const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
-        .insert([{ 
-          id: data.user.id, 
-          name: email.split('@')[0], 
-          faculty: 'Unknown',
-          role: 'scholar' 
-        }])
-        .select()
-        .single();
-      
-      if (createError) throw createError;
-      return { user: data.user, profile: newProfile };
+    if (isProfileWriteBlocked(profileError)) {
+      return { user: data.user, profile: createFallbackProfile(data.user) };
     }
     throw profileError;
+  }
+
+  if (!profile) {
+    const fallbackProfile = createFallbackProfile(data.user);
+    const { data: upsertedProfile, error: upsertError } = await supabase
+      .from("profiles")
+      .upsert(
+        [
+          {
+            id: data.user.id,
+            name: fallbackProfile.name,
+            faculty: fallbackProfile.faculty,
+            role: "scholar",
+          },
+        ],
+        { onConflict: "id" }
+      )
+      .select()
+      .maybeSingle();
+
+    if (upsertError) {
+      if (isProfileWriteBlocked(upsertError)) {
+        return { user: data.user, profile: fallbackProfile };
+      }
+      throw upsertError;
+    }
+
+    if (!upsertedProfile) {
+      return { user: data.user, profile: fallbackProfile };
+    }
+
+    return { user: data.user, profile: upsertedProfile as UserProfile };
   }
 
   return { user: data.user, profile };
@@ -68,6 +125,12 @@ export async function signUp(email: string, password: string, name: string, facu
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        name,
+        faculty,
+      },
+    },
   });
 
   if (error) throw error;
@@ -75,16 +138,16 @@ export async function signUp(email: string, password: string, name: string, facu
   if (data.user) {
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert([
+      .upsert([
         {
           id: data.user.id,
           name,
           faculty,
           role: 'scholar',
         },
-      ]);
+      ], { onConflict: "id" });
 
-    if (profileError) throw profileError;
+    if (profileError && !isProfileWriteBlocked(profileError)) throw profileError;
   }
 
   return data;

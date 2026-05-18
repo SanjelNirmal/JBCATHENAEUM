@@ -185,6 +185,7 @@ ALTER TABLE contributions ENABLE ROW LEVEL SECURITY;
 -- 5. Basic Security Policies
 DROP POLICY IF EXISTS "Public resources are viewable by everyone" ON resources;
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 DROP POLICY IF EXISTS "Allow insert resources for everyone" ON resources;
 DROP POLICY IF EXISTS "Allow delete resources for everyone" ON resources;
 DROP POLICY IF EXISTS "Allow update resources for everyone" ON resources;
@@ -192,6 +193,7 @@ DROP POLICY IF EXISTS "Allow update resources for everyone" ON resources;
 -- Everyone can read resources and approved contributions
 CREATE POLICY "Public resources are viewable by everyone" ON resources FOR SELECT USING (true);
 CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "Allow insert resources for everyone" ON resources FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow delete resources for everyone" ON resources FOR DELETE USING (true);
 CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USING (true);
