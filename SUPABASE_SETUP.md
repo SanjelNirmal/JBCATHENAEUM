@@ -49,6 +49,12 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
+    CREATE POLICY "Users can insert own profile" ON public.profiles
+    FOR INSERT
+    WITH CHECK (auth.uid() = id);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
     CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
@@ -94,7 +100,7 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 -- BOOTSTRAP: Set yourself as Admin
 -- Run this AFTER you have signed up in the app
 -----------------------------------------------------------
--- UPDATE public.profiles SET role = 'admin' WHERE email = 'your-email@example.com';
+-- UPDATE public.profiles SET role = 'admin' WHERE id = (SELECT id FROM auth.users WHERE email = 'your-email@example.com');
 ```
 
 ## How to use:
