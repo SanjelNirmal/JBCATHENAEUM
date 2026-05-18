@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import { Search, ExternalLink, BookOpen } from "lucide-react";
 import React, { useState } from "react";
 

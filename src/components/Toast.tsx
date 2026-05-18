@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import React, { useEffect } from 'react';
 import { AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';

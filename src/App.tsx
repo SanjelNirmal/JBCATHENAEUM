@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -7,7 +7,6 @@
 import { useState, useEffect } from "react";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
-import { FeatureSplit } from "./components/FeatureSplit";
 import { Footer } from "./components/Footer";
 import { StatsSection } from "./components/StatsSection";
 import { PopularCollections } from "./components/PopularCollections";
@@ -145,7 +144,6 @@ export default function App() {
             subjects={subjects}
             resources={resources}
           />
-          <StatsSection />
           
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-12 pb-24">
             <PopularCollections onSelect={handleSelectSubject} onViewAll={() => setView('resources')} />
@@ -246,8 +244,6 @@ export default function App() {
                 </div>
               </div>
             </section>
-
-            <FeatureSplit onNavigateViewer={() => handleSelectSubject('bca-cfa')} />
           </main>
         </>
       )}
@@ -293,6 +289,8 @@ export default function App() {
           <AdminDashboard />
         </main>
       )}
+      
+      {view === 'home' && <StatsSection />}
       
       <Footer onNavigateInfo={(page) => {
         setInfoPage(page);

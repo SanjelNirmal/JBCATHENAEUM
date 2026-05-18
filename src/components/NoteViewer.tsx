@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import { User, Calendar, Share2, ExternalLink } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import { Subject, Note } from "../lib/api";

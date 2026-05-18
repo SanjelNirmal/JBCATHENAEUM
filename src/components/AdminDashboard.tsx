@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import React, { useState, useEffect } from "react";
 import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus, Shield, UserX, CheckCircle2 } from "lucide-react";
 import { Subject, Note, createResource, deleteResource, UserProfile, fetchUsers, updateUserRole, deleteUser } from "../lib/api";

@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import React from 'react';
 import { Code, Database, Cpu, BarChart, Users, Calculator, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';

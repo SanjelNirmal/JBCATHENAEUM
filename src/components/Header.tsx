@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import { Search, LogIn, ChevronDown, Library, Menu, X as CloseIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Subject } from "../lib/api";

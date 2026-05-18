@@ -1,4 +1,4 @@
-// Copyright by nirmalsanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import { Info, Mail, Phone, MapPin, Send, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 
@@ -53,59 +53,46 @@ const InfoContent = ({ pageTitle }: { pageTitle: string }) => {
         </div>
       );
 
-    case 'Faculty Directory':
+    case 'Administrator Info':
       return (
         <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-slate-200 p-6 rounded">
-              <h3 className="font-bold text-[#002147] text-lg mb-1">Prof. Ram Sharma</h3>
-              <p className="text-[#c49b63] text-sm mb-4">Head of BCA Department</p>
-              <div className="space-y-2 text-sm text-slate-600">
-                <p className="flex items-center"><Mail size={14} className="mr-2" /> r.sharma@janabhawana.edu.np</p>
-                <p className="flex items-center"><Phone size={14} className="mr-2" /> Ext. 104</p>
+          <div className="flex flex-col md:flex-row gap-8 items-center bg-slate-50 p-8 rounded-3xl border border-slate-100">
+            <div className="w-32 h-32 rounded-full bg-[#002147] flex items-center justify-center text-white text-4xl font-serif">
+              NS
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-2xl font-bold text-[#002147] mb-1">Nirmal Sanjel</h3>
+              <p className="text-[#c49b63] text-sm mb-4 uppercase tracking-[0.2em] font-black">Lead Developer & Architect</p>
+              <div className="space-y-3 text-slate-600">
+                <a href="mailto:hackingwithnirmal@gmail.com" className="flex items-center justify-center md:justify-start hover:text-[#c49b63] transition-colors">
+                  <Mail size={18} className="mr-3" /> hackingwithnirmal@gmail.com
+                </a>
+                <a href="tel:+9779848744321" className="flex items-center justify-center md:justify-start hover:text-[#c49b63] transition-colors">
+                  <Phone size={18} className="mr-3" /> +977 9848744321
+                </a>
               </div>
             </div>
-            <div className="border border-slate-200 p-6 rounded">
-              <h3 className="font-bold text-[#002147] text-lg mb-1">Dr. Sita Karki</h3>
-              <p className="text-[#c49b63] text-sm mb-4">Head of BSW Department</p>
-              <div className="space-y-2 text-sm text-slate-600">
-                <p className="flex items-center"><Mail size={14} className="mr-2" /> s.karki@janabhawana.edu.np</p>
-                <p className="flex items-center"><Phone size={14} className="mr-2" /> Ext. 108</p>
-              </div>
-            </div>
+          </div>
+          <div className="prose prose-slate max-w-none">
+            <p className="text-slate-600 italic">"This platform was personally developed to streamline academic resource sharing at Jana Bhawana Campus. Feel free to reach out for support or feedback."</p>
           </div>
         </div>
       );
 
     case 'Library Administration':
-      return (
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold text-[#002147]">Central Library Contact</h2>
-          <div className="bg-slate-50 p-6 border border-slate-200 rounded text-slate-700 space-y-4">
-            <p className="flex items-center"><MapPin size={16} className="mr-3 text-[#c49b63]" /> Main Campus Building, Ground Floor</p>
-            <p className="flex items-center"><Mail size={16} className="mr-3 text-[#c49b63]" /> library@janabhawana.edu.np</p>
-            <p className="flex items-center"><Phone size={16} className="mr-3 text-[#c49b63]" /> +977-1-5555555</p>
-          </div>
-          <p className="text-slate-600 text-sm mt-4">Working Hours: Sunday to Friday, 7:00 AM - 5:00 PM</p>
-        </div>
-      );
-
     case 'IT Support Desk':
+    case 'Faculty Directory':
       return (
         <div className="space-y-6">
-           <p className="text-slate-600 leading-relaxed">Having trouble logging in or accessing a resource? Our IT team is here to help.</p>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-             <div className="bg-blue-50 border border-blue-100 p-6 rounded text-center">
-               <Mail className="mx-auto text-[#002147] mb-3" size={24} />
-               <h3 className="font-bold text-[#002147] mb-2">Email Support</h3>
-               <p className="text-sm text-slate-600">it.support@janabhawana.edu.np</p>
-             </div>
-             <div className="bg-blue-50 border border-blue-100 p-6 rounded text-center">
-               <Phone className="mx-auto text-[#002147] mb-3" size={24} />
-               <h3 className="font-bold text-[#002147] mb-2">Call Helpdesk</h3>
-               <p className="text-sm text-slate-600">+977-1-4444444</p>
-             </div>
-           </div>
+          <div className="bg-blue-50 border-l-4 border-[#002147] p-6">
+            <h3 className="font-bold text-[#002147] text-lg mb-2">Notice</h3>
+            <p className="text-slate-700">Formal directory and departmental administration links are currently being migrated. For any urgent queries, please contact the lead developer directly.</p>
+          </div>
+          <div className="p-8 border border-slate-100 rounded-2xl space-y-4">
+             <p className="font-bold text-[#002147]">Primary Contact:</p>
+             <p className="flex items-center gap-3 text-slate-600"><Mail size={16} /> hackingwithnirmal@gmail.com</p>
+             <p className="flex items-center gap-3 text-slate-600"><Phone size={16} /> +977 9848744321</p>
+          </div>
         </div>
       );
 

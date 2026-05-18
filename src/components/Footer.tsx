@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import { Mail, Facebook, Twitter, Instagram, Linkedin, Youtube, Github } from "lucide-react";
 
 export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => void }) {
@@ -66,11 +66,11 @@ export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => 
               </ul>
             </div>
             <div className="text-center md:border-x md:border-white/10 px-0 md:px-8 w-full">
-              <h4 className="text-[#c49b63] font-serif text-lg italic mb-6">Contacts</h4>
+              <h4 className="text-[#c49b63] font-serif text-lg italic mb-6">Contact Developer</h4>
               <ul className="space-y-3 text-sm font-light">
-                <li><button onClick={() => onNavigateInfo?.('Faculty Directory')} className="hover:text-white transition-colors">Faculty Directory</button></li>
-                <li><button onClick={() => onNavigateInfo?.('Library Administration')} className="hover:text-white transition-colors">Library Administration</button></li>
-                <li><button onClick={() => onNavigateInfo?.('IT Support Desk')} className="hover:text-white transition-colors">IT Support Desk</button></li>
+                <li><button onClick={() => onNavigateInfo?.('Administrator Info')} className="hover:text-white transition-colors">Nirmal Sanjel</button></li>
+                <li><a href="mailto:hackingwithnirmal@gmail.com" className="hover:text-white transition-colors">hackingwithnirmal@gmail.com</a></li>
+                <li><a href="tel:+9779848744321" className="hover:text-white transition-colors">+977 9848744321</a></li>
                 <li><button onClick={() => onNavigateInfo?.('Submit Feedback')} className="hover:text-white transition-colors">Submit Feedback</button></li>
               </ul>
             </div>

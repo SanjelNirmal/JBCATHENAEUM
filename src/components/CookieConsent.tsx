@@ -1,4 +1,4 @@
-// Copyright by nirmal sanjel
+// Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
@@ -101,7 +101,7 @@ export function CookieConsent({ onNameClaimed }: CookieConsentProps) {
               placeholder="Your Name"
               value={nameInput}
               onChange={e => setNameInput(e.target.value)}
-              className="px-3 py-2 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#c49b63] w-full sm:w-48 rounded-sm"
+              className="px-4 py-2 bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-[#c49b63] focus:ring-1 focus:ring-[#c49b63] w-full sm:w-64 rounded-xl transition-all"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && nameInput.trim()) {
