@@ -184,15 +184,13 @@ export default function App() {
                         viewport={{ once: true }}
                         transition={{ delay: index * 0.1 }}
                         onClick={() => {
-                          const matchedSubject = subjects.find((subject) =>
-                            subject.id === item.subject ||
-                            (
+                          const matchedSubject = subjects.find((subject) => subject.id === item.subject)
+                            ?? subjects.find((subject) =>
                               subject.name === item.subject &&
                               subject.faculty === item.faculty &&
                               subject.semester === item.semester
-                            ) ||
-                            subject.name === item.subject
-                          );
+                            )
+                            ?? subjects.find((subject) => subject.name === item.subject);
                           handleSelectSubject(matchedSubject?.id || item.subject, item.id);
                         }}
                         className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-white border border-slate-100 rounded-2xl group hover:border-[#c49b63] hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer gap-4 sm:gap-0"
