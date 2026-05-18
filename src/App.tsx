@@ -63,10 +63,13 @@ export default function App() {
     const sharedSubjectId = searchParams.get('subject');
     const sharedNoteId = searchParams.get('note');
     if (!sharedSubjectId) return;
-    const hasSharedSubject = subjects.some((subject) => subject.id === sharedSubjectId);
-    if (!hasSharedSubject) return;
+    const sharedSubject = subjects.find((subject) => subject.id === sharedSubjectId);
+    if (!sharedSubject) return;
+    const hasSharedNote = sharedNoteId
+      ? sharedSubject.notes.some((note) => note.id === sharedNoteId)
+      : false;
     setSubjectId(sharedSubjectId);
-    setSelectedNoteId(sharedNoteId);
+    setSelectedNoteId(hasSharedNote ? sharedNoteId : null);
     setView('viewer');
   }, [subjects]);
 
