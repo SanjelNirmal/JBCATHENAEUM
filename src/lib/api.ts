@@ -109,28 +109,28 @@ export function useResourcesData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchFromSupabase() {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data, error } = await supabase
-          .from('resources')
-          .select('*')
-          .order('created_at', { ascending: false });
+  const fetchFromSupabase = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await supabase
+        .from('resources')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-        if (error) {
-          throw error;
-        }
-        setResources(data as Resource[] || []);
-      } catch (err: any) {
-        console.error("Error fetching resources:", err);
-        setError(err.message || "Failed to load resources");
-      } finally {
-        setLoading(false);
+      if (error) {
+        throw error;
       }
+      setResources(data as Resource[] || []);
+    } catch (err: any) {
+      console.error("Error fetching resources:", err);
+      setError(err.message || "Failed to load resources");
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     fetchFromSupabase();
   }, []);
 
@@ -1032,6 +1032,7 @@ export function useResourcesData() {
     error,
     resources,
     subjects,
+    refresh: fetchFromSupabase,
     getSubjectById: (id: string) => subjects.find(s => s.id === id) || subjects[0]
   };
 }

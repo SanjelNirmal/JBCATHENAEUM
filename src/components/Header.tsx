@@ -13,7 +13,8 @@ export function Header({
   user,
   onLoginClick,
   onLogoutClick,
-  subjects
+  subjects,
+  cookieUserName
 }: { 
   onNavigateHome?: () => void, 
   onSelectSubject?: (subjectId: string) => void,
@@ -25,7 +26,8 @@ export function Header({
   user?: { name: string, faculty: string } | null,
   onLoginClick?: () => void,
   onLogoutClick?: () => void,
-  subjects: Subject[]
+  subjects: Subject[],
+  cookieUserName?: string | null
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -123,10 +125,20 @@ export function Header({
             </button>
           </div>
         ) : (
-          <button onClick={onLoginClick} className="hover:text-white transition-colors uppercase tracking-widest font-semibold flex items-center space-x-1 group">
-            <LogIn size={14} />
-            <span>Login</span>
-          </button>
+          <div className="flex items-center space-x-4">
+            {cookieUserName && (
+              <div className="hidden sm:flex items-center space-x-2 mr-3 px-3 py-1 bg-[#c49b63]/10 rounded-full border border-[#c49b63]/20">
+                <div className="w-5 h-5 rounded-full bg-[#c49b63] flex items-center justify-center text-[#002147] text-[9px] font-black">
+                  {cookieUserName.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-[11px] font-bold text-[#c49b63] tracking-wider uppercase">{cookieUserName}</span>
+              </div>
+            )}
+            <button onClick={onLoginClick} className="hover:text-white transition-colors uppercase tracking-widest font-semibold flex items-center space-x-1 group">
+              <LogIn size={14} />
+              <span>Login</span>
+            </button>
+          </div>
         )}
       </div>
 

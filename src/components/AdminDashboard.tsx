@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus, Shield, UserX } from "lucide-react";
+import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus, Shield, UserX, CheckCircle2 } from "lucide-react";
 import { Subject, Note, createResource, deleteResource, UserProfile, fetchUsers, updateUserRole, deleteUser } from "../lib/api";
 import { useResourcesData } from "../lib/api";
+import { Toast, ToastType } from "./Toast";
+import { motion, AnimatePresence } from "motion/react";
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'notes' | 'users' | 'sql' | 'settings'>('notes');
-  const { resources, subjects } = useResourcesData();
+  const { resources, subjects, refresh } = useResourcesData();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [notification, setNotification] = useState<{ message: string; type: ToastType } | null>(null);
+
+  const showToast = (message: string, type: ToastType = 'info') => {
+    setNotification({ message, type });
+  };
 
   useEffect(() => {
     if (activeTab === 'users') {
@@ -23,6 +30,7 @@ export function AdminDashboard() {
       setUsers(data);
     } catch (err) {
       console.error(err);
+      showToast("Failed to fetch user directory. Check database connectivity.", 'error');
     } finally {
       setLoadingUsers(false);
     }
@@ -35,8 +43,9 @@ export function AdminDashboard() {
     try {
       await updateUserRole(id, newRole);
       setUsers(users.map(u => u.id === id ? { ...u, role: newRole } : u));
+      showToast(`User role updated to ${newRole} successfully`, 'success');
     } catch (err: any) {
-      alert("Failed to update role. Ensure profiles table exists.");
+      showToast("Failed to update role. Ensure profiles table and permissions are correctly set.", 'error');
     }
   };
 
@@ -46,8 +55,9 @@ export function AdminDashboard() {
     try {
       await deleteUser(id);
       setUsers(users.filter(u => u.id !== id));
+      showToast("User profile deleted successfully", 'success');
     } catch (err: any) {
-      alert("Failed to delete user profile.");
+      showToast("Failed to delete user profile.", 'error');
     }
   };
 
@@ -61,14 +71,16 @@ export function AdminDashboard() {
     setIsDeleting(id);
     try {
       await deleteResource(id);
-      window.location.reload();
+      showToast("Resource deleted successfully", 'success');
+      refresh();
     } catch (err: any) {
       console.error(err);
       if (err?.code === '42501' || err?.message?.includes('row-level security')) {
-         alert("Permission Denied: To allow deleting resources, please execute the SQL setup query shown in the 'Database SQL Schema' tab in your Supabase SQL Editor to grant DELETE permissions.");
+         showToast("Permission Denied: Ensure you have granted DELETE permissions in Supabase.", 'error');
       } else {
-         alert("Failed to delete resource");
+         showToast("Failed to delete resource", 'error');
       }
+    } finally {
       setIsDeleting(null);
     }
   };
@@ -78,13 +90,14 @@ export function AdminDashboard() {
     try {
       await createResource(newResource);
       setShowAddModal(false);
-      window.location.reload();
+      showToast("Resource added successfully", 'success');
+      refresh();
     } catch (err: any) {
       console.error(err);
       if (err?.code === '42501' || err?.message?.includes('row-level security')) {
-         alert("Permission Denied: To allow creating resources, please execute the SQL setup query shown in the 'Database SQL Schema' tab in your Supabase SQL Editor to grant INSERT permissions.");
+         showToast("Permission Denied: Ensure you have granted INSERT permissions in Supabase.", 'error');
       } else {
-         alert("Failed to create resource");
+         showToast("Failed to create resource", 'error');
       }
     }
   };
@@ -638,6 +651,16 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {notification && (
+          <Toast 
+            message={notification.message} 
+            type={notification.type} 
+            onClose={() => setNotification(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

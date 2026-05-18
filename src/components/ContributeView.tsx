@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import { Subject } from "../lib/api";
 import { useResourcesData } from "../lib/api";
 
-export function ContributeView() {
+export function ContributeView({ initialName }: { initialName?: string }) {
   const { subjects } = useResourcesData();
   const [formData, setFormData] = useState({
-    name: '',
+    name: initialName || '',
     faculty: 'BCA',
     semester: '1st Semester',
     subject: '',

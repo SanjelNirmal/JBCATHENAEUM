@@ -87,8 +87,15 @@ export function Footer({ onNavigateInfo }: { onNavigateInfo?: (page: string) => 
 
           {/* Copyright */}
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 font-light tracking-widest uppercase">
-            <p>&copy; 2026 JBC ATHENAEUM</p>
-            <p className="mt-2 md:mt-0">Designed for Scholars</p>
+            <div className="text-center md:text-left mb-6 md:mb-0">
+              <p className="text-slate-400 font-bold mb-1 tracking-[0.2em]">Established Digital Archive Initiative</p>
+              <p className="mb-0.5">&copy; 2026 JBC ATHENAEUM | Jana Bhawana Campus</p>
+              <p>Affiliated with Tribhuvan University</p>
+            </div>
+            <div className="flex flex-col items-center md:items-end">
+              <p className="mb-2">Designed for Scholars</p>
+              <div className="w-24 h-1 bg-[#c49b63]"></div>
+            </div>
           </div>
         </div>
       </div>
