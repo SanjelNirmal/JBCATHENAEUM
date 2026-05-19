@@ -22,5 +22,14 @@ export default defineConfig(({mode}) => {
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
+    test: {
+      environment: 'happy-dom',
+      include: ['src/**/*.{test,spec}.{ts,tsx}'],
+      coverage: {
+        provider: 'v8',
+        include: ['src/**/*.{ts,tsx}'],
+        exclude: ['src/main.tsx', 'src/vite-env.d.ts'],
+      },
+    },
   };
 });
