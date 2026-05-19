@@ -140,10 +140,11 @@ export default function App() {
                 <span className="hidden lg:inline text-slate-500 font-light ml-1 italic">| Your academic portal is ready.</span>
               </p>
             </div>
-            <button 
+              <button 
               onClick={() => {
-                document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                document.cookie = "cookieConsent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                const secureCookieSuffix = window.location.protocol === 'https:' ? '; Secure' : '';
+                document.cookie = `userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax${secureCookieSuffix}`;
+                document.cookie = `cookieConsent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax${secureCookieSuffix}`;
                 setCookieUserName(null);
               }}
               className="group flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white/5 transition-all"
