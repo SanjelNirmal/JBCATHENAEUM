@@ -23,31 +23,30 @@ To streamline the flow of academic intelligence and ensure that every student at
 
 ## 🚀 Getting Started
 To get the application fully operational, you must configure your Supabase instance.
-Please refer to [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for the required SQL schema and table structures.
+Please refer to [frontend/SUPABASE_SETUP.md](./frontend/SUPABASE_SETUP.md) for the required SQL schema and table structures.
+
+```bash
+npm install
+npm run dev:frontend   # Frontend on Vite
+npm run dev:backend    # Backend API server
+```
 
 ## 📂 Project Structure
 ```text
 .
-├── src/
-│   ├── components/            # UI Component Library
-│   │   ├── AdminDashboard.tsx # Administrative control panel
-│   │   ├── Header.tsx         # Classic mega-menu navigation
-│   │   ├── Hero.tsx           # Dynamic entry section
-│   │   ├── NoteViewer.tsx     # PDF and document engagement interface
-│   │   ├── PopularCollections.tsx # Highlighted academic tracks
-│   │   ├── ResourcesView.tsx  # Filterable archive gallery
-│   │   ├── StatsSection.tsx   # Platform impact metrics
-│   │   └── ...                # Supplemental UI elements
-│   ├── lib/
-│   │   ├── api.ts             # Resource fetching logic
-│   │   └── supabase.ts        # Database connection configuration
-│   ├── App.tsx                # Central logic and routing
-│   ├── main.tsx               # Application entry point
-│   └── index.css              # Global styles and Tailwind imports
-├── public/                    # Static assets (logos, etc)
-├── package.json               # Manifest and dependencies
-├── tailwind.config.js         # Styling configuration
-└── tsconfig.json              # TypeScript configuration
+├── frontend/                  # React + Vite frontend
+│   ├── src/
+│   │   ├── components/        # UI Component Library
+│   │   ├── lib/               # Supabase and data logic
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.ts
+├── backend/                   # Express backend server
+│   ├── server.js
+│   └── package.json
+└── package.json               # Root workspace scripts
 ```
 
 ## 👨‍💻 Developer Information
