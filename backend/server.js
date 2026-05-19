@@ -17,10 +17,6 @@ app.get('/api/health', (_req, res) => {
 
 if (fs.existsSync(frontendDistPath)) {
   app.use(express.static(frontendDistPath));
-
-  app.get('*', (_req, res) => {
-    res.sendFile(path.join(frontendDistPath, 'index.html'));
-  });
 }
 
 app.listen(PORT, () => {
