@@ -231,12 +231,12 @@ export default function App() {
                         }}
                         className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-white border border-slate-100 rounded-2xl group hover:border-[#c49b63] hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer gap-4 sm:gap-0"
                       >
-                        <div className="flex items-center gap-4 md:gap-6">
+                        <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
                           <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#002147]/5 flex items-center justify-center text-[#002147] group-hover:bg-[#c49b63]/10 group-hover:text-[#c49b63] transition-all">
                             <NoteIcon type={item.resource_type || 'PDF'} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-[#002147] text-base md:text-lg group-hover:text-[#c49b63] transition-colors truncate">{item.title}</h4>
+                            <h4 className="font-bold text-[#002147] text-base md:text-lg group-hover:text-[#c49b63] transition-colors leading-snug line-clamp-2 break-words">{item.title}</h4>
                             <div className="flex flex-wrap items-center gap-2 mt-1">
                               <span className="text-[9px] md:text-[10px] text-slate-400 uppercase font-black tracking-widest whitespace-nowrap">{item.faculty}</span>
                               <span className="w-1 h-1 rounded-full bg-slate-300 hidden xs:block"></span>
