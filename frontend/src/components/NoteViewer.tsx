@@ -63,12 +63,18 @@ export function NoteViewer({
 
       try {
         if (navigator.share) {
-          await navigator.share({
-            title: shareTitle,
-            text: shareText,
-            url,
-          });
-          return;
+          try {
+            await navigator.share({
+              title: shareTitle,
+              text: shareText,
+            });
+            return;
+          } catch (error) {
+            const shareError = error as DOMException;
+            if (shareError?.name === "AbortError") {
+              return;
+            }
+          }
         }
 
         await navigator.clipboard.writeText(shareText);
