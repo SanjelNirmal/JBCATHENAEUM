@@ -56,10 +56,8 @@ export function NoteViewer({
         `📘 ${selectedNote.title}`,
         `📚 Subject: ${subjectData.name} (${subjectData.faculty} Sem ${subjectData.semester})`,
         `👤 Uploaded by: ${selectedNote.author}`,
-        "",
-        "Open this note:",
-        url,
       ].join("\n");
+      const clipboardText = `${shareText}\n\nOpen this note:\n${url}`;
 
       try {
         if (navigator.share) {
@@ -67,6 +65,7 @@ export function NoteViewer({
             await navigator.share({
               title: shareTitle,
               text: shareText,
+              url,
             });
             return;
           } catch (error) {
@@ -74,10 +73,11 @@ export function NoteViewer({
             if (shareError?.name === "AbortError") {
               return;
             }
+            console.error("Native share failed, falling back to clipboard:", error);
           }
         }
 
-        await navigator.clipboard.writeText(shareText);
+        await navigator.clipboard.writeText(clipboardText);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {
