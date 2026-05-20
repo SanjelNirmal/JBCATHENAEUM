@@ -21,7 +21,7 @@ export function Hero({
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1.05, opacity: 0.5 }}
           transition={{ duration: 2, ease: "easeOut" }}
-          src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2282&auto=format&fit=crop" 
+          src="https://images.unsplash.com/photo-1521920592574-49e0b121c964?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
           alt="Premium Library" 
           className="w-full h-full object-cover"
         />
