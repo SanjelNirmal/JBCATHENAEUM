@@ -70,10 +70,10 @@ export default function App() {
     window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
   }, []);
 
-  const handleNoteChange = useCallback((noteId: string | null) => {
+  const handleNoteChange = useCallback((nextSubjectId: string, noteId: string | null) => {
     setSelectedNoteId(noteId);
-    updateViewerUrl(subjectId, noteId);
-  }, [subjectId, updateViewerUrl]);
+    updateViewerUrl(nextSubjectId, noteId);
+  }, [updateViewerUrl]);
 
   useEffect(() => {
     if (hasProcessedSharedLink.current || subjects.length === 0) return;

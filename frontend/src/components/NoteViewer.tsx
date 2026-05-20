@@ -10,14 +10,19 @@ export function NoteViewer({
 }: {
   subjectData: Subject;
   initialNoteId?: string | null;
-  onNoteChange?: (noteId: string | null) => void;
+  onNoteChange?: (subjectId: string, noteId: string | null) => void;
 }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const onNoteChangeRef = useRef(onNoteChange);
   
   // Try to default to the first note available
   const [selectedNote, setSelectedNote] = useState<Note | null>(subjectData.notes[0] || null);
 
     const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+      onNoteChangeRef.current = onNoteChange;
+    }, [onNoteChange]);
 
     useEffect(() => {
       if (!subjectData.notes.length) {
@@ -29,14 +34,14 @@ export function NoteViewer({
         const sharedNote = subjectData.notes.find((note) => note.id === initialNoteId);
         if (sharedNote) {
           setSelectedNote(sharedNote);
-          onNoteChange?.(sharedNote.id);
+          onNoteChangeRef.current?.(subjectData.id, sharedNote.id);
           return;
         }
       }
 
       setSelectedNote(subjectData.notes[0] || null);
-      onNoteChange?.(subjectData.notes[0]?.id || null);
-    }, [subjectData, initialNoteId, onNoteChange]);
+      onNoteChangeRef.current?.(subjectData.id, subjectData.notes[0]?.id || null);
+    }, [subjectData, initialNoteId]);
 
     const handleShare = async () => {
       if (!selectedNote) return;
@@ -79,7 +84,7 @@ export function NoteViewer({
                 key={note.id}
                 onClick={() => {
                   setSelectedNote(note);
-                  onNoteChange?.(note.id);
+                  onNoteChangeRef.current?.(subjectData.id, note.id);
                 }}
                 className={`group cursor-pointer p-4 transition-all border-l-4 ${selectedNote?.id === note.id ? 'bg-blue-50/50 border-[#002147] shadow-sm' : 'hover:bg-slate-50 border-transparent hover:border-[#c49b63]'}`}
               >
