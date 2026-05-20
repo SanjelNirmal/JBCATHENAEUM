@@ -59,6 +59,17 @@ export default function App() {
 
   const { subjects, getSubjectById, loading, resources } = useResourcesData();
 
+  const updateViewerUrl = useCallback((nextSubjectId: string, nextNoteId?: string | null) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('subject', nextSubjectId);
+    if (nextNoteId) {
+      url.searchParams.set('note', nextNoteId);
+    } else {
+      url.searchParams.delete('note');
+    }
+    window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}${url.hash}`);
+  }, []);
+
   useEffect(() => {
     if (hasProcessedSharedLink.current || subjects.length === 0) return;
     hasProcessedSharedLink.current = true;
@@ -80,6 +91,7 @@ export default function App() {
     setSubjectId(nextSubjectId);
     setSelectedNoteId(nextNoteId || null);
     setView('viewer');
+    updateViewerUrl(nextSubjectId, nextNoteId || null);
   };
 
   const handleLogout = async () => {
@@ -297,7 +309,14 @@ export default function App() {
 
       {view === 'viewer' && (
         <main className="flex-1 w-full pb-24">
-          <NoteViewer subjectData={currentSubjectData} initialNoteId={selectedNoteId} />
+          <NoteViewer
+            subjectData={currentSubjectData}
+            initialNoteId={selectedNoteId}
+            onNoteChange={(noteId) => {
+              setSelectedNoteId(noteId);
+              updateViewerUrl(subjectId, noteId);
+            }}
+          />
         </main>
       )}
 
