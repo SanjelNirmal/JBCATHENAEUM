@@ -51,12 +51,36 @@ export function NoteViewer({
         note: selectedNote.id,
       });
       const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      const shareTitle = `${selectedNote.title} | JBC ATHENAEUM`;
+      const shareText = [
+        `📘 ${selectedNote.title}`,
+        `📚 Subject: ${subjectData.name} (${subjectData.faculty} Sem ${subjectData.semester})`,
+        `👤 Uploaded by: ${selectedNote.author}`,
+      ].join("\n");
+      const clipboardText = `${shareText}\n\nOpen this note:\n${url}`;
+
       try {
-        await navigator.clipboard.writeText(url);
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: shareTitle,
+              text: shareText,
+              url,
+            });
+            return;
+          } catch (error) {
+            if (error instanceof DOMException && error.name === "AbortError") {
+              return;
+            }
+            console.error("Native share failed, falling back to clipboard:", error);
+          }
+        }
+
+        await navigator.clipboard.writeText(clipboardText);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {
-        console.error("Failed to copy share URL:", error);
+        console.error("Failed to share note:", error);
       }
     };
 
