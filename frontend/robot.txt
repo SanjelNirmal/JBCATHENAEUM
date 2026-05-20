@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jbcathenaeum.pages.dev/sitemap.xml
