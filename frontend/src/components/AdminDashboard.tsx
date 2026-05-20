@@ -48,7 +48,7 @@ export function AdminDashboard() {
 
   const handleAddTestSubscriber = async () => {
     try {
-      const testEmail = `scholar_${Math.floor(Math.random() * 1000)}@example.edu`;
+      const testEmail = `scholar_${Math.floor(Math.random() * 1000)}@janabhawana.edu.np`;
       await subscribeToNewsletter(testEmail);
       showToast(`Added test subscriber: ${testEmail}`, 'success');
       loadSubscribers();

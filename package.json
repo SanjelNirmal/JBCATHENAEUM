@@ -13,5 +13,8 @@
     "lint": "npm run lint --workspace frontend && npm run lint --workspace backend",
     "start": "npm run start --workspace backend",
     "test": "npm run test --workspace frontend && npm run test --workspace backend"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.15"
   }
 }
