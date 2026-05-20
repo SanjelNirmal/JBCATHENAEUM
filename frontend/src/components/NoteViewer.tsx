@@ -69,8 +69,7 @@ export function NoteViewer({
             });
             return;
           } catch (error) {
-            const shareError = error as DOMException;
-            if (shareError?.name === "AbortError") {
+            if (error instanceof DOMException && error.name === "AbortError") {
               return;
             }
             console.error("Native share failed, falling back to clipboard:", error);
