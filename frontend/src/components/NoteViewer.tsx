@@ -3,13 +3,26 @@ import { User, Calendar, Share2, ExternalLink } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import { Subject, Note } from "../lib/api";
 
-export function NoteViewer({ subjectData, initialNoteId }: { subjectData: Subject; initialNoteId?: string | null }) {
+export function NoteViewer({
+  subjectData,
+  initialNoteId,
+  onNoteChange,
+}: {
+  subjectData: Subject;
+  initialNoteId?: string | null;
+  onNoteChange?: (subjectId: string, noteId: string | null) => void;
+}) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const onNoteChangeRef = useRef(onNoteChange);
   
   // Try to default to the first note available
   const [selectedNote, setSelectedNote] = useState<Note | null>(subjectData.notes[0] || null);
 
     const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+      onNoteChangeRef.current = onNoteChange;
+    }, [onNoteChange]);
 
     useEffect(() => {
       if (!subjectData.notes.length) {
@@ -21,11 +34,13 @@ export function NoteViewer({ subjectData, initialNoteId }: { subjectData: Subjec
         const sharedNote = subjectData.notes.find((note) => note.id === initialNoteId);
         if (sharedNote) {
           setSelectedNote(sharedNote);
+          onNoteChangeRef.current?.(subjectData.id, sharedNote.id);
           return;
         }
       }
 
       setSelectedNote(subjectData.notes[0] || null);
+      onNoteChangeRef.current?.(subjectData.id, subjectData.notes[0]?.id || null);
     }, [subjectData, initialNoteId]);
 
     const handleShare = async () => {
@@ -67,7 +82,10 @@ export function NoteViewer({ subjectData, initialNoteId }: { subjectData: Subjec
             subjectData.notes.map((note) => (
               <div 
                 key={note.id}
-                onClick={() => setSelectedNote(note)}
+                onClick={() => {
+                  setSelectedNote(note);
+                  onNoteChangeRef.current?.(subjectData.id, note.id);
+                }}
                 className={`group cursor-pointer p-4 transition-all border-l-4 ${selectedNote?.id === note.id ? 'bg-blue-50/50 border-[#002147] shadow-sm' : 'hover:bg-slate-50 border-transparent hover:border-[#c49b63]'}`}
               >
                 <div className="flex justify-between items-start gap-2">
