@@ -477,7 +477,7 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
                       onClick={() => {
                         const bcc = subscribers.map(s => s.email).join(',');
                         const subject = encodeURIComponent("JBC ATHENAEUM | Monthly Academic Archive Update");
-                        const body = encodeURIComponent(`Greetings Scholar,\n\nWe are pleased to share the latest additions to the JBC ATHENAEUM Archive for this month.\n\nNew Materials Available:\n- Verified BCA/BSW Faculty Notes\n- Recent Terminal Examination Questions\n- Student Research Theses\n\nAccess the full archive at: https://janabhawana.edu.np/\n\nStay curious, stay inspired.\n\nWarm regards,\nNirmal Sanjel\nJana Bhawana Campus`);
+                        const body = encodeURIComponent(`Greetings Scholar,\n\nWe are pleased to share the latest additions to the JBC ATHENAEUM Archive for this month.\n\nNew Materials Available:\n- Verified BCA/BSW Faculty Notes\n- Recent Terminal Examination Questions\n- Student Research Theses\n\nAccess the full archive at: https://jbcathenaeum.pages.dev/\n\nStay curious, stay inspired.\n\nWarm regards,\nNirmal Sanjel\nJana Bhawana Campus`);
                         window.location.href = `mailto:hackingwithnirmal@gmail.com?bcc=${bcc}&subject=${subject}&body=${body}`;
                       }}
                       className="flex items-center gap-2 px-4 py-2 bg-[#c49b63] text-white rounded text-xs font-bold uppercase tracking-wider hover:bg-[#b08b58] transition-colors shadow-sm"
