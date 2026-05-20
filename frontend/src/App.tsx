@@ -67,8 +67,13 @@ export default function App() {
     } else {
       url.searchParams.delete('note');
     }
-    window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}${url.hash}`);
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
   }, []);
+
+  const handleNoteChange = useCallback((noteId: string | null) => {
+    setSelectedNoteId(noteId);
+    updateViewerUrl(subjectId, noteId);
+  }, [subjectId, updateViewerUrl]);
 
   useEffect(() => {
     if (hasProcessedSharedLink.current || subjects.length === 0) return;
@@ -312,10 +317,7 @@ export default function App() {
           <NoteViewer
             subjectData={currentSubjectData}
             initialNoteId={selectedNoteId}
-            onNoteChange={(noteId) => {
-              setSelectedNoteId(noteId);
-              updateViewerUrl(subjectId, noteId);
-            }}
+            onNoteChange={handleNoteChange}
           />
         </main>
       )}
