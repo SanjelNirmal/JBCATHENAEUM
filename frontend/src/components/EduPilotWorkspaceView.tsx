@@ -88,7 +88,7 @@ const databases: DatabasePlan[] = [
       { name: "Session", type: "Title" },
       { name: "Subject", type: "Relation → Subjects" },
       { name: "Date", type: "Date" },
-      { name: "Duration", type: "Number", notes: "Standardized in minutes" },
+      { name: "Duration", type: "Number", notes: "Duration in minutes" },
       { name: "Type", type: "Select" },
       { name: "Priority", type: "Select" },
       { name: "Status", type: "Status" },

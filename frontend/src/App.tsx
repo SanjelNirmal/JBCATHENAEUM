@@ -198,7 +198,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => setView('edupilot')}
-                  className="px-8 py-4 bg-[#002147] hover:bg-[#001b3a] text-white text-[11px] uppercase tracking-[0.2em] font-black rounded-xl self-start md:self-auto"
+                  className="px-8 py-4 bg-[#002147] hover:bg-[#002147]/90 text-white text-[11px] uppercase tracking-[0.2em] font-black rounded-xl self-start md:self-auto"
                 >
                   Open EduPilot
                 </button>
