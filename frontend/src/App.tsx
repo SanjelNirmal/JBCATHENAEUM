@@ -17,6 +17,7 @@ import { ContributeView } from "./components/ContributeView";
 import { InfoView } from "./components/InfoView";
 import { LibraryArchivesView } from "./components/LibraryArchivesView";
 import { AdminDashboard } from "./components/AdminDashboard";
+import { EduPilotWorkspaceView } from "./components/EduPilotWorkspaceView";
 import { useResourcesData, useAuth, signOut } from "./lib/api";
 import { LoginModal } from "./components/LoginModal";
 import { CookieConsent, getCookie } from "./components/CookieConsent";
@@ -29,7 +30,7 @@ function NoteIcon({ type }: { type: string }) {
   return <FileText size={20} />;
 }
 
-type ViewState = 'home' | 'viewer' | 'semesters' | 'resources' | 'contribute' | 'info' | 'library' | 'admin';
+type ViewState = 'home' | 'viewer' | 'semesters' | 'resources' | 'contribute' | 'info' | 'library' | 'admin' | 'edupilot';
 
 export default function App() {
   const [view, setView] = useState<ViewState>('home');
@@ -134,6 +135,7 @@ export default function App() {
         onNavigateResources={() => setView('resources')}
         onNavigateContribute={() => setView('contribute')}
         onNavigateLibrary={() => setView('library')}
+        onNavigateEduPilot={() => setView('edupilot')}
         onNavigateAdmin={() => setView('admin')}
         user={user ? { name: user.name, faculty: user.faculty, role: user.role } : null}
         onLoginClick={() => setShowLogin(true)}
@@ -184,6 +186,24 @@ export default function App() {
           
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-12 pb-24">
             <PopularCollections onSelect={handleSelectSubject} onViewAll={() => setView('resources')} />
+
+            <section className="py-14 border-t border-slate-100">
+              <div className="rounded-3xl border border-[#002147]/10 bg-[#002147]/5 p-6 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.25em] font-black text-[#c49b63] mb-2">New</p>
+                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-[#002147]">EduPilot Workspace Blueprint</h3>
+                  <p className="text-slate-600 text-sm mt-2 max-w-2xl">
+                    Review and use the connected archive + exam-prep structure for subjects, flashcards, quizzes, revision notes, and study scheduling.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setView('edupilot')}
+                  className="px-8 py-4 bg-[#002147] hover:bg-[#001b3a] text-white text-[11px] uppercase tracking-[0.2em] font-black rounded-xl self-start md:self-auto"
+                >
+                  Open EduPilot
+                </button>
+              </div>
+            </section>
             
             {/* Recent Uploads Section */}
             <section className="py-20 md:py-32 border-t border-slate-100">
@@ -355,6 +375,12 @@ export default function App() {
       {view === 'admin' && user?.role === 'admin' && (
         <main className="flex-1 w-full pb-24 bg-slate-50">
           <AdminDashboard />
+        </main>
+      )}
+
+      {view === 'edupilot' && (
+        <main className="flex-1 w-full pb-24 bg-slate-50">
+          <EduPilotWorkspaceView />
         </main>
       )}
       
