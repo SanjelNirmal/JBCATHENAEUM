@@ -114,80 +114,8 @@ export function EduPilotWorkspaceView() {
           <Sparkles size={14} /> EduPilot Layer
         </p>
         <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4">EduPilot Workspace Blueprint</h1>
-        <p className="text-slate-600 max-w-4xl">
-          A connected implementation plan combining the JBC Athenaeum archive with exam-focused study tooling, all linked by a shared Subjects database.
-        </p>
+        
       </div>
-
-      <section className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 mb-8">
-        <h2 className="text-2xl font-serif font-bold text-[#002147] mb-4 flex items-center gap-2">
-          <Layers3 size={20} className="text-[#c49b63]" /> EduPilot Home Dashboard
-        </h2>
-        <ul className="space-y-2 text-sm text-slate-700 list-disc pl-5">
-          <li>Mission callout and quick-use instructions</li>
-          <li>Exam countdown block tied to upcoming exam dates</li>
-          <li>Quick links to each database layer</li>
-          <li>Linked views: Due this week, Cards to review, Recently added notes</li>
-          <li>Compact revision tips section for rapid review sessions</li>
-        </ul>
-      </section>
-
-      <section className="space-y-6">
-        {databases.map((database) => (
-          <article key={database.title} className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8">
-            <h3 className="text-2xl font-serif font-bold text-[#002147] mb-2 flex items-center gap-2">
-              <Database size={18} className="text-[#c49b63]" /> {database.title}
-            </h3>
-            <p className="text-slate-600 text-sm mb-5">{database.purpose}</p>
-
-            <div className="overflow-x-auto border border-slate-100 rounded-xl">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-left">
-                  <tr>
-                    <th className="p-3 font-bold text-[#002147]">Property</th>
-                    <th className="p-3 font-bold text-[#002147]">Type</th>
-                    <th className="p-3 font-bold text-[#002147]">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {database.properties.map((property) => (
-                    <tr key={`${database.title}-${property.name}`} className="border-t border-slate-100">
-                      <td className="p-3 text-slate-700">{property.name}</td>
-                      <td className="p-3 text-slate-700">{property.type}</td>
-                      <td className="p-3 text-slate-500">{property.notes || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-5">
-              <h4 className="text-xs uppercase tracking-[0.2em] font-black text-slate-400 mb-3">Views</h4>
-              <div className="flex flex-wrap gap-2">
-                {database.views.map((view) => (
-                  <span key={`${database.title}-${view}`} className="text-xs bg-[#002147]/5 text-[#002147] px-3 py-1 rounded-full border border-[#002147]/10">
-                    {view}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      <section className="mt-8 bg-[#002147] text-white rounded-2xl p-6 md:p-8">
-        <h2 className="text-2xl font-serif font-bold mb-4 flex items-center gap-2">
-          <CalendarDays size={20} className="text-[#c49b63]" /> Final Wiring & Starter Content
-        </h2>
-        <ul className="space-y-3 text-sm">
-          {starterItems.map((item) => (
-            <li key={item} className="flex gap-2 items-start">
-              <CheckCircle2 size={16} className="text-[#c49b63] mt-0.5 shrink-0" />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
     </div>
   );
 }
