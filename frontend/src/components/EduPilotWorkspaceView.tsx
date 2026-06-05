@@ -113,7 +113,7 @@ export function EduPilotWorkspaceView() {
         <p className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-black text-[#c49b63] mb-4">
           <Sparkles size={14} /> EduPilot Layer
         </p>
-        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4">EduPilot Workspace Blueprint</h1>
+        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4">EduPilot Workspace Comming Soon.</h1>
         
       </div>
     </div>
