@@ -440,6 +440,20 @@ export function useResourcesData() {
     "semester": "4th Semester",
     "notes": []
   },
+    {
+    "id": "bca-first-project",
+    "name": "Project I",
+    "faculty": "BCA",
+    "semester": "4th Semester",
+    "notes": []
+  },
+    {
+    "id": "bca-4th-extra",
+    "name": "Extra Material",
+    "faculty": "BCA",
+    "semester": "4th Semester",
+    "notes": []
+  },
   {
     "id": "bca-network",
     "name": "Computer Networks",
