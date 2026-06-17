@@ -10,7 +10,6 @@ export function Header({
   onNavigateResources,
   onNavigateContribute,
   onNavigateLibrary,
-  onNavigateEduPilot,
   onNavigateAdmin,
   user,
   onLoginClick,
@@ -437,7 +436,6 @@ export function Header({
               <NavLink label="Semesters" onClick={onNavigateSemesters} />
               <NavLink label="Library" onClick={onNavigateLibrary} />
               <NavLink label="Resources" onClick={onNavigateResources} />
-              <NavLink label="EduPilot" onClick={onNavigateEduPilot} />
               
               <button 
                 onClick={() => { onNavigateContribute?.(); setIsMobileMenuOpen(false); }}
