@@ -109,12 +109,24 @@ const starterItems = [
 export function EduPilotWorkspaceView() {
   return (
     <div className="py-12 max-w-6xl mx-auto px-4 md:px-12 w-full font-sans min-h-[60vh]">
-      <div className="mb-8 border-b border-slate-200 pb-6">
-        <p className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-black text-[#c49b63] mb-4">
-          <Sparkles size={14} /> EduPilot Layer
-        </p>
-        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4">EduPilot Workspace Comming Soon.</h1>
-        
+      <div>
+          <h2 className="text-3xl font-bold mb-3 flex items-center gap-3">
+            <Database className="text-cyan-200" size={28} />
+            JBC Class Record Portal
+          </h2>
+          <p className="text-blue-50 max-w-xl text-lg leading-relaxed">
+            Connected to your EduPilot Workspace. Manage templates, generate print-ready records, and configure class data seamlessly.
+          </p>
+        </div>
+        <a 
+          href="https://jbcclassrecord.pages.dev/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="bg-white text-[#002147] hover:bg-cyan-50 px-8 py-4 rounded-xl font-bold shadow-lg transition-transform hover:-translate-y-1 flex items-center gap-3 whitespace-nowrap text-lg"
+        >
+          Open Website
+          <ExternalLink size={24} />
+        </a>
       </div>
     </div>
   );
