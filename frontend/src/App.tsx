@@ -202,8 +202,6 @@ export default function App() {
                 >
                   Open Class Record Portal
                 </button>
-                  Open JBC CLASS RECORD PORTAL
-                </button>
               </div>
             </section>
             
