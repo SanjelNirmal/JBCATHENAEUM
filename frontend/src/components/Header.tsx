@@ -10,7 +10,6 @@ export function Header({
   onNavigateResources,
   onNavigateContribute,
   onNavigateLibrary,
-  onNavigateEduPilot,
   onNavigateAdmin,
   user,
   onLoginClick,
@@ -25,7 +24,6 @@ export function Header({
   onNavigateResources?: () => void,
   onNavigateContribute?: () => void,
   onNavigateLibrary?: () => void,
-  onNavigateEduPilot?: () => void,
   onNavigateAdmin?: () => void,
   user?: { name: string, faculty: string, role: string } | null,
   onLoginClick?: () => void,
@@ -331,7 +329,6 @@ export function Header({
 
             <div onClick={onNavigateSemesters} className="text-slate-400 hover:text-[#002147] cursor-pointer transition-colors flex items-center h-full">Semesters</div>
             <div onClick={onNavigateResources} className="text-slate-400 hover:text-[#002147] cursor-pointer transition-colors flex items-center h-full">Resources</div>
-            <div onClick={onNavigateEduPilot} className="text-slate-400 hover:text-[#002147] cursor-pointer transition-colors flex items-center h-full">EduPilot</div>
             <button onClick={onNavigateContribute} className="bg-[#002147] hover:bg-[#c49b63] text-white px-8 py-3.5 text-[10px] font-black uppercase tracking-[0.25em] transition-all shadow-xl hover:shadow-[#c49b63]/20 hover:-translate-y-0.5 ml-6 border-none rounded-xl">
               Upload Notes
             </button>
@@ -437,8 +434,6 @@ export function Header({
               <NavLink label="Semesters" onClick={onNavigateSemesters} />
               <NavLink label="Library" onClick={onNavigateLibrary} />
               <NavLink label="Resources" onClick={onNavigateResources} />
-              <NavLink label="EduPilot" onClick={onNavigateEduPilot} />
-              
               <button 
                 onClick={() => { onNavigateContribute?.(); setIsMobileMenuOpen(false); }}
                 className="w-full bg-[#c49b63] py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] text-[#002147] shadow-2xl"
