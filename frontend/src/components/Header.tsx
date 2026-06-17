@@ -434,6 +434,7 @@ export function Header({
               <NavLink label="Semesters" onClick={onNavigateSemesters} />
               <NavLink label="Library" onClick={onNavigateLibrary} />
               <NavLink label="Resources" onClick={onNavigateResources} />
+              
               <button 
                 onClick={() => { onNavigateContribute?.(); setIsMobileMenuOpen(false); }}
                 className="w-full bg-[#c49b63] py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] text-[#002147] shadow-2xl"
