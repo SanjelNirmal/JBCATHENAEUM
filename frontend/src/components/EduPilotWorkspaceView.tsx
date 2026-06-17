@@ -1,6 +1,10 @@
-import { CalendarDays, CheckCircle2, Database, Layers3, Sparkles } from "lucide-react";
+import { Database, ExternalLink } from "lucide-react";
 
-type Property = { name: string; type: string; notes?: string };
+type Property = {
+  name: string;
+  type: string;
+  notes?: string;
+};
 
 type DatabasePlan = {
   title: string;
@@ -23,11 +27,17 @@ const databases: DatabasePlan[] = [
       { name: "Exam Date", type: "Date" },
       { name: "Status", type: "Status" },
     ],
-    views: ["Board by Semester", "Table by Priority", "Calendar by Exam Date"],
+    views: [
+      "Board by Semester",
+      "Table by Priority",
+      "Calendar by Exam Date",
+    ],
   },
+
   {
     title: "Resource Archive",
-    purpose: "Central JBC Athenaeum store for notes, past questions, and research.",
+    purpose:
+      "Central JBC Athenaeum store for notes, past questions, and research.",
     properties: [
       { name: "Title", type: "Title" },
       { name: "Subject", type: "Relation → Subjects" },
@@ -38,24 +48,41 @@ const databases: DatabasePlan[] = [
       { name: "Tags", type: "Multi-select" },
       { name: "Date Added", type: "Created time" },
     ],
-    views: ["Gallery by Resource Type", "Table by Semester", "Board by Subject", "Past Questions only"],
+    views: [
+      "Gallery by Resource Type",
+      "Table by Semester",
+      "Board by Subject",
+      "Past Questions only",
+    ],
   },
+
   {
     title: "Revision Notes",
-    purpose: "Exam-focused summary notes linked back to source resources.",
+    purpose:
+      "Exam-focused summary notes linked back to source resources.",
     properties: [
       { name: "Note Title", type: "Title" },
       { name: "Subject", type: "Relation → Subjects" },
-      { name: "Source Resource", type: "Relation → Resource Archive", notes: "Optional" },
+      {
+        name: "Source Resource",
+        type: "Relation → Resource Archive",
+        notes: "Optional",
+      },
       { name: "Exam Importance", type: "Select" },
       { name: "Status", type: "Status" },
       { name: "Last Reviewed", type: "Date" },
     ],
-    views: ["To write queue", "Drafted notes", "Revised notes"],
+    views: [
+      "To write queue",
+      "Drafted notes",
+      "Revised notes",
+    ],
   },
+
   {
     title: "Flashcards",
-    purpose: "Quick recall deck for spaced repetition and confidence tracking.",
+    purpose:
+      "Quick recall deck for spaced repetition and confidence tracking.",
     properties: [
       { name: "Question (Front)", type: "Title" },
       { name: "Answer (Back)", type: "Text" },
@@ -65,11 +92,17 @@ const databases: DatabasePlan[] = [
       { name: "Last Reviewed", type: "Date" },
       { name: "Next Review", type: "Date" },
     ],
-    views: ["Gallery cards", "Weak cards filter", "Board by Subject"],
+    views: [
+      "Gallery cards",
+      "Weak cards filter",
+      "Board by Subject",
+    ],
   },
+
   {
     title: "Quiz / MCQ Bank",
-    purpose: "Exam-level objective question bank with explanations.",
+    purpose:
+      "Exam-level objective question bank with explanations.",
     properties: [
       { name: "Question", type: "Title" },
       { name: "Subject", type: "Relation → Subjects" },
@@ -79,21 +112,35 @@ const databases: DatabasePlan[] = [
       { name: "Explanation", type: "Text" },
       { name: "Topic", type: "Multi-select" },
     ],
-    views: ["Table by Subject", "Difficulty filters", "Quiz mode"],
+    views: [
+      "Table by Subject",
+      "Difficulty filters",
+      "Quiz mode",
+    ],
   },
+
   {
     title: "Study Plan & Sessions",
-    purpose: "Revision scheduler for daily sessions and exam readiness.",
+    purpose:
+      "Revision scheduler for daily sessions and exam readiness.",
     properties: [
       { name: "Session", type: "Title" },
       { name: "Subject", type: "Relation → Subjects" },
       { name: "Date", type: "Date" },
-      { name: "Duration", type: "Number", notes: "Duration in minutes" },
+      {
+        name: "Duration",
+        type: "Number",
+        notes: "Duration in minutes",
+      },
       { name: "Type", type: "Select" },
       { name: "Priority", type: "Select" },
       { name: "Status", type: "Status" },
     ],
-    views: ["Calendar planner", "Today / This Week", "Board by Status"],
+    views: [
+      "Calendar planner",
+      "Today / This Week",
+      "Board by Status",
+    ],
   },
 ];
 
@@ -106,28 +153,134 @@ const starterItems = [
   "Add a short 'How to use EduPilot' guide in Home",
 ];
 
+
 export function EduPilotWorkspaceView() {
   return (
     <div className="py-12 max-w-6xl mx-auto px-4 md:px-12 w-full font-sans min-h-[60vh]">
-      <div>
+
+      <div className="flex items-center justify-between gap-6">
+
+        <div>
           <h2 className="text-3xl font-bold mb-3 flex items-center gap-3">
-            <Database className="text-cyan-200" size={28} />
+            <Database
+              className="text-cyan-200"
+              size={28}
+            />
+
             JBC Class Record Portal
           </h2>
+
           <p className="text-blue-50 max-w-xl text-lg leading-relaxed">
-            Connected to your EduPilot Workspace. Manage templates, generate print-ready records, and configure class data seamlessly.
+            Connected to your EduPilot Workspace. Manage templates,
+            generate print-ready records, and configure class data
+            seamlessly.
           </p>
         </div>
-        <a 
-          href="https://jbcclassrecord.pages.dev/" 
-          target="_blank" 
+
+
+        <a
+          href="https://jbcclassrecord.pages.dev/"
+          target="_blank"
           rel="noopener noreferrer"
-          className="bg-white text-[#002147] hover:bg-cyan-50 px-8 py-4 rounded-xl font-bold shadow-lg transition-transform hover:-translate-y-1 flex items-center gap-3 whitespace-nowrap text-lg"
+          className="
+            bg-white
+            text-[#002147]
+            hover:bg-cyan-50
+            px-8
+            py-4
+            rounded-xl
+            font-bold
+            shadow-lg
+            transition-transform
+            hover:-translate-y-1
+            flex
+            items-center
+            gap-3
+            whitespace-nowrap
+            text-lg
+          "
         >
           Open Website
+
           <ExternalLink size={24} />
         </a>
+
       </div>
+
+
+      <div className="mt-12 grid gap-6 md:grid-cols-2">
+
+        {databases.map((db) => (
+          <div
+            key={db.title}
+            className="
+              bg-white/10
+              rounded-xl
+              p-6
+              border
+              border-white/20
+            "
+          >
+
+            <h3 className="text-xl font-bold text-white">
+              {db.title}
+            </h3>
+
+            <p className="text-blue-100 mt-2">
+              {db.purpose}
+            </p>
+
+
+            <div className="mt-4">
+              <h4 className="font-semibold text-white">
+                Properties
+              </h4>
+
+              <ul className="mt-2 space-y-1 text-blue-100">
+                {db.properties.map((property) => (
+                  <li key={property.name}>
+                    • {property.name} ({property.type})
+                    {property.notes && ` - ${property.notes}`}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+
+            <div className="mt-4">
+              <h4 className="font-semibold text-white">
+                Views
+              </h4>
+
+              <ul className="mt-2 text-blue-100">
+                {db.views.map((view) => (
+                  <li key={view}>
+                    • {view}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+          </div>
+        ))}
+
+      </div>
+
+
+      <div className="mt-12">
+        <h3 className="text-2xl font-bold text-white mb-4">
+          Starter Checklist
+        </h3>
+
+        <ul className="space-y-2 text-blue-100">
+          {starterItems.map((item) => (
+            <li key={item}>
+              ✓ {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
     </div>
   );
 }
