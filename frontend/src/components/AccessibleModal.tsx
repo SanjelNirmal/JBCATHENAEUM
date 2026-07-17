@@ -5,6 +5,7 @@ export function AccessibleModal({
   children,
   onClose,
   labelledBy,
+  describedBy,
   label,
   className = "max-w-xl",
   closeOnBackdrop = true,
@@ -12,6 +13,7 @@ export function AccessibleModal({
   children: ReactNode;
   onClose: () => void;
   labelledBy?: string;
+  describedBy?: string;
   label?: string;
   className?: string;
   closeOnBackdrop?: boolean;
@@ -31,6 +33,7 @@ export function AccessibleModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
+        aria-describedby={describedBy}
         aria-label={label}
         onMouseDown={(event) => event.stopPropagation()}
         className={`max-h-[90vh] w-full overflow-auto rounded-2xl bg-white p-6 shadow-2xl ${className}`}

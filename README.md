@@ -23,6 +23,24 @@ npm run dev
 
 Set only the public Supabase project URL and publishable/anonymous key in `frontend/.env.local`. Never put a service-role key, database password, Cloudflare token, SMTP password, or other secret in a `VITE_` variable.
 
+## Optional project support
+
+JBC Athenaeum resources remain free. The footer's **Buy me a coffee** action is
+an optional bank-transfer prompt and is never used as an access check or
+document paywall.
+
+Bank display details are centralized in
+`frontend/src/config/payment.ts`. To enable the QR display, add the verified NMB
+QR image at:
+
+```text
+frontend/public/payment/nmb-payment-qr.png
+```
+
+If the image is absent, the modal safely falls back to the bank details. The
+application does not collect payment receipts, transaction references, banking
+credentials, or screenshots.
+
 ## Quality gates
 
 ```sh
