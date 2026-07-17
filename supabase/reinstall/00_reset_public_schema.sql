@@ -8,7 +8,7 @@
 -- auth.users accounts survive and migration 001 rebuilds their profiles.
 --
 -- Run this file once in the Supabase SQL Editor, then replay migrations
--- 202607170001 through 202607170007 in filename order as documented in
+-- 202607170001 through 202607170008 in filename order as documented in
 -- README.md in this directory.
 
 begin;
@@ -38,4 +38,3 @@ alter default privileges for role postgres in schema public
   grant execute on functions to service_role;
 
 commit;
-

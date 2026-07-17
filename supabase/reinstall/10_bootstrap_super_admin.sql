@@ -1,4 +1,4 @@
--- Run only after all seven migrations have completed successfully.
+-- Run only after all eight migrations have completed successfully.
 -- Change only the owner_email value below to the verified Auth email.
 -- This does not create an Auth user or store the email in a public table.
 

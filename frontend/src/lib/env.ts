@@ -1,4 +1,4 @@
-export const LATEST_DATABASE_MIGRATION = "202607170007_admin_resource_listing";
+export const LATEST_DATABASE_MIGRATION = "202607170008_review_queue_listing";
 
 type PublicEnvironmentSource = Record<string, string | boolean | undefined>;
 
