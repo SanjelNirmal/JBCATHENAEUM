@@ -24,22 +24,23 @@ export default function HomePage() {
   return (
     <main id="main-content">
       <Seo
-        title="Academic resource archive"
-        description="Browse reviewed academic resources for Jana Bhawana Campus."
+        title="TU BCA notes and academic resources"
+        description="Find reviewed TU BCA notes, past questions, project reports, PDFs, and academic resources for Jana Bhawana Campus students on JBC Athenaeum by Nirmal Sanjel."
         path="/"
+        keywords="Jana Bhawana Campus, JBC Athenaeum, TU notes, Tribhuvan University notes, BCA notes, BCA 4th semester notes, TU BCA resources, Jana Bhawana Campus notes, Nirmal Sanjel"
       />
       <section className="bg-[#002147] px-5 py-20 text-white sm:py-28">
         <div className="mx-auto max-w-6xl">
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#d8b37a]">
-            Jana Bhawana Campus
+            Jana Bhawana Campus · Tribhuvan University
           </p>
           <h1 className="mt-5 max-w-4xl font-serif text-4xl font-black leading-tight sm:text-6xl">
-            Reviewed academic resources, organized around your curriculum.
+            TU BCA notes, past questions, and campus resources.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200">
-            Search notes, past questions, and learning materials submitted by
-            the campus community and approved through a controlled review
-            process.
+            Search reviewed notes, project reports, PDFs, past questions, and
+            learning materials for Jana Bhawana Campus students. JBC Athenaeum
+            is maintained as a moderated academic archive by Nirmal Sanjel.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link

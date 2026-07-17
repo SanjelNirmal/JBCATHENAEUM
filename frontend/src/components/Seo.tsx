@@ -6,11 +6,13 @@ export function Seo({
   title,
   description,
   path,
+  keywords,
   noIndex = false,
 }: {
   title: string;
   description: string;
   path: string;
+  keywords?: string;
   noIndex?: boolean;
 }) {
   useEffect(() => {
@@ -24,6 +26,7 @@ export function Seo({
       element.setAttribute(attribute, value);
     };
     setMeta('meta[name="description"]', "content", description);
+    if (keywords) setMeta('meta[name="keywords"]', "content", keywords);
     setMeta(
       'meta[name="robots"]',
       "content",
@@ -33,6 +36,9 @@ export function Seo({
     setMeta('meta[property="og:description"]', "content", description);
     setMeta('meta[property="og:type"]', "content", "website");
     setMeta('meta[property="og:url"]', "content", `${origin}${path}`);
+    setMeta('meta[property="twitter:title"]', "content", title);
+    setMeta('meta[property="twitter:description"]', "content", description);
+    setMeta('meta[property="twitter:url"]', "content", `${origin}${path}`);
     let canonical = document.head.querySelector<HTMLLinkElement>(
       'link[rel="canonical"]',
     );
@@ -42,6 +48,6 @@ export function Seo({
       document.head.appendChild(canonical);
     }
     canonical.href = `${origin}${path}`;
-  }, [description, noIndex, path, title]);
+  }, [description, keywords, noIndex, path, title]);
   return null;
 }

@@ -86,8 +86,9 @@ export default function AcademicDirectoryPage() {
       <main id="main-content" className="mx-auto max-w-5xl px-5 py-16">
         <Seo
           title={title}
-          description={`Academic resources and curriculum information for ${title}.`}
+          description={`Browse ${title} notes, TU BCA resources, subject materials, and curriculum information for Jana Bhawana Campus.`}
           path={location.pathname}
+          keywords={`${title} notes, ${title} resources, Jana Bhawana Campus, TU notes, Tribhuvan University, BCA notes, JBC Athenaeum`}
         />
         <p className="text-sm font-bold uppercase tracking-wider text-[#85591f]">
           {kind}
@@ -134,15 +135,17 @@ export default function AcademicDirectoryPage() {
   return (
     <main id="main-content" className="mx-auto max-w-7xl px-5 py-16">
       <Seo
-        title="Academic directory"
-        description="Browse faculties, programs, terms, and subjects."
+        title="Jana Bhawana Campus academic directory"
+        description="Browse Jana Bhawana Campus faculties, TU programs, BCA terms, subjects, and related academic notes on JBC Athenaeum."
         path="/faculties"
+        keywords="Jana Bhawana Campus, JBC faculties, TU programs, BCA semester, BCA subjects, Tribhuvan University, Jana Bhawana Campus BCA"
       />
       <h1 className="font-serif text-5xl font-bold text-[#002147]">
-        Academic directory
+        Jana Bhawana Campus academic directory
       </h1>
       <p className="mt-4 max-w-2xl text-slate-600">
-        Curriculum records come directly from the normalized academic database.
+        Browse TU programs, BCA terms, subjects, and related notes organized for
+        Jana Bhawana Campus students.
       </p>
       {faculties.length === 0 ? (
         <div className="mt-8">
