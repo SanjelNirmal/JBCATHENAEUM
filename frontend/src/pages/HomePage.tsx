@@ -29,33 +29,76 @@ export default function HomePage() {
         path="/"
         keywords="Jana Bhawana Campus, JBC Athenaeum, TU notes, Tribhuvan University notes, BCA notes, BCA 4th semester notes, TU BCA resources, Jana Bhawana Campus notes, Nirmal Sanjel"
       />
-      <section className="bg-[#002147] px-5 py-20 text-white sm:py-28">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#d8b37a]">
-            Jana Bhawana Campus · Tribhuvan University
-          </p>
-          <h1 className="mt-5 max-w-4xl font-serif text-4xl font-black leading-tight sm:text-6xl">
-            TU BCA notes, past questions, and campus resources.
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200">
-            Search reviewed notes, project reports, PDFs, past questions, and
-            learning materials for Jana Bhawana Campus students. JBC Athenaeum
-            is maintained as a moderated academic archive by Nirmal Sanjel.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/resources"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#c49b63] px-6 font-bold text-[#001b3a]"
-            >
-              Browse resources <ArrowRight size={18} />
-            </Link>
-            <Link
-              to="/contribute"
-              className="inline-flex min-h-12 items-center rounded-xl border border-white/40 px-6 font-bold text-white"
-            >
-              Contribute a PDF
-            </Link>
+      <section className="relative overflow-hidden bg-[#001b3a] text-white">
+        <div
+          aria-hidden="true"
+          className="absolute -left-32 top-10 h-80 w-80 rounded-full bg-[#c49b63]/10 blur-3xl"
+        />
+        <div className="relative mx-auto grid max-w-7xl lg:min-h-[38rem] lg:grid-cols-[minmax(0,3fr)_minmax(22rem,2fr)]">
+          <div className="flex flex-col justify-center px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24 xl:pl-8 xl:pr-20">
+            <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#d8b37a] sm:text-sm">
+              <span aria-hidden="true" className="h-px w-9 bg-[#d8b37a]" />
+              Jana Bhawana Campus
+            </p>
+            <h1 className="mt-6 max-w-3xl font-serif text-4xl font-black leading-[1.08] sm:text-5xl lg:text-6xl">
+              TU BCA notes, past questions, and campus resources.
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
+              Search reviewed notes, project reports, PDFs, past questions, and
+              learning materials for Jana Bhawana Campus students. JBC Athenaeum
+              is a moderated academic archive built for focused, reliable study.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                to="/resources"
+                className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#c49b63] px-6 font-bold text-[#001b3a] transition hover:bg-[#d8b37a]"
+              >
+                Browse resources <ArrowRight aria-hidden="true" size={18} />
+              </Link>
+              <Link
+                to="/contribute"
+                className="inline-flex min-h-12 items-center rounded-xl border border-white/40 px-6 font-bold text-white transition hover:border-white hover:bg-white/10"
+              >
+                Contribute a PDF
+              </Link>
+            </div>
+            <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Tribhuvan University · Chapagaun, Lalitpur
+            </p>
           </div>
+
+          <figure className="group relative min-h-[25rem] overflow-hidden lg:min-h-full">
+            <img
+              src="/jana-bhawana-campus.jpg"
+              alt="Red-brick Jana Bhawana Campus building in Chapagaun, Lalitpur"
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-cover object-center transition duration-700 group-hover:scale-[1.02]"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-[#001b3a]/80 via-transparent to-[#001b3a]/10"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-y-0 left-0 hidden w-24 bg-gradient-to-r from-[#001b3a] to-transparent lg:block"
+            />
+            <div className="absolute left-5 top-5 border border-white/30 bg-[#001b3a]/75 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-white backdrop-blur-sm sm:left-7 sm:top-7">
+              Established academic community
+            </div>
+            <figcaption className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-4 border-l-2 border-[#c49b63] bg-[#001b3a]/85 px-5 py-4 backdrop-blur-md sm:bottom-7 sm:left-7 sm:right-7">
+              <span>
+                <span className="block text-xs uppercase tracking-[0.2em] text-[#d8b37a]">
+                  Jana Bhawana Campus
+                </span>
+                <span className="mt-1 block text-sm font-semibold text-white">
+                  Campus building · Chapagaun
+                </span>
+              </span>
+              <span className="shrink-0 rounded-full border border-white/25 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                TU BCA Archive
+              </span>
+            </figcaption>
+          </figure>
         </div>
       </section>
       <section

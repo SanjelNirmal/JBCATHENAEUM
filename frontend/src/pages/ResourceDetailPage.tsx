@@ -149,37 +149,12 @@ export default function ResourceDetailPage() {
             </div>
           )}
           <div className="overflow-hidden rounded-2xl border border-slate-300 bg-slate-200">
-            <div className="pdf-mobile-viewer min-h-[22rem] flex-col items-center justify-center bg-white px-6 py-10 text-center">
-              <div className="rounded-full bg-blue-50 p-4 text-[#002147]">
-                <FileWarning aria-hidden="true" size={28} />
-              </div>
-              <h2 className="mt-5 font-serif text-2xl font-bold text-[#002147]">
-                Open the PDF to read every page
-              </h2>
-              <p className="mt-3 max-w-md text-sm leading-6 text-slate-600">
-                Embedded PDF previews can stop at the first page on iPhone and
-                other touch devices. Open the document in your browser's PDF
-                viewer to scroll through all
-                {item.pageCount ? ` ${item.pageCount}` : ""} pages.
-              </p>
-              <a
-                href={basePreviewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                referrerPolicy="no-referrer"
-                className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-5 font-bold text-white"
-              >
-                Open full document
-                <ExternalLink aria-hidden="true" size={17} />
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            </div>
             <iframe
               title={`Preview of ${item.title}`}
               src={previewUrl}
               referrerPolicy="no-referrer"
               scrolling="yes"
-              className="pdf-preview-frame h-[70vh] min-h-[30rem] w-full touch-pan-y overflow-y-auto bg-white"
+              className="h-[70vh] min-h-[30rem] w-full touch-pan-y overflow-y-auto bg-white"
             />
           </div>
           <p className="mt-2 text-sm text-slate-600">
@@ -203,17 +178,18 @@ export default function ResourceDetailPage() {
               <RefreshCw size={17} />
               Refresh preview
             </button>
-            <a
-              href={basePreviewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              referrerPolicy="no-referrer"
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
-            >
-              <ExternalLink aria-hidden="true" size={17} />
-              {isLegacy ? "Open external source" : "Open full document"}
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
+            {isLegacy && (
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                referrerPolicy="no-referrer"
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
+              >
+                <ExternalLink aria-hidden="true" size={17} />
+                Open external source
+              </a>
+            )}
             {auth.user ? (
               <button
                 onClick={() => setReportOpen((value) => !value)}

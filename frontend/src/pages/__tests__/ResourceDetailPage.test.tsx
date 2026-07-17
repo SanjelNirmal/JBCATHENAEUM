@@ -34,14 +34,12 @@ vi.mock("../../lib/supabase/resources", () => ({
     createdAt: "2026-07-17T00:00:00.000Z",
   }),
   getLegacyPreviewUrl: vi.fn(),
-  getPublicResourceAccessUrl: vi
-    .fn()
-    .mockReturnValue("about:blank"),
+  getPublicResourceAccessUrl: vi.fn().mockReturnValue("about:blank"),
   reportResource: vi.fn(),
 }));
 
 describe("ResourceDetailPage", () => {
-  it("offers a full-document mobile fallback and enables iframe scrolling", async () => {
+  it("keeps the PDF inside the preview and enables iframe scrolling", async () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -61,22 +59,9 @@ describe("ResourceDetailPage", () => {
 
     const preview = await screen.findByTitle("Preview of Project I");
     expect(preview).toHaveAttribute("scrolling", "yes");
-    expect(preview).toHaveClass("pdf-preview-frame", "touch-pan-y");
-
-    const fullDocumentLinks = screen.getAllByRole("link", {
-      name: /Open full document/,
-    });
-    expect(fullDocumentLinks).toHaveLength(2);
-    for (const link of fullDocumentLinks) {
-      expect(link).toHaveAttribute(
-        "href",
-        "about:blank",
-      );
-      expect(link).toHaveAttribute("target", "_blank");
-    }
-
+    expect(preview).toHaveClass("touch-pan-y", "overflow-y-auto");
     expect(
-      screen.getByText(/scroll through all 12 pages/i),
-    ).toBeInTheDocument();
+      screen.queryByRole("link", { name: /Open full document/ }),
+    ).not.toBeInTheDocument();
   });
 });
