@@ -26,10 +26,14 @@ export function resolveEffectiveRole(roles: readonly AppRole[]): AppRole {
   return roles.reduce<AppRole>(
     (effective, role) =>
       ROLE_PRIORITY[role] > ROLE_PRIORITY[effective] ? role : effective,
-    "student"
+    "student",
   );
 }
 
 export function isAdminRole(role: AppRole): boolean {
   return role === "admin" || role === "super_admin";
+}
+
+export function canReviewResources(role: AppRole): boolean {
+  return role === "moderator" || isAdminRole(role);
 }

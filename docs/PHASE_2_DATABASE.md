@@ -8,6 +8,10 @@ Phase 2 adds an extensible academic catalog, versioned resources, a submission/r
 2. `202607170002_phase2_academic_resources.sql`
 3. `202607170003_phase2_workflows.sql`
 
+After the platform migrations, `202607170006_academic_catalog_seed.sql` adds
+the reviewed Jana Bhawana course catalog without replacing the normalized rows
+already referenced by legacy resources.
+
 The Phase 2 migrations assume Stage 1 has succeeded. They are additive and do not delete existing resources, profiles, newsletter subscriptions, or role data.
 
 ## Academic model
@@ -27,6 +31,29 @@ Resource categories are campus-scoped. Every resource must reference a campus, p
 
 Existing labels are backfilled under `Jana Bhawana Campus`. Since the legacy UI called BCA, BICTE, BSW, and BBS “faculties,” each distinct legacy faculty label is initially represented as both a faculty and a program. A project owner should review and correct that hierarchy through normalized records before adding another campus.
 
+## Reviewed catalog seed
+
+The initial backfill can only reproduce labels already present on resource
+rows. A deployment with one BCA fourth-semester resource therefore exposes only
+that program and term in the contribution form. The follow-up catalog migration
+adds four contribution-ready programs from published institutional sources:
+
+- BCA: eight semesters and 58 core/elective subject choices from the
+  [Tribhuvan University BCA Course Structure](https://portal.tu.edu.np/downloads/2025_11_27_15_22_42.pdf).
+- BICTE: eight semesters and 46 subject choices from the
+  [Jana Bhawana Campus BICTE course page](https://janabhawana.edu.np/coursesdetail/15).
+- BBS: four years and 21 subjects from the
+  [Jana Bhawana Campus BBS course page](https://janabhawana.edu.np/coursesdetail/13).
+- MBS: four semesters and 19 subjects from the
+  [Jana Bhawana Campus MBS course page](https://janabhawana.edu.np/coursesdetail/11).
+
+Existing current curricula and matching term/subject slugs are reused. This is
+important because replacing the original BCA fourth-semester row would orphan
+or misclassify already-published resources. BA/BSW and B.Ed remain available for
+administrator setup after the campus approves a complete current curriculum;
+the public campus pages currently expose incomplete or mixed-version subject
+lists, so the migration does not invent missing options.
+
 ## Compatibility bridge
 
 These legacy `resources` columns are retained temporarily:
@@ -41,7 +68,7 @@ These legacy `resources` columns are retained temporarily:
 
 They are no longer authoritative. Existing rows receive normalized foreign keys, a unique slug, `published` status, and a `legacy_unverified` version. The frontend's temporary admin form now calls `import_legacy_resource`, which canonicalizes academic labels, records normalized references, creates a version, and writes an audit event.
 
-The bridge accepts administrator-only HTTPS links so current administration remains functional. Remove it after the Phase 3 private Storage rollout.
+The bridge accepts administrator-only HTTPS links so current administration remains functional. Phase 3 removes its UI and revokes authenticated execution of `import_legacy_resource`; the function remains only as migration history and is not part of the supported production workflow.
 
 ## Resource lifecycle
 
@@ -130,7 +157,7 @@ Codex did not apply these migrations to the live project.
 
    `unresolved_resources` must be zero. Existing resources should be `published` with one `legacy_unverified` version each.
 
-7. In a Cloudflare preview, verify public resources still load, archived resources disappear, a legacy admin import produces normalized references, and unauthorized REST writes return `42501`.
+7. In a Cloudflare preview, verify public resources still load, archived resources disappear, and unauthorized REST writes return `42501`. Before Phase 3, also test a legacy administrator import; after applying Phase 3, verify that the legacy import UI is absent and authenticated execution of `import_legacy_resource` is denied.
 8. Promote only after database tests and two-account role/review tests pass.
 
 ## Recovery

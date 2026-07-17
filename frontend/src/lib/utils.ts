@@ -8,7 +8,9 @@ type ProfileDbError = { code?: string; message?: string };
 
 export function isProfileWriteBlocked(error: unknown): boolean {
   const candidate: ProfileDbError =
-    typeof error === "object" && error !== null ? (error as ProfileDbError) : {};
+    typeof error === "object" && error !== null
+      ? (error as ProfileDbError)
+      : {};
   const message = String(candidate.message || "").toLowerCase();
   return (
     PROFILE_INSERT_BLOCKED_CODES.has(String(candidate.code || "")) ||
@@ -21,7 +23,7 @@ export function isProfileWriteBlocked(error: unknown): boolean {
 export function getUserMetaString(
   user: Pick<User, "email" | "user_metadata">,
   key: "name" | "faculty",
-  fallback: string
+  fallback: string,
 ): string {
   const rawValue = user.user_metadata?.[key];
   if (typeof rawValue === "string" && rawValue.trim().length > 0) {
@@ -35,7 +37,7 @@ export function getUserMetaString(
 }
 
 export function createFallbackProfile(
-  user: Pick<User, "id" | "email" | "user_metadata">
+  user: Pick<User, "id" | "email" | "user_metadata">,
 ): UserProfile {
   const now = new Date().toISOString();
   return {
@@ -44,6 +46,8 @@ export function createFallbackProfile(
     faculty: getUserMetaString(user as User, "faculty", "Unknown"),
     avatar_url: null,
     bio: null,
+    account_status: "active",
+    suspended_at: null,
     roles: ["student"],
     role: "student",
     created_at: now,

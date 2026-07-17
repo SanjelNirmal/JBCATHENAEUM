@@ -1,0 +1,29 @@
+[functions.create-upload-session]
+verify_jwt = false
+
+[functions.finalize-upload]
+verify_jwt = false
+
+[functions.cancel-upload]
+verify_jwt = false
+
+[functions.publish-resource]
+verify_jwt = false
+
+[functions.review-resource-file]
+verify_jwt = false
+
+[functions.decide-resource-review]
+verify_jwt = false
+
+[functions.resource-download]
+verify_jwt = false
+
+[functions.cleanup-uploads]
+verify_jwt = false
+
+[functions.submit-removal-request]
+verify_jwt = false
+
+[functions.permanently-delete-resource]
+verify_jwt = false

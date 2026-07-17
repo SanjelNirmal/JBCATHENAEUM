@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isAdminRole, isAppRole, resolveEffectiveRole } from "../roles";
+import {
+  canReviewResources,
+  isAdminRole,
+  isAppRole,
+  resolveEffectiveRole,
+} from "../roles";
 
 describe("role helpers", () => {
   it("rejects legacy and unknown role values", () => {
@@ -12,12 +17,20 @@ describe("role helpers", () => {
   });
 
   it("selects the highest assigned membership", () => {
-    expect(resolveEffectiveRole(["student", "moderator", "faculty"])).toBe("moderator");
+    expect(resolveEffectiveRole(["student", "moderator", "faculty"])).toBe(
+      "moderator",
+    );
   });
 
   it("only treats admin memberships as dashboard administrators", () => {
     expect(isAdminRole("moderator")).toBe(false);
     expect(isAdminRole("admin")).toBe(true);
     expect(isAdminRole("super_admin")).toBe(true);
+  });
+
+  it("allows moderators into the review workflow without admin privileges", () => {
+    expect(canReviewResources("faculty")).toBe(false);
+    expect(canReviewResources("moderator")).toBe(true);
+    expect(canReviewResources("admin")).toBe(true);
   });
 });

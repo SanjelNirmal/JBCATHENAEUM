@@ -1,0 +1,65 @@
+export type ErrorContext =
+  "auth" | "upload" | "review" | "resource" | "network" | "default";
+
+const codeMessages: Record<string, string> = {
+  "42501": "You do not have permission to perform this action.",
+  "23505": "This item already exists.",
+  "23514": "This action is not valid for the current state.",
+  P0002: "The requested item could not be found.",
+  invalid_credentials: "The email or password is incorrect.",
+  email_not_confirmed: "Verify your email address before signing in.",
+  mfa_required: "Multi-factor authentication is required for this action.",
+  account_suspended:
+    "This account is suspended. Contact a campus administrator for assistance.",
+  account_disabled:
+    "This account is disabled. Contact a campus administrator for assistance.",
+};
+
+export function getErrorCode(error: unknown): string {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string"
+  )
+    return error.code;
+  return "";
+}
+
+export function toSafeErrorMessage(
+  error: unknown,
+  context: ErrorContext = "default",
+): string {
+  const code = getErrorCode(error);
+  if (codeMessages[code]) return codeMessages[code];
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  if (message.includes("invalid login credentials"))
+    return codeMessages.invalid_credentials;
+  if (message.includes("email not confirmed"))
+    return codeMessages.email_not_confirmed;
+  if (message.includes("multi-factor") || message.includes("aal2"))
+    return codeMessages.mfa_required;
+  if (
+    message.includes("account_suspended") ||
+    message.includes("account suspended")
+  )
+    return codeMessages.account_suspended;
+  if (
+    message.includes("account_disabled") ||
+    message.includes("account disabled") ||
+    message.includes("account inactive")
+  )
+    return codeMessages.account_disabled;
+  if (message.includes("failed to fetch") || message.includes("network"))
+    return "The network request failed. Check your connection and try again.";
+  const fallbacks: Record<ErrorContext, string> = {
+    auth: "Authentication could not be completed. Please try again.",
+    upload:
+      "The upload could not be completed. Your file has not been published.",
+    review: "The review action could not be completed.",
+    resource: "The resource could not be loaded.",
+    network: "The network request failed. Please try again.",
+    default: "Something went wrong. Please try again.",
+  };
+  return fallbacks[context];
+}

@@ -1,4 +1,4 @@
-export const LATEST_DATABASE_MIGRATION = "202607170003_phase2_workflows";
+export const LATEST_DATABASE_MIGRATION = "202607170006_academic_catalog_seed";
 
 type PublicEnvironmentSource = Record<string, string | boolean | undefined>;
 
@@ -15,9 +15,10 @@ export interface EnvironmentIssue {
   message: string;
 }
 
-export function validatePublicEnvironment(
-  source: PublicEnvironmentSource
-): { config: PublicEnvironment; issues: EnvironmentIssue[] } {
+export function validatePublicEnvironment(source: PublicEnvironmentSource): {
+  config: PublicEnvironment;
+  issues: EnvironmentIssue[];
+} {
   const supabaseUrl = String(source.VITE_SUPABASE_URL ?? "").trim();
   const supabaseAnonKey = String(source.VITE_SUPABASE_ANON_KEY ?? "").trim();
   const issues: EnvironmentIssue[] = [];
@@ -30,7 +31,10 @@ export function validatePublicEnvironment(
   } else {
     try {
       const parsedUrl = new URL(supabaseUrl);
-      if (parsedUrl.protocol !== "https:" && parsedUrl.hostname !== "localhost") {
+      if (
+        parsedUrl.protocol !== "https:" &&
+        parsedUrl.hostname !== "localhost"
+      ) {
         issues.push({
           variable: "VITE_SUPABASE_URL",
           message: "The project URL must use HTTPS outside local development.",

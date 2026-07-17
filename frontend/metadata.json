@@ -2,7 +2,5 @@
   "name": "JBC ATHENAEUM",
   "description": "A sophisticated academic resource platform for Jana Bhawana Campus, providing centralized access to notes, past questions, and research materials.",
   "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "majorCapabilities": []
 }

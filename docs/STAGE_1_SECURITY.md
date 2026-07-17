@@ -38,7 +38,8 @@ Every non-self origin in `frontend/public/_headers` has a current application de
 | `style-src` | `https://fonts.googleapis.com` | Inter and Playfair Display stylesheet import |
 | `font-src` | `https://fonts.gstatic.com` | Google Fonts files |
 | `img-src` | `https://images.unsplash.com` | Home-page archive photograph |
-| `frame-src` | `https://drive.google.com`, `https://docs.google.com` | Existing document preview iframe |
+| `frame-src` | `https://drive.google.com`, `https://docs.google.com` | Existing legacy document preview iframe |
+| `frame-src` | `https://*.supabase.co` | Short-lived signed preview of validated private PDFs |
 
 `script-src` also contains one SHA-256 hash for the static organization JSON-LD block in `frontend/index.html`; it does not authorize arbitrary inline JavaScript.
 

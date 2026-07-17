@@ -6,24 +6,38 @@ const InfoContent = ({ pageTitle }: { pageTitle: string }) => {
   const [submitted, setSubmitted] = useState(false);
 
   switch (pageTitle) {
-    case 'Our Mission':
+    case "Our Mission":
       return (
         <div className="space-y-6 text-slate-600">
           <div className="bg-[#002147]/5 p-8 rounded-3xl border border-[#002147]/10 mb-8">
-            <h3 className="text-2xl font-serif font-bold text-[#002147] mb-4">Empowering Scholars Through Open Intelligence</h3>
+            <h3 className="text-2xl font-serif font-bold text-[#002147] mb-4">
+              Empowering Scholars Through Open Intelligence
+            </h3>
             <p className="leading-relaxed">
-              JBC ATHENAEUM was founded on the principle that academic resources should be accessible, organized, and shared freely among the student body. Our mission is to bridge the gap between classroom teaching and home study by providing a high-quality, peer-reviewed repository of academic notes and past exams.
+              JBC ATHENAEUM was founded on the principle that academic resources
+              should be accessible, organized, and shared freely among the
+              student body. Our mission is to bridge the gap between classroom
+              teaching and home study by providing a high-quality, peer-reviewed
+              repository of academic notes and past exams.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
             <div className="p-6 bg-white border border-slate-100 rounded-2xl">
               <h4 className="font-bold text-[#002147] mb-2">Preservation</h4>
-              <p className="text-sm">We preserve the academic legacy of Jana Bhawana Campus, ensuring that generations of students can build upon the knowledge of those who came before them.</p>
+              <p className="text-sm">
+                We preserve the academic legacy of Jana Bhawana Campus, ensuring
+                that generations of students can build upon the knowledge of
+                those who came before them.
+              </p>
             </div>
             <div className="p-6 bg-white border border-slate-100 rounded-2xl">
               <h4 className="font-bold text-[#002147] mb-2">Accessibility</h4>
-              <p className="text-sm">Our platform is designed to be lightning-fast and mobile-friendly, ensuring students can retrieve crucial information even on the go.</p>
+              <p className="text-sm">
+                Our platform is designed to be lightning-fast and
+                mobile-friendly, ensuring students can retrieve crucial
+                information even on the go.
+              </p>
             </div>
           </div>
 
@@ -39,54 +53,104 @@ const InfoContent = ({ pageTitle }: { pageTitle: string }) => {
         </div>
       );
 
-    case 'Terms of Service':
+    case "Terms of Service":
       return (
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-[#002147]">1. Acceptance of Terms</h2>
-          <p className="text-slate-600 leading-relaxed">By accessing and using the JBC ATHENAEUM, you accept and agree to be bound by the terms and provision of this agreement. These terms apply to all visitors, students, and faculty who access or use the Service.</p>
-          
-          <h2 className="text-xl font-bold text-[#002147] pt-4">2. Academic Use Only</h2>
-          <p className="text-slate-600 leading-relaxed">The resources provided herein are strictly for educational and non-commercial purposes. You may not sell, redistribute for profit, or commercialize any notes, documents, or materials obtained from this archive.</p>
+          <h2 className="text-xl font-bold text-[#002147]">
+            1. Acceptance of Terms
+          </h2>
+          <p className="text-slate-600 leading-relaxed">
+            By accessing and using the JBC ATHENAEUM, you accept and agree to be
+            bound by the terms and provision of this agreement. These terms
+            apply to all visitors, students, and faculty who access or use the
+            Service.
+          </p>
 
-          <h2 className="text-xl font-bold text-[#002147] pt-4">3. User Contributions</h2>
-          <p className="text-slate-600 leading-relaxed">By submitting notes through our contribution system, you grant the Archive a non-exclusive, royalty-free license to distribute and display the content for academic purposes. You ensure that you are the original creator or have permission to share the material.</p>
+          <h2 className="text-xl font-bold text-[#002147] pt-4">
+            2. Academic Use Only
+          </h2>
+          <p className="text-slate-600 leading-relaxed">
+            The resources provided herein are strictly for educational and
+            non-commercial purposes. You may not sell, redistribute for profit,
+            or commercialize any notes, documents, or materials obtained from
+            this archive.
+          </p>
+
+          <h2 className="text-xl font-bold text-[#002147] pt-4">
+            3. User Contributions
+          </h2>
+          <p className="text-slate-600 leading-relaxed">
+            By submitting notes through our contribution system, you grant the
+            Archive a non-exclusive, royalty-free license to distribute and
+            display the content for academic purposes. You ensure that you are
+            the original creator or have permission to share the material.
+          </p>
         </div>
       );
 
-    case 'Privacy Policy':
+    case "Privacy Policy":
       return (
         <div className="space-y-6">
           <h2 className="text-xl font-bold text-[#002147]">Data Collection</h2>
-          <p className="text-slate-600 leading-relaxed">We collect limited information required to provide and improve the JBC ATHENAEUM services. This may include your academic email (if logged in), IP address for security purposes, and usage metrics to determine popular subjects.</p>
-          
+          <p className="text-slate-600 leading-relaxed">
+            We collect limited information required to provide and improve the
+            JBC ATHENAEUM services. This may include your academic email (if
+            logged in), IP address for security purposes, and usage metrics to
+            determine popular subjects.
+          </p>
+
           <h2 className="text-xl font-bold text-[#002147] pt-4">Data Usage</h2>
-          <p className="text-slate-600 leading-relaxed">Your data is never sold to third parties. We use it solely to maintain the integrity of our platform, communicate regarding your contributions, and send requested newsletter updates.</p>
+          <p className="text-slate-600 leading-relaxed">
+            Your data is never sold to third parties. We use it solely to
+            maintain the integrity of our platform, communicate regarding your
+            contributions, and send requested newsletter updates.
+          </p>
         </div>
       );
 
-    case 'Academic Integrity':
+    case "Academic Integrity":
       return (
         <div className="space-y-6">
           <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-8">
-            <p className="text-yellow-800 font-medium">Plagiarism and unauthorized copying strictly violate our core principles.</p>
+            <p className="text-yellow-800 font-medium">
+              Plagiarism and unauthorized copying strictly violate our core
+              principles.
+            </p>
           </div>
-          <p className="text-slate-600 leading-relaxed">The JBC ATHENAEUM is a supplementary study tool. Notes and assignments found here should be used to understand concepts, not to be copied and passed off as your own work. Always cite your sources and adhere strictly to the university's academic honesty policies.</p>
+          <p className="text-slate-600 leading-relaxed">
+            The JBC ATHENAEUM is a supplementary study tool. Notes and
+            assignments found here should be used to understand concepts, not to
+            be copied and passed off as your own work. Always cite your sources
+            and adhere strictly to the university's academic honesty policies.
+          </p>
         </div>
       );
 
-    case 'Copyright Guidelines':
+    case "Copyright Guidelines":
       return (
         <div className="space-y-6">
-          <p className="text-slate-600 leading-relaxed">We respect intellectual property. Do not upload commercially published textbooks, copyrighted research papers (without open-access licenses), or premium paid study materials.</p>
+          <p className="text-slate-600 leading-relaxed">
+            We respect intellectual property. Do not upload commercially
+            published textbooks, copyrighted research papers (without
+            open-access licenses), or premium paid study materials.
+          </p>
           <ul className="list-disc pl-6 space-y-2 text-slate-600 mt-4">
-            <li>Only upload your own handwritten/typed notes or assignments.</li>
-            <li>Professors' slides can only be uploaded if they have given explicit permission.</li>
-            <li>Past examination papers are generally considered public academic records and are permitted.</li>
+            <li>
+              Only upload your own handwritten/typed notes or assignments.
+            </li>
+            <li>
+              Professors' slides can only be uploaded if they have given
+              explicit permission.
+            </li>
+            <li>
+              Past examination papers are generally considered public academic
+              records and are permitted.
+            </li>
           </ul>
         </div>
       );
 
-    case 'Administrator Info':
+    case "Administrator Info":
       return (
         <div className="space-y-8">
           <div className="flex flex-col md:flex-row gap-8 items-center bg-slate-50 p-8 rounded-3xl border border-slate-100">
@@ -94,120 +158,206 @@ const InfoContent = ({ pageTitle }: { pageTitle: string }) => {
               NS
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h3 className="text-2xl font-bold text-[#002147] mb-1">Nirmal Sanjel</h3>
-              <p className="text-[#c49b63] text-sm mb-4 uppercase tracking-[0.2em] font-black">Lead Developer & Architect</p>
+              <h3 className="text-2xl font-bold text-[#002147] mb-1">
+                Nirmal Sanjel
+              </h3>
+              <p className="text-[#c49b63] text-sm mb-4 uppercase tracking-[0.2em] font-black">
+                Lead Developer & Architect
+              </p>
               <div className="space-y-3 text-slate-600">
-                <a href="mailto:hackingwithnirmal@gmail.com" className="flex items-center justify-center md:justify-start hover:text-[#c49b63] transition-colors">
-                  <Mail size={18} className="mr-3" /> hackingwithnirmal@gmail.com
+                <a
+                  href="mailto:hackingwithnirmal@gmail.com"
+                  className="flex items-center justify-center md:justify-start hover:text-[#c49b63] transition-colors"
+                >
+                  <Mail size={18} className="mr-3" />{" "}
+                  hackingwithnirmal@gmail.com
                 </a>
-                <a href="tel:+9779848744321" className="flex items-center justify-center md:justify-start hover:text-[#c49b63] transition-colors">
+                <a
+                  href="tel:+9779848744321"
+                  className="flex items-center justify-center md:justify-start hover:text-[#c49b63] transition-colors"
+                >
                   <Phone size={18} className="mr-3" /> +977 9848744321
                 </a>
               </div>
             </div>
           </div>
           <div className="prose prose-slate max-w-none">
-            <p className="text-slate-600 italic">"This platform was personally developed to streamline academic resource sharing at Jana Bhawana Campus. Feel free to reach out for support or feedback."</p>
+            <p className="text-slate-600 italic">
+              "This platform was personally developed to streamline academic
+              resource sharing at Jana Bhawana Campus. Feel free to reach out
+              for support or feedback."
+            </p>
           </div>
         </div>
       );
 
-    case 'Library Administration':
-    case 'IT Support Desk':
-    case 'Faculty Directory':
+    case "Library Administration":
+    case "IT Support Desk":
+    case "Faculty Directory":
       return (
         <div className="space-y-6">
           <div className="bg-blue-50 border-l-4 border-[#002147] p-6">
             <h3 className="font-bold text-[#002147] text-lg mb-2">Notice</h3>
-            <p className="text-slate-700">Formal directory and departmental administration links are currently being migrated. For any urgent queries, please contact the lead developer directly.</p>
+            <p className="text-slate-700">
+              Formal directory and departmental administration links are
+              currently being migrated. For any urgent queries, please contact
+              the lead developer directly.
+            </p>
           </div>
           <div className="p-8 border border-slate-100 rounded-2xl space-y-4">
-             <p className="font-bold text-[#002147]">Primary Contact:</p>
-             <p className="flex items-center gap-3 text-slate-600"><Mail size={16} /> hackingwithnirmal@gmail.com</p>
-             <p className="flex items-center gap-3 text-slate-600"><Phone size={16} /> +977 9848744321</p>
+            <p className="font-bold text-[#002147]">Primary Contact:</p>
+            <p className="flex items-center gap-3 text-slate-600">
+              <Mail size={16} /> hackingwithnirmal@gmail.com
+            </p>
+            <p className="flex items-center gap-3 text-slate-600">
+              <Phone size={16} /> +977 9848744321
+            </p>
           </div>
         </div>
       );
 
-    case 'Submit Feedback':
-    case 'Report an Error':
+    case "Submit Feedback":
+    case "Report an Error":
       return submitted ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <Send size={24} />
           </div>
-          <h2 className="text-2xl font-serif font-bold text-[#002147] mb-2">Thank You!</h2>
+          <h2 className="text-2xl font-serif font-bold text-[#002147] mb-2">
+            Thank You!
+          </h2>
           <p className="text-slate-600">Your message has been received.</p>
         </div>
       ) : (
-        <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="space-y-6 max-w-xl">
-          <p className="text-slate-600">{pageTitle === 'Report an Error' ? 'Found a broken link or incorrect document? Let us know.' : 'We love hearing how we can improve the platform.'}</p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSubmitted(true);
+          }}
+          className="space-y-6 max-w-xl"
+        >
+          <p className="text-slate-600">
+            {pageTitle === "Report an Error"
+              ? "Found a broken link or incorrect document? Let us know."
+              : "We love hearing how we can improve the platform."}
+          </p>
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Your Name (Optional)</label>
-            <input type="text" className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] bg-slate-50" />
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+              Your Name (Optional)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] bg-slate-50"
+            />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Message</label>
-            <textarea rows={5} required className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] bg-slate-50"></textarea>
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+              Message
+            </label>
+            <textarea
+              rows={5}
+              required
+              className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] bg-slate-50"
+            ></textarea>
           </div>
-          <button type="submit" className="bg-[#002147] hover:bg-[#001b3a] text-white px-8 py-3 uppercase tracking-widest text-xs font-bold transition-colors">
+          <button
+            type="submit"
+            className="bg-[#002147] hover:bg-[#001b3a] text-white px-8 py-3 uppercase tracking-widest text-xs font-bold transition-colors"
+          >
             Submit
           </button>
         </form>
       );
 
-    case 'FAQ & Guides':
+    case "FAQ & Guides":
       return (
         <div className="space-y-6 text-slate-600">
           <div className="border-b border-slate-200 pb-4">
-            <h3 className="font-bold text-[#002147] mb-2">Q: How do I download a PDF?</h3>
-            <p className="text-sm">A: Open the document in the NoteViewer and click the "Download PDF" button at the top right of the viewer header.</p>
+            <h3 className="font-bold text-[#002147] mb-2">
+              Q: How do I download a PDF?
+            </h3>
+            <p className="text-sm">
+              A: Open the document in the NoteViewer and click the "Download
+              PDF" button at the top right of the viewer header.
+            </p>
           </div>
           <div className="border-b border-slate-200 pb-4">
-            <h3 className="font-bold text-[#002147] mb-2">Q: Why isn't the document loading?</h3>
-            <p className="text-sm">A: Some networks block Google Drive iframes. If this happens, try accessing from a different network or wait for the fallback link to appear.</p>
+            <h3 className="font-bold text-[#002147] mb-2">
+              Q: Why isn't the document loading?
+            </h3>
+            <p className="text-sm">
+              A: Some networks block Google Drive iframes. If this happens, try
+              accessing from a different network or wait for the fallback link
+              to appear.
+            </p>
           </div>
           <div className="pb-4">
-            <h3 className="font-bold text-[#002147] mb-2">Q: Who can upload notes?</h3>
-            <p className="text-sm">A: Any student can submit notes via the "Contribute" page. They will be reviewed by an admin before becoming public.</p>
+            <h3 className="font-bold text-[#002147] mb-2">
+              Q: Who can upload notes?
+            </h3>
+            <p className="text-sm">
+              A: Any student can submit notes via the "Contribute" page. They
+              will be reviewed by an admin before becoming public.
+            </p>
           </div>
         </div>
       );
 
-    case 'Upload Instructions':
+    case "Upload Instructions":
       return (
         <div className="space-y-6 text-slate-600">
-          <h2 className="text-xl font-bold text-[#002147]">Step-by-Step Guide</h2>
+          <h2 className="text-xl font-bold text-[#002147]">
+            Step-by-Step Guide
+          </h2>
           <ol className="list-decimal pl-5 space-y-4">
-            <li>Navigate to the <strong>Contribute</strong> page from the top navigation menu.</li>
-            <li>Fill out the form with accurate details regarding the Faculty, Semester, and Subject.</li>
-            <li>Click "Generate Email to Submit". This will open your default email client.</li>
-            <li><strong>Crucial:</strong> Attach your PDF files to the email before sending.</li>
-            <li>The admins will review your submission and upload it within 48 hours.</li>
+            <li>
+              Navigate to the <strong>Contribute</strong> page from the top
+              navigation menu.
+            </li>
+            <li>
+              Fill out the form with accurate details regarding the Faculty,
+              Semester, and Subject.
+            </li>
+            <li>
+              Click "Generate Email to Submit". This will open your default
+              email client.
+            </li>
+            <li>
+              <strong>Crucial:</strong> Attach your PDF files to the email
+              before sending.
+            </li>
+            <li>
+              The admins will review your submission and upload it within 48
+              hours.
+            </li>
           </ol>
         </div>
       );
 
-    case 'Sitemap':
+    case "Sitemap":
       return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-           <div>
-             <h4 className="font-bold text-[#002147] mb-4 border-b border-slate-200 pb-2">Main</h4>
-             <ul className="space-y-2 text-sm text-slate-600">
-               <li>Home</li>
-               <li>Semesters Overview</li>
-               <li>All Resources</li>
-               <li>Contribute Notes</li>
-             </ul>
-           </div>
-           <div>
-             <h4 className="font-bold text-[#002147] mb-4 border-b border-slate-200 pb-2">Faculties</h4>
-             <ul className="space-y-2 text-sm text-slate-600">
-               <li>BCA (Computing)</li>
-               <li>BSW (Social Work)</li>
-               <li>BBS (Business)</li>
-             </ul>
-           </div>
+          <div>
+            <h4 className="font-bold text-[#002147] mb-4 border-b border-slate-200 pb-2">
+              Main
+            </h4>
+            <ul className="space-y-2 text-sm text-slate-600">
+              <li>Home</li>
+              <li>Semesters Overview</li>
+              <li>All Resources</li>
+              <li>Contribute Notes</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#002147] mb-4 border-b border-slate-200 pb-2">
+              Faculties
+            </h4>
+            <ul className="space-y-2 text-sm text-slate-600">
+              <li>BCA (Computing)</li>
+              <li>BSW (Social Work)</li>
+              <li>BBS (Business)</li>
+            </ul>
+          </div>
         </div>
       );
 
@@ -217,8 +367,9 @@ const InfoContent = ({ pageTitle }: { pageTitle: string }) => {
           <AlertTriangle className="text-yellow-500 mb-4" size={32} />
           <h2 className="text-2xl font-bold mb-4">Under Construction</h2>
           <p className="mb-4">
-            The full details for <strong>{pageTitle}</strong> are currently being drafted and reviewed by the administration.
-            Please check back later for the complete document.
+            The full details for <strong>{pageTitle}</strong> are currently
+            being drafted and reviewed by the administration. Please check back
+            later for the complete document.
           </p>
         </div>
       );
@@ -229,7 +380,9 @@ export function InfoView({ pageTitle }: { pageTitle: string }) {
   return (
     <div className="py-12 max-w-3xl mx-auto px-4 md:px-12 w-full font-sans min-h-[60vh]">
       <div className="mb-8 border-b border-slate-200 pb-6">
-        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4">{pageTitle}</h1>
+        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#002147] mb-4">
+          {pageTitle}
+        </h1>
         <p className="text-slate-500">Information, policies, and guidelines</p>
       </div>
 
@@ -238,7 +391,10 @@ export function InfoView({ pageTitle }: { pageTitle: string }) {
           <Info className="text-[#002147] shrink-0 mt-0.5" size={20} />
           <div className="text-sm text-slate-700">
             <h4 className="font-bold text-[#002147] mb-1">Status</h4>
-            <p>This document is current and applies to all users of the JBC ATHENAEUM.</p>
+            <p>
+              This document is current and applies to all users of the JBC
+              ATHENAEUM.
+            </p>
           </div>
         </div>
 

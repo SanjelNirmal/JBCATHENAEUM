@@ -1,9 +1,9 @@
 // Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
-import React, { useEffect } from 'react';
-import { AlertCircle, CheckCircle, Info, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useEffect } from "react";
+import { AlertCircle, CheckCircle, Info, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = "success" | "error" | "info";
 
 interface ToastProps {
   message: string;
@@ -20,23 +20,23 @@ export function Toast({ message, type, onClose, duration = 5000 }: ToastProps) {
 
   const styles = {
     success: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      text: 'text-green-800',
-      icon: <CheckCircle className="text-green-500" size={18} />
+      bg: "bg-green-50",
+      border: "border-green-200",
+      text: "text-green-800",
+      icon: <CheckCircle className="text-green-500" size={18} />,
     },
     error: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      text: 'text-red-800',
-      icon: <AlertCircle className="text-red-500" size={18} />
+      bg: "bg-red-50",
+      border: "border-red-200",
+      text: "text-red-800",
+      icon: <AlertCircle className="text-red-500" size={18} />,
     },
     info: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      text: 'text-blue-800',
-      icon: <Info className="text-blue-500" size={18} />
-    }
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+      text: "text-blue-800",
+      icon: <Info className="text-blue-500" size={18} />,
+    },
   };
 
   const currentStyle = styles[type];
@@ -50,7 +50,7 @@ export function Toast({ message, type, onClose, duration = 5000 }: ToastProps) {
     >
       <div className="shrink-0">{currentStyle.icon}</div>
       <p className="text-sm font-medium flex-grow">{message}</p>
-      <button 
+      <button
         onClick={onClose}
         className="shrink-0 p-1 hover:bg-black/5 rounded-full transition-colors"
       >
