@@ -74,9 +74,12 @@ export default function ResourceDetailPage() {
     );
   const item = query.data;
   const isLegacy = Boolean(item.legacyUrl);
-  const previewUrl = item.legacyUrl
+  const basePreviewUrl = item.legacyUrl
     ? getLegacyPreviewUrl(item.legacyUrl)
     : getPublicResourceAccessUrl(item.id);
+  const previewUrl = item.legacyUrl
+    ? basePreviewUrl
+    : `${basePreviewUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
   const resourceUrl = `${window.location.origin}/resources/${item.slug}`;
   const shareResource = async () => {
     setShareMessage("");
@@ -149,7 +152,6 @@ export default function ResourceDetailPage() {
             <iframe
               title={`Preview of ${item.title}`}
               src={previewUrl}
-              sandbox="allow-scripts allow-same-origin"
               referrerPolicy="no-referrer"
               className="h-[70vh] min-h-[30rem] w-full bg-white"
             />
