@@ -33,7 +33,7 @@ Tune thresholds after two weeks of limited-beta baseline data.
 
 ## Configuration procedure
 
-1. In Cloudflare Dashboard → Workers & Pages → JBC Athenaeum → Metrics, enable Web Analytics. Cloudflare documents that Pages inserts the analytics beacon on the next deployment: <https://developers.cloudflare.com/pages/how-to/web-analytics/>.
+1. In Cloudflare Dashboard → Workers & Pages → JBC Athenaeum → Metrics, enable Web Analytics. The CSP permits Cloudflare's external performance beacon. HTML uses `Cache-Control: no-transform` to prevent dynamic JavaScript Detection injection; do not remove it or enable a bot rule that depends on JavaScript Detections without first implementing per-response CSP nonces.
 2. Create an external uptime monitor with 5-minute checks for the production home and catalog. Alert the primary and secondary owner; do not use a signed resource URL as a target.
 3. Select an institution-approved error provider. Subscribe to the `window` event named `jbc:client-error` and transmit only its already-sanitized fields (`kind`, bounded message, path, version, timestamp). Record its DSN/endpoint as a deployment secret only if the provider's client key is designed to be public.
 4. Configure Supabase log drains/alerts according to the project's plan for Edge Function 5xx, Auth failures, and Postgres errors. Redact authorization headers and request bodies.

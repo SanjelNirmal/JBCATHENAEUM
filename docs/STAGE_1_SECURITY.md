@@ -59,6 +59,7 @@ Every non-self origin in `frontend/public/_headers` has a current application de
 | ------------- | ----------------------------------------------------- | ---------------------------------------------------- |
 | `connect-src` | `https://*.supabase.co`                               | Supabase Auth, PostgREST, and Storage HTTPS calls    |
 | `connect-src` | `wss://*.supabase.co`                                 | Supabase auth/realtime WebSocket support             |
+| `script-src`  | `https://static.cloudflareinsights.com`                | Cloudflare Web Analytics performance beacon          |
 | `style-src`   | `https://fonts.googleapis.com`                        | Inter and Playfair Display stylesheet import         |
 | `font-src`    | `https://fonts.gstatic.com`                           | Google Fonts files                                   |
 | `img-src`     | `https://images.unsplash.com`                         | Home-page archive photograph                         |
@@ -66,6 +67,12 @@ Every non-self origin in `frontend/public/_headers` has a current application de
 | `frame-src`   | `https://*.supabase.co`                               | Short-lived signed preview of validated private PDFs |
 
 `script-src` also contains one SHA-256 hash for the static organization JSON-LD block in `frontend/index.html`; it does not authorize arbitrary inline JavaScript.
+
+HTML responses use `Cache-Control: no-transform` so Cloudflare does not inject
+dynamic JavaScript Detection code that cannot be authorized by a stable CSP
+hash. Do not add `unsafe-inline` or copy a one-request challenge hash into the
+policy. If JavaScript Detections are required later, move CSP generation to a
+nonce-capable response layer first.
 
 External links to Google Scholar, social networks, and the class-record site navigate away from the application and do not need CSP allowlist entries.
 
