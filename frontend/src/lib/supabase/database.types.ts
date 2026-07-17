@@ -172,6 +172,7 @@ export interface Database {
         subject_id: string;
         category_id: string;
         owner_id: string | null;
+        author_name: string | null;
         title: string;
         slug: string;
         description: string | null;

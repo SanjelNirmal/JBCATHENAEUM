@@ -134,21 +134,14 @@ export async function fetchResource(
   const { data: resource, error } = await supabase
     .from("resources")
     .select(
-      "id,title,slug,description,academic_year,resource_type,program_id,term_id,subject_id,category_id,owner_id,download_count,created_at,current_version_id,file_url",
+      "id,title,slug,description,academic_year,resource_type,program_id,term_id,subject_id,category_id,author_name,download_count,created_at,current_version_id,file_url",
     )
     .or(`id.eq.${lookup},slug.eq.${lookup}`)
     .maybeSingle();
   if (error) throw error;
   if (!resource) return null;
-  const [catalog, profileResult, versionResult] = await Promise.all([
+  const [catalog, versionResult] = await Promise.all([
     fetchAcademicCatalog(),
-    resource.owner_id
-      ? supabase
-          .from("profiles")
-          .select("name")
-          .eq("id", resource.owner_id)
-          .maybeSingle()
-      : Promise.resolve({ data: null, error: null }),
     resource.current_version_id
       ? supabase
           .from("resource_versions")
@@ -181,7 +174,7 @@ export async function fetchResource(
     subjectName: academic.subjectName,
     categoryId: resource.category_id,
     categoryName: category?.name ?? "Resource",
-    contributorName: profileResult.data?.name ?? "Contributor",
+    contributorName: resource.author_name ?? "Contributor",
     byteSize: versionResult.data?.byte_size ?? null,
     pageCount: versionResult.data?.page_count ?? null,
     legacyUrl: validateLegacyResourceUrl(resource.file_url),
