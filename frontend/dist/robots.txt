@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /contribute
+Disallow: /my-submissions
+Disallow: /notifications
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://jbcathenaeum.pages.dev/sitemap.xml
