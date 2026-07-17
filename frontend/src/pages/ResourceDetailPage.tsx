@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Download, ExternalLink, FileWarning, Flag } from "lucide-react";
+import { ExternalLink, FileWarning, Flag, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
@@ -7,7 +7,6 @@ import { Seo } from "../components/Seo";
 import { useCurrentAuth } from "../app/AuthContext";
 import {
   fetchResource,
-  getDownloadUrl,
   getLegacyPreviewUrl,
   getPublicResourceAccessUrl,
   reportResource,
@@ -70,7 +69,6 @@ export default function ResourceDetailPage() {
   const previewUrl = item.legacyUrl
     ? getLegacyPreviewUrl(item.legacyUrl)
     : getPublicResourceAccessUrl(item.id);
-  const accessUrl = item.legacyUrl ?? getDownloadUrl(item.id);
   const submitReport = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -123,35 +121,36 @@ export default function ResourceDetailPage() {
             <iframe
               title={`Preview of ${item.title}`}
               src={previewUrl}
-              sandbox="allow-scripts allow-same-origin allow-downloads"
+              sandbox="allow-scripts allow-same-origin"
               referrerPolicy="no-referrer"
               className="h-[70vh] min-h-[30rem] w-full bg-white"
             />
           </div>
           <p className="mt-2 text-sm text-slate-600">
-            If the preview does not load, use the open action below.
+            Preview access is temporary. Refresh this page if the viewer
+            expires.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <a
-              href={previewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              referrerPolicy="no-referrer"
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
               className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 font-bold"
             >
-              <ExternalLink size={17} />
-              Open in new tab
-            </a>
-            <a
-              href={accessUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              referrerPolicy="no-referrer"
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
-            >
-              {isLegacy ? <ExternalLink size={17} /> : <Download size={17} />}
-              {isLegacy ? "Open external source" : "Download PDF"}
-            </a>
+              <RefreshCw size={17} />
+              Refresh preview
+            </button>
+            {isLegacy && (
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                referrerPolicy="no-referrer"
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
+              >
+                <ExternalLink size={17} />
+                Open external source
+              </a>
+            )}
             {auth.user ? (
               <button
                 onClick={() => setReportOpen((value) => !value)}
