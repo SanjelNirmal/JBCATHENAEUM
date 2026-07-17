@@ -90,6 +90,10 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "profile",
+        element: lazyElement(() => import("../pages/ProfilePage"), "Loading profile"),
+      },
+      {
         path: "login",
         element: lazyElement(
           () => import("../pages/AuthPage"),

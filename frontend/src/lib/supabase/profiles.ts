@@ -203,3 +203,22 @@ export async function updateSafeUserProfile(
   });
   if (error) throw error;
 }
+
+export async function updateMyProfile(
+  id: string,
+  name: string,
+  faculty: string,
+  avatarUrl: string,
+  bio: string,
+) {
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      name: name.trim(),
+      faculty: faculty.trim(),
+      avatar_url: avatarUrl.trim() ? avatarUrl.trim() : null,
+      bio: bio.trim() ? bio.trim() : null,
+    })
+    .eq("id", id);
+  if (error) throw error;
+}

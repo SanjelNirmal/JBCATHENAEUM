@@ -22,6 +22,8 @@ const codeMessages: Record<string, string> = {
   weak_password:
     "Use a stronger password that meets all password requirements.",
   same_password: "Choose a password different from your current password.",
+  "avatar url must start with https://":
+    "Avatar URL must start with https://.",
   mfa_required: "Multi-factor authentication is required for this action.",
   account_suspended:
     "This account is suspended. Contact a campus administrator for assistance.",
@@ -51,6 +53,8 @@ export function toSafeErrorMessage(
     return codeMessages.invalid_credentials;
   if (message.includes("email not confirmed"))
     return codeMessages.email_not_confirmed;
+  if (message.includes("avatar url must start with https://"))
+    return codeMessages["avatar url must start with https://"];
   if (message.includes("multi-factor") || message.includes("aal2"))
     return codeMessages.mfa_required;
   if (

@@ -104,6 +104,13 @@ export function SiteHeader() {
           {auth.profile ? (
             <div className="hidden items-center gap-3 min-[960px]:flex">
               <Link
+                to="/profile"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
+              >
+                <UserCircle size={17} />
+                Profile
+              </Link>
+              <Link
                 to="/my-submissions"
                 className="text-sm font-semibold text-slate-700"
               >
@@ -224,6 +231,18 @@ export function SiteHeader() {
                       {item.label}
                     </NavLink>
                   ))}
+                  {auth.profile && (
+                    <NavLink
+                      to="/profile"
+                      onClick={() => setOpen(false)}
+                      className={({ isActive }) =>
+                        `flex min-h-13 items-center gap-3 rounded-xl px-4 py-3 font-bold ${isActive ? "bg-[#002147] text-white" : "bg-slate-50 text-slate-800"}`
+                      }
+                    >
+                      <UserCircle size={20} />
+                      Profile
+                    </NavLink>
+                  )}
                   {auth.profile && (
                     <NavLink
                       to="/my-submissions"
