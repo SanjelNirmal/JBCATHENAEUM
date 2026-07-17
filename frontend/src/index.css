@@ -34,6 +34,24 @@ textarea {
   accent-color: #002147;
 }
 
+/*
+ * Mobile Safari can render an embedded PDF as a non-scrollable first page.
+ * Touch-only devices get a link to the browser's native full-document viewer.
+ */
+.pdf-mobile-viewer {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .pdf-mobile-viewer {
+    display: flex;
+  }
+
+  .pdf-preview-frame {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
