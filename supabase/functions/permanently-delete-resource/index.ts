@@ -17,7 +17,7 @@ Deno.serve(async (request) => {
     return jsonResponse(request, { error: "method_not_allowed" }, 405);
   try {
     const { user, client } = await authenticatedUser(request);
-    await requireAal2(client);
+    await requireAal2(client, request);
     const { resourceId, confirmation } = await request.json();
     if (!resourceId || confirmation !== `DELETE ${resourceId}`) {
       throw new PublicError(

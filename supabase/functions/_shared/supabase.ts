@@ -72,9 +72,21 @@ export async function authenticatedUser(
   return { user: data.user, client };
 }
 
-export async function requireAal2(client: SupabaseClient): Promise<void> {
+export async function requireAal2(
+  client: SupabaseClient,
+  request: Request,
+): Promise<void> {
+  const authorization = request.headers.get("authorization") ?? "";
+  const accessToken = authorization.match(/^Bearer\s+(.+)$/i)?.[1];
+  if (!accessToken) {
+    throw new PublicError(
+      "authentication_required",
+      "Your session is invalid or expired.",
+      401,
+    );
+  }
   const { data, error } =
-    await client.auth.mfa.getAuthenticatorAssuranceLevel();
+    await client.auth.mfa.getAuthenticatorAssuranceLevel(accessToken);
   if (error || data.currentLevel !== "aal2") {
     throw new PublicError(
       "mfa_required",

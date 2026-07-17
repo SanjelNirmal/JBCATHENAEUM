@@ -18,7 +18,7 @@ Deno.serve(async (request) => {
 
   try {
     const { user, client } = await authenticatedUser(request);
-    await requireAal2(client);
+    await requireAal2(client, request);
     const { versionId } = await request.json();
     if (!versionId)
       throw new PublicError("invalid_version", "Resource version is required.");

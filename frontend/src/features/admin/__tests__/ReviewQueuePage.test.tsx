@@ -87,4 +87,52 @@ describe("ReviewQueuePage", () => {
     );
     expect(review.publishApprovedResource).toHaveBeenCalledWith("resource");
   });
+
+  it("prevents a moderator from selecting or deciding their own submission", async () => {
+    review.fetchReviewQueue.mockResolvedValue({
+      total: 1,
+      items: [
+        {
+          submissionId: "own-submission",
+          resourceId: "resource",
+          versionId: "version",
+          submitterId: "admin",
+          contributor: "Current reviewer",
+          status: "submitted",
+          submittedAt: "2026-07-17T00:00:00Z",
+          title: "Own Notes",
+          program: "BCA",
+          faculty: "Humanities",
+          term: "Fourth Semester",
+          semester: "Fourth Semester",
+          subject: "Project-I",
+          category: "Notes",
+          byteSize: 1200,
+          pageCount: 2,
+          mimeType: "application/pdf",
+          scanStatus: "clean",
+          duplicateWarning: false,
+          reviewNotes: [],
+        },
+      ],
+    });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <ReviewQueuePage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByLabelText("Select Own Notes")).toBeDisabled();
+    expect(
+      screen.getAllByText(/another reviewer required/i).length,
+    ).toBeGreaterThan(0);
+    for (const button of screen.getAllByRole("button", { name: "Approve" })) {
+      expect(button).toBeDisabled();
+    }
+  });
 });

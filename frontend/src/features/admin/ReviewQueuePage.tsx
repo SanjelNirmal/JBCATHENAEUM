@@ -61,7 +61,10 @@ export default function ReviewQueuePage() {
     user.roles.some(canReviewResources),
   );
   const items = query.data?.items ?? [];
-  const chosen = items.filter((item) => selected.has(item.submissionId));
+  const chosen = items.filter(
+    (item) =>
+      item.submitterId !== auth.user?.id && selected.has(item.submissionId),
+  );
   const refresh = async () => {
     await client.invalidateQueries({ queryKey: ["review-queue"] });
     setSelected(new Set());
@@ -303,6 +306,7 @@ export default function ReviewQueuePage() {
                     <ReviewRow
                       key={item.submissionId}
                       item={item}
+                      ownSubmission={item.submitterId === auth.user?.id}
                       selected={selected.has(item.submissionId)}
                       onSelect={(checked) =>
                         setSelected((current) => {
@@ -339,6 +343,7 @@ export default function ReviewQueuePage() {
                   <label className="flex gap-3">
                     <input
                       type="checkbox"
+                      disabled={item.submitterId === auth.user?.id}
                       checked={selected.has(item.submissionId)}
                       onChange={(event) =>
                         setSelected((current) => {
@@ -369,6 +374,11 @@ export default function ReviewQueuePage() {
                     Duplicate check:{" "}
                     {item.duplicateWarning ? "warning" : "no exact match"}
                   </p>
+                  {item.submitterId === auth.user?.id && (
+                    <p className="mt-2 text-sm font-semibold text-amber-800">
+                      Your submission requires another reviewer.
+                    </p>
+                  )}
                   {(item.reviewNotes ?? []).length > 0 && (
                     <p className="mt-2 text-sm text-slate-700">
                       Latest note: {item.reviewNotes[0]}
@@ -384,12 +394,22 @@ export default function ReviewQueuePage() {
                       label="Start review"
                       icon={Play}
                       onClick={() => void claim(item.submissionId)}
+                      disabled={
+                        busy ||
+                        item.status !== "submitted" ||
+                        item.submitterId === auth.user?.id
+                      }
                     />
                     <Action
                       label="Approve"
                       icon={Check}
                       onClick={() =>
                         setDialog({ outcome: "approved", items: [item] })
+                      }
+                      disabled={
+                        busy ||
+                        item.status === "approved" ||
+                        item.submitterId === auth.user?.id
                       }
                     />
                     <Action
@@ -401,12 +421,22 @@ export default function ReviewQueuePage() {
                           items: [item],
                         })
                       }
+                      disabled={
+                        busy ||
+                        item.status === "approved" ||
+                        item.submitterId === auth.user?.id
+                      }
                     />
                     <Action
                       label="Reject"
                       icon={XCircle}
                       onClick={() =>
                         setDialog({ outcome: "rejected", items: [item] })
+                      }
+                      disabled={
+                        busy ||
+                        item.status === "approved" ||
+                        item.submitterId === auth.user?.id
                       }
                     />
                     {canAssign && (
@@ -478,6 +508,7 @@ export default function ReviewQueuePage() {
 
 function ReviewRow({
   item,
+  ownSubmission,
   selected,
   onSelect,
   onClaim,
@@ -487,6 +518,7 @@ function ReviewRow({
   busy,
 }: {
   item: ReviewQueueItem;
+  ownSubmission: boolean;
   selected: boolean;
   onSelect: (value: boolean) => void;
   onClaim: () => void;
@@ -501,6 +533,7 @@ function ReviewRow({
         <input
           aria-label={`Select ${item.title}`}
           type="checkbox"
+          disabled={ownSubmission}
           checked={selected}
           onChange={(event) => onSelect(event.target.checked)}
         />
@@ -517,6 +550,11 @@ function ReviewRow({
         <Link to={`/admin/users?q=${item.submitterId}`} className="underline">
           {item.contributor}
         </Link>
+        {ownSubmission && (
+          <span className="mt-1 block text-xs font-semibold text-amber-800">
+            Another reviewer required
+          </span>
+        )}
       </td>
       <td className="p-3">{item.program}</td>
       <td className="p-3">{item.term}</td>
@@ -553,25 +591,25 @@ function ReviewRow({
             label="Start review"
             icon={Play}
             onClick={onClaim}
-            disabled={busy || item.status !== "submitted"}
+            disabled={busy || ownSubmission || item.status !== "submitted"}
           />
           <Action
             label="Approve"
             icon={Check}
             onClick={() => onDecision("approved")}
-            disabled={busy || item.status === "approved"}
+            disabled={busy || ownSubmission || item.status === "approved"}
           />
           <Action
             label="Request changes"
             icon={RefreshCw}
             onClick={() => onDecision("changes_requested")}
-            disabled={busy || item.status === "approved"}
+            disabled={busy || ownSubmission || item.status === "approved"}
           />
           <Action
             label="Reject"
             icon={XCircle}
             onClick={() => onDecision("rejected")}
-            disabled={busy || item.status === "approved"}
+            disabled={busy || ownSubmission || item.status === "approved"}
           />
           {onArchive && (
             <Action

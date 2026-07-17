@@ -20,7 +20,7 @@ Deno.serve(async (request) => {
 
   try {
     const { client: userSupabase } = await authenticatedUser(request);
-    await requireAal2(userSupabase);
+    await requireAal2(userSupabase, request);
     const body = await request.json();
     const submissionId = String(body.submissionId ?? "");
     const outcome = String(body.outcome ?? "");

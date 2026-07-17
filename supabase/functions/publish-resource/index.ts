@@ -18,7 +18,7 @@ Deno.serve(async (request) => {
 
   try {
     const { user, client: userSupabase } = await authenticatedUser(request);
-    await requireAal2(userSupabase);
+    await requireAal2(userSupabase, request);
     const { resourceId } = await request.json();
     if (!resourceId)
       throw new PublicError("invalid_resource", "Resource is required.");

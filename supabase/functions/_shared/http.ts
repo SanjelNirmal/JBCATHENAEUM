@@ -69,6 +69,50 @@ export function errorResponse(request: Request, error: unknown): Response {
       error.status,
     );
   }
+  const databaseCode =
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string"
+      ? error.code
+      : "";
+  const databaseMessage =
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+      ? error.message.slice(0, 300)
+      : "";
+  const databaseErrors: Record<
+    string,
+    { error: string; message: string; status: number }
+  > = {
+    "42501": {
+      error: "forbidden",
+      message:
+        databaseMessage || "You do not have permission to perform this action.",
+      status: 403,
+    },
+    "23514": {
+      error: "invalid_state",
+      message:
+        databaseMessage || "This action is not valid for the current state.",
+      status: 409,
+    },
+    P0002: {
+      error: "not_found",
+      message: databaseMessage || "The requested item could not be found.",
+      status: 404,
+    },
+  };
+  if (databaseErrors[databaseCode]) {
+    const known = databaseErrors[databaseCode];
+    return jsonResponse(
+      request,
+      { error: known.error, message: known.message },
+      known.status,
+    );
+  }
   const errorCode =
     typeof error === "object" &&
     error !== null &&
