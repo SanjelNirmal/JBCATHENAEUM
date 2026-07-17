@@ -1,9 +1,49 @@
-# Environment variables
-.env*
-!.env.example
+# Dependencies
+node_modules/
+**/node_modules/
 
-# Build outputs
+# Environment variables and local secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Production and package build outputs
+dist/
+**/dist/
 build/
+**/build/
 coverage/
-frontend/playwright-report/
-frontend/test-results/
+**/coverage/
+
+# Tool and test caches
+.vite/
+**/.vite/
+*.tsbuildinfo
+.cache/
+**/.cache/
+playwright-report/
+**/playwright-report/
+test-results/
+**/test-results/
+
+# Supabase CLI machine-specific state
+supabase/.temp/
+supabase/.branches/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Operating-system and editor files
+.DS_Store
+**/.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
