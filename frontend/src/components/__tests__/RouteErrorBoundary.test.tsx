@@ -22,9 +22,11 @@ vi.mock("react-router-dom", async () => {
 describe("RouteErrorBoundary", () => {
   beforeEach(() => {
     routeErrorMocks.error = new Error("route failed");
+    window.sessionStorage.clear();
+    vi.useRealTimers();
   });
 
-  it("shows a reload action for stale deployed chunks", async () => {
+  it("reloads once automatically for stale deployed chunks", () => {
     const reload = vi.fn();
     Object.defineProperty(window, "location", {
       configurable: true,
@@ -40,9 +42,31 @@ describe("RouteErrorBoundary", () => {
       </MemoryRouter>,
     );
 
+    expect(reload).toHaveBeenCalled();
+  });
+
+  it("shows a reload action when automatic chunk recovery already ran", async () => {
+    vi.setSystemTime(new Date("2026-07-17T12:00:00Z"));
+    const reload = vi.fn();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...window.location, reload },
+    });
+    window.sessionStorage.setItem("jbc:last-chunk-reload", String(Date.now()));
+    routeErrorMocks.error = new Error(
+      "Failed to fetch dynamically imported module",
+    );
+
+    render(
+      <MemoryRouter>
+        <RouteErrorBoundary />
+      </MemoryRouter>,
+    );
+
     expect(
       screen.getByRole("heading", { name: "Reload this page" }),
     ).toBeVisible();
+    expect(reload).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole("button", { name: "Reload page" }));
     expect(reload).toHaveBeenCalled();
   });

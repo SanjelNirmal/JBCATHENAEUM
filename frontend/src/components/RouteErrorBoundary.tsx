@@ -14,11 +14,24 @@ function isChunkLoadError(error: unknown): boolean {
   );
 }
 
+const CHUNK_RELOAD_KEY = "jbc:last-chunk-reload";
+const CHUNK_RELOAD_COOLDOWN_MS = 30_000;
+
 export function RouteErrorBoundary() {
   const error = useRouteError();
   useEffect(() => recordClientError("route_error", error), [error]);
   const notFound = isRouteErrorResponse(error) && error.status === 404;
   const chunkLoadError = isChunkLoadError(error);
+  useEffect(() => {
+    if (!chunkLoadError) return;
+    const lastReload = Number(
+      window.sessionStorage.getItem(CHUNK_RELOAD_KEY) ?? "0",
+    );
+    const now = Date.now();
+    if (now - lastReload < CHUNK_RELOAD_COOLDOWN_MS) return;
+    window.sessionStorage.setItem(CHUNK_RELOAD_KEY, String(now));
+    window.location.reload();
+  }, [chunkLoadError]);
   const title = notFound
     ? "Page not found"
     : chunkLoadError
