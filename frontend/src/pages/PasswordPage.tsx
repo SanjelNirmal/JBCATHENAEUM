@@ -1,16 +1,60 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Seo } from "../components/Seo";
-import { requestPasswordReset, updatePassword } from "../lib/supabase/auth";
+import {
+  getCurrentSession,
+  requestPasswordReset,
+  updatePassword,
+} from "../lib/supabase/auth";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
 
 export default function PasswordPage() {
   const reset = useLocation().pathname === "/reset-password";
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(reset);
+  const [canReset, setCanReset] = useState(!reset);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    if (!reset) {
+      setCheckingSession(false);
+      setCanReset(true);
+      setMessage("");
+      return () => {
+        active = false;
+      };
+    }
+
+    setCheckingSession(true);
+    setCanReset(false);
+    void getCurrentSession()
+      .then((session) => {
+        if (!active) return;
+        setCanReset(Boolean(session));
+        setMessage(
+          session
+            ? ""
+            : "This reset link is invalid or expired. Request a new password reset link.",
+        );
+      })
+      .catch((error) => {
+        if (!active) return;
+        setCanReset(false);
+        setMessage(toSafeErrorMessage(error, "auth"));
+      })
+      .finally(() => {
+        if (active) setCheckingSession(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [reset]);
+
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (reset && !canReset) return;
     setBusy(true);
     const value = String(
       new FormData(event.currentTarget).get(reset ? "password" : "email") ?? "",
@@ -50,6 +94,11 @@ export default function PasswordPage() {
             ? "Use at least 10 characters."
             : "We will send a secure recovery link if the account exists."}
         </p>
+        {checkingSession && (
+          <p className="mt-5 rounded-lg bg-slate-100 p-4 text-sm" role="status">
+            Checking reset link…
+          </p>
+        )}
         {message && (
           <p className="mt-5 rounded-lg bg-slate-100 p-4 text-sm" role="status">
             {message}
@@ -62,12 +111,13 @@ export default function PasswordPage() {
               name={reset ? "password" : "email"}
               type={reset ? "password" : "email"}
               required
+              disabled={reset && (!canReset || checkingSession)}
               minLength={reset ? 10 : undefined}
               className="mt-1 min-h-12 w-full rounded-lg border border-slate-300 px-3"
             />
           </label>
           <button
-            disabled={busy}
+            disabled={busy || (reset && (!canReset || checkingSession))}
             className="min-h-12 w-full rounded-xl bg-[#002147] font-bold text-white disabled:opacity-50"
           >
             {busy

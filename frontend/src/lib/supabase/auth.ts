@@ -117,6 +117,12 @@ export async function updatePassword(password: string) {
   if (error) throw error;
 }
 
+export async function getCurrentSession() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return data.session;
+}
+
 export async function getAuthenticatorAssuranceLevel(): Promise<
   "aal1" | "aal2" | null
 > {

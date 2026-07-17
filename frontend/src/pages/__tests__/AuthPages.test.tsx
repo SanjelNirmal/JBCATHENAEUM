@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,6 +8,7 @@ import PasswordPage from "../PasswordPage";
 const authMocks = vi.hoisted(() => ({
   signIn: vi.fn(),
   signUp: vi.fn(),
+  getCurrentSession: vi.fn(),
   requestPasswordReset: vi.fn(),
   updatePassword: vi.fn(),
 }));
@@ -118,5 +119,45 @@ describe("authentication pages", () => {
     expect(await screen.findByRole("status")).toHaveTextContent(
       "If the address belongs to an account",
     );
+  });
+
+  it("updates the password when the recovery session is valid", async () => {
+    authMocks.getCurrentSession.mockResolvedValue({ user: { id: "user-1" } });
+    authMocks.updatePassword.mockResolvedValue(undefined);
+    render(
+      <MemoryRouter initialEntries={["/reset-password"]}>
+        <PasswordPage />
+      </MemoryRouter>,
+    );
+    await screen.findByLabelText("New password");
+    await userEvent.type(
+      screen.getByLabelText("New password"),
+      "NewPassword123",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Update password" }),
+    );
+    expect(authMocks.updatePassword).toHaveBeenCalledWith("NewPassword123");
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Password updated",
+    );
+  });
+
+  it("blocks password updates when the recovery link is expired", async () => {
+    authMocks.getCurrentSession.mockResolvedValue(null);
+    render(
+      <MemoryRouter initialEntries={["/reset-password"]}>
+        <PasswordPage />
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "invalid or expired",
+      ),
+    );
+    expect(screen.getByLabelText("New password")).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Update password" }),
+    ).toBeDisabled();
   });
 });
