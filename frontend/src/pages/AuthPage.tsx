@@ -22,7 +22,8 @@ export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  if (auth.user) return <Navigate to={params.get("redirect") || "/"} replace />;
+  if (auth.user && auth.profile)
+    return <Navigate to={params.get("redirect") || "/"} replace />;
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setBusy(true);

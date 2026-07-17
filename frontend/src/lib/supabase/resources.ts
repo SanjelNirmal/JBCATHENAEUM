@@ -123,20 +123,15 @@ export async function searchResources(
 export async function fetchResource(
   resourceIdOrSlug: string,
 ): Promise<ResourceCard | null> {
-  const lookup = resourceIdOrSlug.trim();
-  const isUuid =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      lookup,
-    );
-  const isSlug =
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(lookup) && lookup.length <= 180;
-  if (!isUuid && !isSlug) return null;
-  const { data: resource, error } = await supabase
+  const lookup = getResourceLookup(resourceIdOrSlug);
+  if (!lookup) return null;
+  const request = supabase
     .from("resources")
     .select(
       "id,title,slug,description,academic_year,resource_type,program_id,term_id,subject_id,category_id,author_name,download_count,created_at,current_version_id,file_url",
-    )
-    .or(`id.eq.${lookup},slug.eq.${lookup}`)
+    );
+  const { data: resource, error } = await request
+    .eq(lookup.column, lookup.value)
     .maybeSingle();
   if (error) throw error;
   if (!resource) return null;
@@ -181,6 +176,20 @@ export async function fetchResource(
     downloadCount: resource.download_count,
     createdAt: resource.created_at,
   };
+}
+
+export function getResourceLookup(
+  resourceIdOrSlug: string,
+): { column: "id" | "slug"; value: string } | null {
+  const value = resourceIdOrSlug.trim();
+  const isUuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
+    );
+  const isSlug =
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) && value.length <= 180;
+  if (!isUuid && !isSlug) return null;
+  return { column: isUuid ? "id" : "slug", value };
 }
 
 export async function fetchPublicStats(): Promise<{

@@ -60,7 +60,16 @@ export async function signIn(email: string, password: string) {
     password,
   });
   if (error) throw error;
-  const profile = await fetchUserProfile(data.user);
+  let profile: UserProfile;
+  try {
+    profile = await fetchUserProfile(data.user);
+  } catch (profileError) {
+    // Do not leave a valid Auth session paired with an unusable application
+    // profile. That partial state makes /login redirect away while the header
+    // still appears signed out.
+    await supabase.auth.signOut({ scope: "local" });
+    throw profileError;
+  }
   if (profile.account_status !== "active") {
     await supabase.auth.signOut();
     throw new Error(
@@ -193,14 +202,18 @@ export function useAuth(): AuthState {
             emailVerified: Boolean(user.email_confirmed_at),
           });
       } catch {
-        if (active)
+        if (active) {
           setState({
-            user,
+            user: null,
             profile: null,
             loading: false,
             aal: null,
-            emailVerified: Boolean(user.email_confirmed_at),
+            emailVerified: false,
           });
+          // Clear a stale or incomplete local session so the user can return
+          // to the login form and retry instead of being trapped in redirects.
+          void supabase.auth.signOut({ scope: "local" });
+        }
       }
     };
 

@@ -7,6 +7,7 @@ import { normalizePagination, pageCount } from "../supabase/pagination";
 import { getErrorCode, toSafeErrorMessage } from "../supabase/errors";
 import {
   getLegacyPreviewUrl,
+  getResourceLookup,
   validateLegacyResourceUrl,
 } from "../supabase/resources";
 
@@ -104,5 +105,24 @@ describe("legacy resource URL validation", () => {
     expect(
       getLegacyPreviewUrl("https://drive.google.com/file/d/abc/view"),
     ).toBe("https://drive.google.com/file/d/abc/preview");
+  });
+});
+
+describe("resource detail lookup", () => {
+  it("never sends a slug through the UUID id filter", () => {
+    expect(
+      getResourceLookup("presentation-of-proposal-defense-8d085e2e"),
+    ).toEqual({
+      column: "slug",
+      value: "presentation-of-proposal-defense-8d085e2e",
+    });
+    expect(getResourceLookup("8d085e2e-618b-434e-979d-f695eedf82e7")).toEqual({
+      column: "id",
+      value: "8d085e2e-618b-434e-979d-f695eedf82e7",
+    });
+  });
+
+  it("rejects malformed resource identifiers", () => {
+    expect(getResourceLookup("not/a/resource?id=1")).toBeNull();
   });
 });

@@ -11,15 +11,24 @@ const authMocks = vi.hoisted(() => ({
   requestPasswordReset: vi.fn(),
   updatePassword: vi.fn(),
 }));
-
-vi.mock("../../app/AuthContext", () => ({
-  useCurrentAuth: () => ({
+const contextMocks = vi.hoisted(() => ({
+  current: {
     user: null,
     profile: null,
     loading: false,
     aal: null,
     emailVerified: false,
-  }),
+  } as {
+    user: unknown;
+    profile: unknown;
+    loading: boolean;
+    aal: "aal1" | "aal2" | null;
+    emailVerified: boolean;
+  },
+}));
+
+vi.mock("../../app/AuthContext", () => ({
+  useCurrentAuth: () => contextMocks.current,
 }));
 vi.mock("../../lib/supabase/auth", () => ({
   ...authMocks,
@@ -28,6 +37,29 @@ vi.mock("../../lib/supabase/auth", () => ({
 describe("authentication pages", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    contextMocks.current = {
+      user: null,
+      profile: null,
+      loading: false,
+      aal: null,
+      emailVerified: false,
+    };
+  });
+
+  it("keeps the login form available for an incomplete profile session", () => {
+    contextMocks.current = {
+      user: { id: "user-without-profile" },
+      profile: null,
+      loading: false,
+      aal: null,
+      emailVerified: true,
+    };
+    render(
+      <MemoryRouter initialEntries={["/login"]}>
+        <AuthPage />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeVisible();
   });
 
   it("renders a labeled login and submits credentials", async () => {
