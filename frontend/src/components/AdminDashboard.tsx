@@ -724,7 +724,7 @@ export function AdminDashboard({ canAdminister }: { canAdminister: boolean }) {
                           "JBC ATHENAEUM | Monthly Academic Archive Update",
                         );
                         const body = encodeURIComponent(
-                          `Greetings Scholar,\n\nWe are pleased to share the latest additions to the JBC ATHENAEUM Archive for this month.\n\nNew Materials Available:\n- Verified BCA/BSW Faculty Notes\n- Recent Terminal Examination Questions\n- Student Research Theses\n\nAccess the full archive at: https://jbcathenaeum.pages.dev/\n\nStay curious, stay inspired.\n\nWarm regards,\nNirmal Sanjel\nhttps://nirmalsanjel.com.np\nBCA 4TH Semester\nJana Bhawana Campus`,
+                          `Greetings Scholar,\n\nWe are pleased to share the latest additions to the JBC ATHENAEUM Archive for this month.\n\nNew Materials Available:\n- Verified BCA/BSW Faculty Notes\n- Recent Terminal Examination Questions\n- Student Research Theses\n\nAccess the full archive at: https://jbc.nirmalsanjel.com.np/\n\nStay curious, stay inspired.\n\nWarm regards,\nNirmal Sanjel\nhttps://nirmalsanjel.com.np\nBCA 4TH Semester\nJana Bhawana Campus`,
                         );
                         window.location.href = `mailto:admin@nirmalsanjel.com.np?bcc=${bcc}&subject=${subject}&body=${body}`;
                       }}

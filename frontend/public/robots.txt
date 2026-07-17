@@ -8,4 +8,4 @@ Disallow: /login
 Disallow: /forgot-password
 Disallow: /reset-password
 
-Sitemap: https://jbcathenaeum.pages.dev/sitemap.xml
+Sitemap: https://jbc.nirmalsanjel.com.np/sitemap.xml

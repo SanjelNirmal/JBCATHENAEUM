@@ -56,8 +56,8 @@ select throws_ok(
     true
   )$$,
   '42501',
-  'Only a super administrator can change privileged roles',
-  'an unprivileged caller cannot promote itself to admin'
+  'Multi-factor authentication is required',
+  'an unprivileged AAL1 caller cannot promote itself to admin'
 );
 select throws_ok(
   $$insert into public.resources (

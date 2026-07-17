@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const origin = "https://jbcathenaeum.pages.dev";
+const origin = "https://jbc.nirmalsanjel.com.np";
 
 export function Seo({
   title,
