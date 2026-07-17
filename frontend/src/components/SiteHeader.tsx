@@ -111,12 +111,6 @@ export function SiteHeader() {
                 Profile
               </Link>
               <Link
-                to="/my-submissions"
-                className="text-sm font-semibold text-slate-700"
-              >
-                My submissions
-              </Link>
-              <Link
                 to="/notifications"
                 aria-label="Notifications"
                 title="Notifications"
@@ -241,18 +235,6 @@ export function SiteHeader() {
                     >
                       <UserCircle size={20} />
                       Profile
-                    </NavLink>
-                  )}
-                  {auth.profile && (
-                    <NavLink
-                      to="/my-submissions"
-                      onClick={() => setOpen(false)}
-                      className={({ isActive }) =>
-                        `flex min-h-13 items-center gap-3 rounded-xl px-4 py-3 font-bold ${isActive ? "bg-[#002147] text-white" : "bg-slate-50 text-slate-800"}`
-                      }
-                    >
-                      <UserCircle size={20} />
-                      My submissions
                     </NavLink>
                   )}
                   {auth.profile && (

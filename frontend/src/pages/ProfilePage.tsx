@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { FileUp, LibraryBig } from "lucide-react";
 import { LoadingState } from "../components/AsyncState";
 import { Seo } from "../components/Seo";
 import { useCurrentAuth } from "../app/AuthContext";
@@ -133,6 +134,22 @@ export default function ProfilePage() {
               {profile.bio}
             </div>
           )}
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <Link
+              to="/my-submissions"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#002147] px-4 text-sm font-bold text-[#002147]"
+            >
+              <LibraryBig size={17} />
+              My submissions
+            </Link>
+            <Link
+              to="/contribute"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#002147] px-4 text-sm font-bold text-white"
+            >
+              <FileUp size={17} />
+              Upload resource
+            </Link>
+          </div>
         </section>
 
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
