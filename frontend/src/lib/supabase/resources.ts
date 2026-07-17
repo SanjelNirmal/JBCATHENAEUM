@@ -408,13 +408,9 @@ export async function permanentlyDeleteResource(
   return data as { status: "deleted"; cleanupPending: boolean };
 }
 export async function fetchResourceHistory(id: string) {
-  const { data, error } = await supabase
-    .from("resource_versions")
-    .select(
-      "id,version_number,mime_type,byte_size,page_count,scan_status,is_current,created_at",
-    )
-    .eq("resource_id", id)
-    .order("version_number", { ascending: false });
+  const { data, error } = await supabase.rpc("list_resource_review_history", {
+    target_resource_id: id,
+  });
   if (error) throw error;
   return data ?? [];
 }

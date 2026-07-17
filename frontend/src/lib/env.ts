@@ -1,4 +1,4 @@
-export const LATEST_DATABASE_MIGRATION = "202607170009_review_queue_scan_status";
+export const LATEST_DATABASE_MIGRATION = "202607180010_rejected_review_history";
 
 type PublicEnvironmentSource = Record<string, string | boolean | undefined>;
 

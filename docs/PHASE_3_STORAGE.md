@@ -9,8 +9,9 @@ Phase 3 replaces email contributions with authenticated PDF uploads. Files enter
 - A trusted Edge Function creates a generated path and a two-hour signed upload URL.
 - The browser performs basic PDF/size checks for usability only.
 - `finalize-upload` downloads the quarantined bytes and verifies size, `%PDF-` signature, `%%EOF`, parseability, page count, encryption state, active PDF features, and SHA-256 uniqueness.
-- Rejected or changes-requested resources can be resubmitted only by their owner. Each resubmission creates a generated quarantine path and a new immutable version while preserving prior review history.
+- Rejected or changes-requested resources can be resubmitted only by their owner. Each resubmission creates a generated quarantine path and a new immutable version while preserving prior review history. Clean versions rejected by a human reviewer remain private so authorized staff can audit the decision.
 - Failed, cancelled, expired, malformed, encrypted, duplicate, and active-content files are removed from quarantine and recorded with a terminal status.
+- Automated rejection records and validation reasons remain visible to administrators, but the rejected raw file is not previewable or recoverable from the application.
 - Review previews use five-minute signed URLs.
 - Publication copies the clean approved version into the private published bucket before the database is marked published.
 - Public document access redirects to a short-lived signed URL; Storage paths and permanent bucket URLs are not exposed by database grants.
@@ -25,7 +26,7 @@ The validator rejects common active PDF constructs, but it is not a commercial m
 | `finalize-upload`             | User JWT validated inside function                | Download and validate actual PDF bytes, checksum, and submit                        |
 | `cancel-upload`               | User JWT validated inside function                | Abort and remove owned quarantine upload                                            |
 | `review-resource-file`        | Moderator/admin JWT                               | Five-minute private review preview                                                  |
-| `decide-resource-review`      | Moderator/admin JWT                               | Apply the database review decision and remove a rejected/replaced quarantine object |
+| `decide-resource-review`      | Moderator/admin JWT                               | Apply the database review decision and retain a clean private copy for review history |
 | `publish-resource`            | Admin JWT                                         | Promote clean approved PDF and publish atomically where possible                    |
 | `resource-download`           | Public, explicit published-row check              | Redirect to short-lived private signed URL                                          |
 | `cleanup-uploads`             | Cron secret                                       | Remove expired/orphaned quarantine objects                                          |
@@ -146,6 +147,8 @@ Codex did not modify the live Supabase project.
 - A submitter cannot claim or approve their own submission.
 - A moderator can preview and decide a clean submission but cannot publish it.
 - A rejected or changes-requested submission shows contributor feedback and can be resubmitted only by its owner as a new version.
+- An administrator can filter rejected review records and inspect the automated validation reason; unsafe or malformed bytes remain unavailable.
+- A clean submission rejected by a human reviewer remains privately previewable to authorized staff as read-only history.
 - An administrator can promote an approved file; the quarantine copy is removed.
 - Direct public bucket URLs and Storage paths are unavailable.
 - Published previews and downloads work through short-lived signed redirects.
@@ -153,4 +156,4 @@ Codex did not modify the live Supabase project.
 
 ## Recovery and partial failures
 
-If publication copies an object but the database transition fails, `publish-resource` restores the version metadata to quarantine and removes the destination copy. If quarantine deletion fails after publication, the upload session is marked `quarantine_cleanup_pending`; if cleanup after rejection or requested changes fails, it is marked `review_cleanup_pending`. Permanent deletion writes a `resource_deletion_jobs` record before deleting the resource; failed private-object cleanup remains recoverable and is retried by the same scheduled function. Review Edge Function logs, `resource_upload_sessions.failure_code`, and `resource_deletion_jobs` before manual object deletion.
+If publication copies an object but the database transition fails, `publish-resource` restores the version metadata to quarantine and removes the destination copy. If quarantine deletion fails after publication, the upload session is marked `quarantine_cleanup_pending`. Human-rejected clean files remain private for audit instead of entering cleanup. Permanent deletion writes a `resource_deletion_jobs` record before deleting the resource; failed private-object cleanup remains recoverable and is retried by the same scheduled function. Review Edge Function logs, `resource_upload_sessions.failure_code`, and `resource_deletion_jobs` before manual object deletion.

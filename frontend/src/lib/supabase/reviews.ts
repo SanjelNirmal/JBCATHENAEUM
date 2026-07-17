@@ -7,7 +7,12 @@ export interface ReviewQueueItem {
   versionId: string;
   submitterId: string;
   contributor: string;
-  status: "submitted" | "under_review" | "approved";
+  status:
+    | "submitted"
+    | "under_review"
+    | "changes_requested"
+    | "approved"
+    | "rejected";
   submittedAt: string;
   title: string;
   program: string;

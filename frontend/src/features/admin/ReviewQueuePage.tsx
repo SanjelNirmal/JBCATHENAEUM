@@ -28,6 +28,14 @@ import { useDebouncedValue } from "../../lib/useDebouncedValue";
 type Outcome = "approved" | "changes_requested" | "rejected";
 type QueueAction = Outcome | "archive";
 
+function isActiveReview(item: ReviewQueueItem) {
+  return item.status === "submitted" || item.status === "under_review";
+}
+
+function canPreviewReview(item: ReviewQueueItem) {
+  return item.scanStatus === "clean";
+}
+
 export default function ReviewQueuePage() {
   const auth = useCurrentAuth();
   const client = useQueryClient();
@@ -63,7 +71,9 @@ export default function ReviewQueuePage() {
   const items = query.data?.items ?? [];
   const chosen = items.filter(
     (item) =>
-      item.submitterId !== auth.user?.id && selected.has(item.submissionId),
+      isActiveReview(item) &&
+      item.submitterId !== auth.user?.id &&
+      selected.has(item.submissionId),
   );
   const refresh = async () => {
     await client.invalidateQueries({ queryKey: ["review-queue"] });
@@ -155,7 +165,8 @@ export default function ReviewQueuePage() {
           </h1>
           <p className="mt-2 text-sm text-slate-600">
             Moderators cannot approve their own submissions; the database
-            enforces this rule.
+            enforces this rule. Completed and automated rejections remain
+            available as read-only review history.
           </p>
         </div>
         <button
@@ -188,10 +199,12 @@ export default function ReviewQueuePage() {
             }}
             className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3"
           >
-            <option value="">Pending and approved</option>
+            <option value="">All review records</option>
             <option value="submitted">Submitted</option>
             <option value="under_review">Under review</option>
+            <option value="changes_requested">Changes requested</option>
             <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
           </select>
         </label>
       </div>
@@ -276,7 +289,7 @@ export default function ReviewQueuePage() {
         ) : (
           <>
             <div className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white sm:block">
-              <table className="w-full min-w-[88rem] text-left text-sm">
+              <table className="w-full min-w-[94rem] text-left text-sm">
                 <thead className="bg-slate-50">
                   <tr>
                     <th className="p-3">
@@ -284,6 +297,7 @@ export default function ReviewQueuePage() {
                     </th>
                     {[
                       "Submission",
+                      "Status",
                       "Contributor",
                       "Program",
                       "Term",
@@ -343,7 +357,10 @@ export default function ReviewQueuePage() {
                   <label className="flex gap-3">
                     <input
                       type="checkbox"
-                      disabled={item.submitterId === auth.user?.id}
+                      disabled={
+                        !isActiveReview(item) ||
+                        item.submitterId === auth.user?.id
+                      }
                       checked={selected.has(item.submissionId)}
                       onChange={(event) =>
                         setSelected((current) => {
@@ -365,7 +382,8 @@ export default function ReviewQueuePage() {
                     </span>
                   </label>
                   <p className="mt-3 text-sm">
-                    {item.subject} · {item.category} · {item.scanStatus} ·{" "}
+                    {item.status.replace("_", " ")} · {item.subject} ·{" "}
+                    {item.category} · {item.scanStatus} ·{" "}
                     {item.byteSize
                       ? `${(item.byteSize / 1_048_576).toFixed(1)} MB`
                       : "—"}
@@ -379,6 +397,11 @@ export default function ReviewQueuePage() {
                       Your submission requires another reviewer.
                     </p>
                   )}
+                  {!isActiveReview(item) && (
+                    <p className="mt-2 text-sm font-semibold text-slate-600">
+                      Decision history is read-only.
+                    </p>
+                  )}
                   {(item.reviewNotes ?? []).length > 0 && (
                     <p className="mt-2 text-sm text-slate-700">
                       Latest note: {item.reviewNotes[0]}
@@ -389,6 +412,7 @@ export default function ReviewQueuePage() {
                       label="Preview"
                       icon={Eye}
                       onClick={() => void preview(item.versionId)}
+                      disabled={!canPreviewReview(item)}
                     />
                     <Action
                       label="Start review"
@@ -408,7 +432,7 @@ export default function ReviewQueuePage() {
                       }
                       disabled={
                         busy ||
-                        item.status === "approved" ||
+                        !isActiveReview(item) ||
                         item.submitterId === auth.user?.id
                       }
                     />
@@ -423,7 +447,7 @@ export default function ReviewQueuePage() {
                       }
                       disabled={
                         busy ||
-                        item.status === "approved" ||
+                        !isActiveReview(item) ||
                         item.submitterId === auth.user?.id
                       }
                     />
@@ -435,7 +459,7 @@ export default function ReviewQueuePage() {
                       }
                       disabled={
                         busy ||
-                        item.status === "approved" ||
+                        !isActiveReview(item) ||
                         item.submitterId === auth.user?.id
                       }
                     />
@@ -446,6 +470,7 @@ export default function ReviewQueuePage() {
                         onClick={() =>
                           setDialog({ outcome: "archive", items: [item] })
                         }
+                        disabled={busy || !isActiveReview(item)}
                       />
                     )}
                   </div>
@@ -533,7 +558,7 @@ function ReviewRow({
         <input
           aria-label={`Select ${item.title}`}
           type="checkbox"
-          disabled={ownSubmission}
+          disabled={ownSubmission || !isActiveReview(item)}
           checked={selected}
           onChange={(event) => onSelect(event.target.checked)}
         />
@@ -545,6 +570,14 @@ function ReviewRow({
         <span className="text-xs text-slate-500">
           {new Date(item.submittedAt).toLocaleDateString()}
         </span>
+      </td>
+      <td className="p-3">
+        <span className="rounded-full border px-2 py-1 text-xs font-bold">
+          {item.status.replace("_", " ")}
+        </span>
+        {!isActiveReview(item) && (
+          <span className="mt-2 block text-xs text-slate-500">Read-only</span>
+        )}
       </td>
       <td className="p-3">
         <Link to={`/admin/users?q=${item.submitterId}`} className="underline">
@@ -586,7 +619,12 @@ function ReviewRow({
       </td>
       <td className="sticky right-0 bg-white p-3">
         <div className="flex gap-1">
-          <Action label="Preview" icon={Eye} onClick={onPreview} />
+          <Action
+            label="Preview"
+            icon={Eye}
+            onClick={onPreview}
+            disabled={!canPreviewReview(item)}
+          />
           <Action
             label="Start review"
             icon={Play}
@@ -597,26 +635,26 @@ function ReviewRow({
             label="Approve"
             icon={Check}
             onClick={() => onDecision("approved")}
-            disabled={busy || ownSubmission || item.status === "approved"}
+            disabled={busy || ownSubmission || !isActiveReview(item)}
           />
           <Action
             label="Request changes"
             icon={RefreshCw}
             onClick={() => onDecision("changes_requested")}
-            disabled={busy || ownSubmission || item.status === "approved"}
+            disabled={busy || ownSubmission || !isActiveReview(item)}
           />
           <Action
             label="Reject"
             icon={XCircle}
             onClick={() => onDecision("rejected")}
-            disabled={busy || ownSubmission || item.status === "approved"}
+            disabled={busy || ownSubmission || !isActiveReview(item)}
           />
           {onArchive && (
             <Action
               label="Archive"
               icon={Archive}
               onClick={onArchive}
-              disabled={busy}
+              disabled={busy || !isActiveReview(item)}
             />
           )}
         </div>

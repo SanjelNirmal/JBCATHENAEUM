@@ -678,6 +678,22 @@ export default function ResourceManagementPage() {
                   : "—"}{" "}
                 · {new Date(row.created_at).toLocaleString()}
                 {row.is_current && " · Current"}
+                {row.failure_code && (
+                  <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-red-950">
+                    <strong className="block">Automated rejection reason</strong>
+                    <span>{formatFailureCode(row.failure_code)}</span>
+                  </div>
+                )}
+                {JSON.stringify(row.scan_result) !== "{}" && (
+                  <details className="mt-3">
+                    <summary className="cursor-pointer font-semibold text-slate-700">
+                      Automated validation details
+                    </summary>
+                    <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded-lg bg-slate-900 p-3 text-xs text-slate-100">
+                      {JSON.stringify(row.scan_result, null, 2)}
+                    </pre>
+                  </details>
+                )}
               </li>
             ))}
           </ul>
@@ -848,4 +864,12 @@ function ResourceActions({
       )}
     </div>
   );
+}
+
+function formatFailureCode(value: string) {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part[0]?.toUpperCase() + part.slice(1))
+    .join(" ");
 }

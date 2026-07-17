@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(37);
+select plan(40);
 
 select has_column('public', 'profiles', 'account_status', 'profiles have a separate account status');
 select has_column('public', 'resources', 'search_vector', 'resources have a generated full-text vector');
@@ -20,6 +20,7 @@ select has_function('public', 'permanently_delete_resource', array['uuid','uuid'
 select has_function('public', 'create_content_removal_request', array['uuid','text','text','text','text','text','text','text'], 'service removal-request boundary exists');
 select has_function('public', 'list_admin_resources', array['text','resource_status','uuid','uuid','uuid','uuid','timestamptz','timestamptz','text','integer','integer'], 'private admin resource listing exists');
 select has_function('public', 'list_review_queue', array['text','submission_status','integer','integer'], 'private moderation queue listing exists');
+select has_function('public', 'list_resource_review_history', array['uuid'], 'private rejected-version history exists');
 
 select ok(exists(select 1 from pg_indexes where indexname = 'resources_search_vector_idx'), 'search vector is GIN indexed');
 select ok(exists(select 1 from pg_indexes where indexname = 'resources_title_trgm_idx'), 'resource titles have typo-tolerant trigram index');
@@ -42,6 +43,8 @@ select ok(not has_function_privilege('anon', 'public.list_admin_resources(text,r
 select ok(has_function_privilege('authenticated', 'public.list_admin_resources(text,resource_status,uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,integer,integer)', 'EXECUTE'), 'authenticated sessions may reach the MFA-protected admin listing boundary');
 select ok(not has_function_privilege('anon', 'public.list_review_queue(text,submission_status,integer,integer)', 'EXECUTE'), 'anonymous users cannot call the moderation queue listing');
 select ok(has_function_privilege('authenticated', 'public.list_review_queue(text,submission_status,integer,integer)', 'EXECUTE'), 'authenticated sessions may reach the MFA-protected moderation queue boundary');
+select ok(not has_function_privilege('anon', 'public.list_resource_review_history(uuid)', 'EXECUTE'), 'anonymous users cannot inspect automated rejection history');
+select ok(has_function_privilege('authenticated', 'public.list_resource_review_history(uuid)', 'EXECUTE'), 'authenticated sessions may reach the MFA-protected rejection-history boundary');
 
 select * from finish();
 rollback;

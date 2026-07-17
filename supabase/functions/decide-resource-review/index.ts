@@ -1,7 +1,6 @@
 import {
   authenticatedUser,
   requireAal2,
-  serviceClient,
 } from "../_shared/supabase.ts";
 import {
   errorResponse,
@@ -38,16 +37,6 @@ Deno.serve(async (request) => {
       );
     }
 
-    const service = serviceClient();
-    const { data: submission, error: submissionError } = await service
-      .from("resource_submissions")
-      .select("version_id")
-      .eq("id", submissionId)
-      .single();
-    if (submissionError || !submission) {
-      throw new PublicError("not_found", "Submission was not found.", 404);
-    }
-
     const { error: reviewError } = await userSupabase.rpc(
       "decide_resource_review",
       {
@@ -61,28 +50,10 @@ Deno.serve(async (request) => {
     );
     if (reviewError) throw reviewError;
 
-    let cleanupPending = false;
-    if (outcome !== "approved") {
-      const { data: version } = await service
-        .from("resource_versions")
-        .select("storage_bucket,storage_path")
-        .eq("id", submission.version_id)
-        .single();
-      if (version?.storage_bucket === "resource-quarantine") {
-        const { error: removeError } = await service.storage
-          .from(version.storage_bucket)
-          .remove([version.storage_path]);
-        cleanupPending = Boolean(removeError);
-        await service
-          .from("resource_upload_sessions")
-          .update({
-            failure_code: removeError ? "review_cleanup_pending" : null,
-          })
-          .eq("version_id", submission.version_id);
-      }
-    }
-
-    return jsonResponse(request, { status: outcome, cleanupPending });
+    // A clean, reviewer-rejected version stays in private quarantine so
+    // authorized staff can audit it later. Automated validation failures are
+    // still removed by finalize-upload.
+    return jsonResponse(request, { status: outcome, cleanupPending: false });
   } catch (error) {
     return errorResponse(request, error);
   }
