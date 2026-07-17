@@ -84,11 +84,8 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-white/10 px-5 py-6 text-center text-xs leading-6 text-slate-400">
-        <p>© 2026 JBC Athenaeum. Created and maintained by Nirmal Sanjel.</p>
-        <p>
-          Independent academic archive · Campus-wide launch remains subject to
-          institutional approval.
-        </p>
+        <p>© 2026 JBC Athenaeum · Institutional policies require campus approval before campus-wide launch.</p>
+        <p>Created by Nirmal Sanjel · www.nirmalsanjel.com.np · admin@nirmalsanjel.com.np</p>
       </div>
     </footer>
   );
