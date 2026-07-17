@@ -97,7 +97,7 @@ Do not apply this to production until a restorable backup and an isolated previe
    openssl rand -hex 32
    openssl rand -hex 32
    supabase secrets set \
-     ALLOWED_ORIGINS="https://jbcathenaeum.pages.dev,https://<PREVIEW_HOST>" \
+     ALLOWED_ORIGINS="https://jbc.nirmalsanjel.com.np,https://jbcathenaeum.pages.dev,https://<PREVIEW_HOST>" \
      MAX_UPLOAD_BYTES="26214400" \
      UPLOAD_CLEANUP_CRON_SECRET="<FIRST_RANDOM_VALUE>" \
      RATE_LIMIT_HASH_SALT="<SECOND_RANDOM_VALUE>"
@@ -117,8 +117,8 @@ Do not apply this to production until a restorable backup and an isolated previe
 
 8. In Supabase Dashboard → Authentication:
 
-   - Set Site URL to `https://jbcathenaeum.pages.dev`.
-   - Add the production and preview `/login` and `/reset-password` redirect URLs.
+   - Set Site URL to `https://jbc.nirmalsanjel.com.np`.
+   - Add the custom domain, Pages fallback, and preview `/login` and `/reset-password` redirect URLs.
    - Require email confirmation.
    - Set the minimum password length to at least 10.
    - Enable TOTP MFA.

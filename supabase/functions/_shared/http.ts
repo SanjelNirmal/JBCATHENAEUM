@@ -1,14 +1,20 @@
-const configuredOrigins = (
-  Deno.env.get("ALLOWED_ORIGINS") ?? "https://jbcathenaeum.pages.dev"
-)
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const productionOrigins = [
+  "https://jbc.nirmalsanjel.com.np",
+  "https://jbcathenaeum.pages.dev",
+];
+
+const configuredOrigins = new Set([
+  ...productionOrigins,
+  ...(Deno.env.get("ALLOWED_ORIGINS") ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+]);
 
 function allowedOrigin(request: Request): string | null {
   const origin = request.headers.get("origin");
-  if (!origin) return configuredOrigins[0] ?? null;
-  if (configuredOrigins.includes(origin)) return origin;
+  if (!origin) return productionOrigins[0];
+  if (configuredOrigins.has(origin)) return origin;
   if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
   return null;
 }

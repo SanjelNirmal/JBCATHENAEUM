@@ -19,18 +19,18 @@ The validator rejects common active PDF constructs, but it is not a commercial m
 
 ## Edge Functions
 
-| Function | Authentication | Purpose |
-|---|---|---|
-| `create-upload-session` | User JWT validated inside function | Create draft/session and issue generated signed upload URL |
-| `finalize-upload` | User JWT validated inside function | Download and validate actual PDF bytes, checksum, and submit |
-| `cancel-upload` | User JWT validated inside function | Abort and remove owned quarantine upload |
-| `review-resource-file` | Moderator/admin JWT | Five-minute private review preview |
-| `decide-resource-review` | Moderator/admin JWT | Apply the database review decision and remove a rejected/replaced quarantine object |
-| `publish-resource` | Admin JWT | Promote clean approved PDF and publish atomically where possible |
-| `resource-download` | Public, explicit published-row check | Redirect to short-lived private signed URL |
-| `cleanup-uploads` | Cron secret | Remove expired/orphaned quarantine objects |
-| `submit-removal-request` | Public, validation and rate limit inside function | Persist a structured content-removal request |
-| `permanently-delete-resource` | Super-admin JWT with AAL2 | Apply retention-gated deletion and create retryable Storage cleanup work |
+| Function                      | Authentication                                    | Purpose                                                                             |
+| ----------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `create-upload-session`       | User JWT validated inside function                | Create draft/session and issue generated signed upload URL                          |
+| `finalize-upload`             | User JWT validated inside function                | Download and validate actual PDF bytes, checksum, and submit                        |
+| `cancel-upload`               | User JWT validated inside function                | Abort and remove owned quarantine upload                                            |
+| `review-resource-file`        | Moderator/admin JWT                               | Five-minute private review preview                                                  |
+| `decide-resource-review`      | Moderator/admin JWT                               | Apply the database review decision and remove a rejected/replaced quarantine object |
+| `publish-resource`            | Admin JWT                                         | Promote clean approved PDF and publish atomically where possible                    |
+| `resource-download`           | Public, explicit published-row check              | Redirect to short-lived private signed URL                                          |
+| `cleanup-uploads`             | Cron secret                                       | Remove expired/orphaned quarantine objects                                          |
+| `submit-removal-request`      | Public, validation and rate limit inside function | Persist a structured content-removal request                                        |
+| `permanently-delete-resource` | Super-admin JWT with AAL2                         | Apply retention-gated deletion and create retryable Storage cleanup work            |
 
 Supabase documents that private buckets require authenticated access or signed URLs, and that bucket-level MIME/size restrictions are supported: https://supabase.com/docs/guides/storage/buckets/fundamentals
 
@@ -40,9 +40,9 @@ Supabase automatically provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABA
 
 ```sh
 supabase secrets set \
-  ALLOWED_ORIGINS="https://jbcathenaeum.pages.dev,https://<CLOUDFLARE_PREVIEW_HOST>" \
+  ALLOWED_ORIGINS="https://jbc.nirmalsanjel.com.np,https://jbcathenaeum.pages.dev,https://<CLOUDFLARE_PREVIEW_HOST>" \
   MAX_UPLOAD_BYTES="26214400" \
-  UPLOAD_CLEANUP_CRON_SECRET="<GENERATE_A_LONG_RANDOM_SECRET>"
+  UPLOAD_CLEANUP_CRON_SECRET="<GENERATE_A_LONG_RANDOM_SECRET>" \
   RATE_LIMIT_HASH_SALT="<GENERATE_A_DIFFERENT_LONG_RANDOM_SECRET>"
 ```
 
@@ -85,6 +85,24 @@ Codex did not modify the live Supabase project.
    supabase functions deploy submit-removal-request
    supabase functions deploy permanently-delete-resource
    ```
+
+   A browser CORS error with an Edge Function gateway `404 NOT_FOUND` means the
+   function was not deployed; changing frontend headers cannot fix it. Deploy
+   every function in the upload/review sequence, then verify the production
+   preflight returns `204` and the exact custom origin:
+
+   ```sh
+   curl -i -X OPTIONS \
+     "https://<PROJECT_REF>.supabase.co/functions/v1/create-upload-session" \
+     -H "Origin: https://jbc.nirmalsanjel.com.np" \
+     -H "Access-Control-Request-Method: POST" \
+     -H "Access-Control-Request-Headers: authorization,apikey,content-type,x-client-info"
+   ```
+
+   The response must contain
+   `Access-Control-Allow-Origin: https://jbc.nirmalsanjel.com.np`. A `401`
+   indicates gateway JWT verification was not disabled from `supabase/config.toml`;
+   a `404` indicates that the named function is still absent.
 
 5. Enable `pg_cron`, `pg_net`, and Vault. Store the project URL, publishable key, and the same cleanup secret in Vault, then schedule cleanup every 15 minutes:
 
