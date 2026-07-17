@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "./supabase";
 import { User } from "@supabase/supabase-js";
 import { isProfileWriteBlocked, getUserMetaString, createFallbackProfile } from "./utils";
+import { AppRole, isAppRole, resolveEffectiveRole } from "./roles";
+
+const SAFE_PROFILE_COLUMNS = "id,name,faculty,avatar_url,bio,created_at,updated_at";
+const PUBLIC_RESOURCE_COLUMNS = "id,title,subject,faculty,semester,author_name,file_url,file_size,resource_type,created_at";
 
 export interface Resource {
   id: string;
@@ -11,9 +15,8 @@ export interface Resource {
   faculty: string;
   semester: string;
   author_name: string;
-  author_id?: string;
   file_url: string;
-  file_size: string;
+  file_size: string | null;
   resource_type: string;
   created_at: string;
 }
@@ -22,8 +25,66 @@ export interface UserProfile {
   id: string;
   name: string;
   faculty: string;
-  role: 'scholar' | 'admin';
+  avatar_url: string | null;
+  bio: string | null;
+  roles: AppRole[];
+  role: AppRole;
   created_at: string;
+  updated_at: string;
+}
+
+type SafeProfileRow = Omit<UserProfile, "roles" | "role">;
+
+async function fetchRoles(userId: string): Promise<AppRole[]> {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+
+  if (error) throw error;
+  const roles = (data ?? []).map((row) => row.role).filter(isAppRole);
+  return roles.length > 0 ? roles : ["student"];
+}
+
+async function fetchUserProfile(user: User): Promise<UserProfile> {
+  const { data: existingProfile, error: profileError } = await supabase
+    .from("profiles")
+    .select(SAFE_PROFILE_COLUMNS)
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError && !isProfileWriteBlocked(profileError)) throw profileError;
+
+  let profile = existingProfile as SafeProfileRow | null;
+  if (!profile) {
+    const fallback = createFallbackProfile(user);
+    const { data: createdProfile, error: upsertError } = await supabase
+      .from("profiles")
+      .upsert(
+        {
+          id: user.id,
+          name: fallback.name,
+          faculty: fallback.faculty,
+          avatar_url: fallback.avatar_url,
+          bio: fallback.bio,
+        },
+        { onConflict: "id" }
+      )
+      .select(SAFE_PROFILE_COLUMNS)
+      .maybeSingle();
+
+    if (upsertError && !isProfileWriteBlocked(upsertError)) throw upsertError;
+    profile = createdProfile as SafeProfileRow | null;
+    if (!profile) return fallback;
+  }
+
+  try {
+    const roles = await fetchRoles(user.id);
+    return { ...profile, roles, role: resolveEffectiveRole(roles) };
+  } catch (roleError) {
+    console.error("Unable to load role memberships:", roleError);
+    return { ...profile, roles: ["student"], role: "student" };
+  }
 }
 
 // Auth Functions
@@ -34,54 +95,8 @@ export async function signIn(email: string, password: string) {
   });
 
   if (error) throw error;
-  
-  // Get profile
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', data.user.id)
-    .maybeSingle();
-     
-  if (profileError) {
-    if (isProfileWriteBlocked(profileError)) {
-      return { user: data.user, profile: createFallbackProfile(data.user) };
-    }
-    throw profileError;
-  }
 
-  if (!profile) {
-    const fallbackProfile = createFallbackProfile(data.user);
-    const { data: upsertedProfile, error: upsertError } = await supabase
-      .from("profiles")
-      .upsert(
-        [
-          {
-            id: data.user.id,
-            name: fallbackProfile.name,
-            faculty: fallbackProfile.faculty,
-            role: "scholar",
-          },
-        ],
-        { onConflict: "id" }
-      )
-      .select()
-      .maybeSingle();
-
-    if (upsertError) {
-      if (isProfileWriteBlocked(upsertError)) {
-        return { user: data.user, profile: fallbackProfile };
-      }
-      throw upsertError;
-    }
-
-    if (!upsertedProfile) {
-      return { user: data.user, profile: fallbackProfile };
-    }
-
-    return { user: data.user, profile: upsertedProfile as UserProfile };
-  }
-
-  return { user: data.user, profile };
+  return { user: data.user, profile: await fetchUserProfile(data.user) };
 }
 
 export async function signUp(email: string, password: string, name: string, faculty: string) {
@@ -98,21 +113,6 @@ export async function signUp(email: string, password: string, name: string, facu
 
   if (error) throw error;
 
-  if (data.user) {
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert([
-        {
-          id: data.user.id,
-          name,
-          faculty,
-          role: 'scholar',
-        },
-      ], { onConflict: "id" });
-
-    if (profileError && !isProfileWriteBlocked(profileError)) throw profileError;
-  }
-
   return data;
 }
 
@@ -128,20 +128,22 @@ export function useAuth() {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
+    void supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error("Unable to restore session:", error);
         setLoading(false);
+        return;
       }
+      setUser(session?.user ?? null);
+      if (session?.user) void fetchProfile(session.user);
+      else setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        void fetchProfile(session.user);
       } else {
         setProfile(null);
         setLoading(false);
@@ -151,18 +153,12 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (authUser: User) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      setProfile(data);
+      setProfile(await fetchUserProfile(authUser));
     } catch (err) {
       console.error("Error fetching profile:", err);
+      setProfile(createFallbackProfile(authUser));
     } finally {
       setLoading(false);
     }
@@ -190,10 +186,28 @@ export interface Subject {
 }
 
 export async function createResource(resource: Partial<Resource>) {
-  const { data, error } = await supabase
-    .from('resources')
-    .insert([resource])
-    .select();
+  const requiredFields = [
+    resource.title,
+    resource.faculty,
+    resource.semester,
+    resource.subject,
+    resource.author_name,
+    resource.file_url,
+  ];
+  if (requiredFields.some((value) => !value?.trim())) {
+    throw new Error("Complete resource metadata is required.");
+  }
+
+  const { data, error } = await supabase.rpc("import_legacy_resource", {
+    resource_title: resource.title!,
+    faculty_name: resource.faculty!,
+    term_name: resource.semester!,
+    subject_name: resource.subject!,
+    resource_author_name: resource.author_name!,
+    legacy_file_url: resource.file_url!,
+    legacy_file_size: resource.file_size ?? null,
+    supplied_resource_type: resource.resource_type ?? "PDF",
+  });
 
   if (error) {
     throw error;
@@ -202,10 +216,9 @@ export async function createResource(resource: Partial<Resource>) {
 }
 
 export async function deleteResource(id: string) {
-  const { error } = await supabase
-    .from('resources')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.rpc("archive_resource", {
+    target_resource_id: id,
+  });
 
   if (error) {
     throw error;
@@ -215,39 +228,39 @@ export async function deleteResource(id: string) {
 export async function fetchUsers() {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select(SAFE_PROFILE_COLUMNS)
     .order('created_at', { ascending: false });
 
-  if (error) {
-    // If table doesn't exist yet, return mock users
-    if (error.code === 'PGRST116' || error.message.includes('relation "profiles" does not exist')) {
-      console.warn("Profiles table not found, using mock data");
-      return [
-        { id: '1', name: 'Nirmal Sanjel', faculty: 'Admin', role: 'admin', created_at: new Date().toISOString() },
-        { id: '2', name: 'Nirmal Sanjel (BCA)', faculty: 'BCA', role: 'scholar', created_at: new Date(Date.now() - 86400000).toISOString() },
-        { id: '3', name: 'Nirmal Sanjel (BBS)', faculty: 'BBS', role: 'scholar', created_at: new Date(Date.now() - 172800000).toISOString() },
-      ] as UserProfile[];
-    }
-    throw error;
-  }
-  return data as UserProfile[];
-}
-
-export async function updateUserRole(id: string, role: 'scholar' | 'admin') {
-  const { error } = await supabase
-    .from('profiles')
-    .update({ role })
-    .eq('id', id);
-
   if (error) throw error;
+  const profiles = (data ?? []) as SafeProfileRow[];
+  if (profiles.length === 0) return [];
+
+  const { data: roleRows, error: roleError } = await supabase
+    .from("user_roles")
+    .select("user_id,role")
+    .in("user_id", profiles.map((profile) => profile.id));
+  if (roleError) throw roleError;
+
+  return profiles.map((profile) => {
+    const roles = (roleRows ?? [])
+      .filter((row) => row.user_id === profile.id)
+      .map((row) => row.role)
+      .filter(isAppRole);
+    const normalizedRoles: AppRole[] = roles.length > 0 ? roles : ["student"];
+    return {
+      ...profile,
+      roles: normalizedRoles,
+      role: resolveEffectiveRole(normalizedRoles),
+    };
+  });
 }
 
-export async function deleteUser(id: string) {
-  // Usually we delete the profile, actual user deletion requires admin API
-  const { error } = await supabase
-    .from('profiles')
-    .delete()
-    .eq('id', id);
+export async function updateUserRole(id: string, role: AppRole, shouldGrant: boolean) {
+  const { error } = await supabase.rpc("set_user_role", {
+    target_user_id: id,
+    target_role: role,
+    should_grant: shouldGrant,
+  });
 
   if (error) throw error;
 }
@@ -263,7 +276,7 @@ export function useResourcesData() {
     try {
       const { data, error } = await supabase
         .from('resources')
-        .select('*')
+        .select(PUBLIC_RESOURCE_COLUMNS)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -1207,15 +1220,10 @@ export function useResourcesData() {
 
 export async function subscribeToNewsletter(email: string) {
   const { data, error } = await supabase
-    .from('newsletter_subscriptions')
-    .insert([{ email, created_at: new Date().toISOString() }]);
+    .rpc('subscribe_to_newsletter', { subscriber_email: email });
 
-  if (error) {
-    if (error.code === '23505') {
-      throw new Error("This email is already subscribed!");
-    }
-    throw error;
-  }
+  if (error) throw error;
+  if (!data) throw new Error("This email is already subscribed!");
   return data;
 }
 

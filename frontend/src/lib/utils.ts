@@ -37,11 +37,16 @@ export function getUserMetaString(
 export function createFallbackProfile(
   user: Pick<User, "id" | "email" | "user_metadata">
 ): UserProfile {
+  const now = new Date().toISOString();
   return {
     id: user.id,
     name: getUserMetaString(user as User, "name", "Scholar"),
     faculty: getUserMetaString(user as User, "faculty", "Unknown"),
-    role: "scholar",
-    created_at: new Date().toISOString(),
+    avatar_url: null,
+    bio: null,
+    roles: ["student"],
+    role: "student",
+    created_at: now,
+    updated_at: now,
   };
 }

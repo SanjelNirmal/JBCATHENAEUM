@@ -2,6 +2,7 @@
 import { Search, LogIn, ChevronDown, Library, Menu, X as CloseIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Subject } from "../lib/api";
+import { AppRole, isAdminRole } from "../lib/roles";
 
 export function Header({ 
   onNavigateHome, 
@@ -25,7 +26,7 @@ export function Header({
   onNavigateContribute?: () => void,
   onNavigateLibrary?: () => void,
   onNavigateAdmin?: () => void,
-  user?: { name: string, faculty: string, role: string } | null,
+  user?: { name: string, faculty: string, role: AppRole } | null,
   onLoginClick?: () => void,
   onLogoutClick?: () => void,
   subjects: Subject[],
@@ -195,7 +196,7 @@ export function Header({
           </button>
           {user ? (
             <div className="flex items-center space-x-4">
-              {user.role === 'admin' && (
+              {isAdminRole(user.role) && (
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();

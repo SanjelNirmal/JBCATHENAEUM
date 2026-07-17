@@ -109,10 +109,11 @@ describe('createFallbackProfile', () => {
     expect(profile.id).toBe('abc-123');
   });
 
-  it('creates a profile with role "scholar"', () => {
+  it('creates a least-privilege student profile', () => {
     const user = { id: 'u1', email: 'user@example.com', user_metadata: {} };
     const profile = createFallbackProfile(user as any);
-    expect(profile.role).toBe('scholar');
+    expect(profile.role).toBe('student');
+    expect(profile.roles).toEqual(['student']);
   });
 
   it('uses name from user_metadata when available', () => {

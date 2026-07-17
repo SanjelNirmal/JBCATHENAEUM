@@ -2,10 +2,16 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
+import { ConfigurationErrorScreen } from './components/ConfigurationErrorScreen.tsx';
+import { publicEnvironment } from './lib/env.ts';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    {publicEnvironment.issues.length > 0 ? (
+      <ConfigurationErrorScreen issues={publicEnvironment.issues} />
+    ) : (
+      <App />
+    )}
   </StrictMode>,
 );

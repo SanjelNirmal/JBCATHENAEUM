@@ -1,13 +1,14 @@
 // Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import React, { useState, useEffect } from "react";
-import { Users, FileText, Settings, Database, Edit, Trash2, Terminal, AlertTriangle, Play, X, Plus, Shield, UserX, CheckCircle2, Mail } from "lucide-react";
-import { Subject, Note, createResource, deleteResource, UserProfile, fetchUsers, updateUserRole, deleteUser, fetchSubscribers, subscribeToNewsletter } from "../lib/api";
+import { Users, FileText, Settings, Database, Trash2, AlertTriangle, X, Plus, Shield, Mail } from "lucide-react";
+import { createResource, deleteResource, UserProfile, fetchUsers, updateUserRole, fetchSubscribers } from "../lib/api";
 import { useResourcesData } from "../lib/api";
 import { Toast, ToastType } from "./Toast";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import { SystemStatusPanel } from "./admin/SystemStatusPanel";
 
 export function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'notes' | 'users' | 'subscribers' | 'sql' | 'settings'>('notes');
+  const [activeTab, setActiveTab] = useState<'notes' | 'users' | 'subscribers' | 'settings'>('notes');
   const { resources, subjects, refresh } = useResourcesData();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [subscribers, setSubscribers] = useState<any[]>([]);
@@ -46,17 +47,6 @@ export function AdminDashboard() {
     }
   };
 
-  const handleAddTestSubscriber = async () => {
-    try {
-      const testEmail = `scholar_${Math.floor(Math.random() * 1000)}@janabhawana.edu.np`;
-      await subscribeToNewsletter(testEmail);
-      showToast(`Added test subscriber: ${testEmail}`, 'success');
-      loadSubscribers();
-    } catch (err: any) {
-      showToast(err.message || "Failed to add test subscriber", 'error');
-    }
-  };
-
   const loadUsers = async () => {
     setLoadingUsers(true);
     try {
@@ -70,28 +60,18 @@ export function AdminDashboard() {
     }
   };
 
-  const handleUpdateRole = async (id: string, currentRole: string) => {
-    const newRole = currentRole === 'admin' ? 'scholar' : 'admin';
-    if (!window.confirm(`Change user role to ${newRole}?`)) return;
+  const handleUpdateRole = async (user: UserProfile) => {
+    const shouldGrant = !user.roles.includes('admin');
+    const action = shouldGrant ? 'grant' : 'revoke';
+    if (!window.confirm(`${action === 'grant' ? 'Grant' : 'Revoke'} the admin role for this user?`)) return;
     
     try {
-      await updateUserRole(id, newRole);
-      setUsers(users.map(u => u.id === id ? { ...u, role: newRole } : u));
-      showToast(`User role updated to ${newRole} successfully`, 'success');
-    } catch (err: any) {
-      showToast("Failed to update role. Ensure profiles table and permissions are correctly set.", 'error');
-    }
-  };
-
-  const handleDeleteUser = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this user profile?")) return;
-    
-    try {
-      await deleteUser(id);
-      setUsers(users.filter(u => u.id !== id));
-      showToast("User profile deleted successfully", 'success');
-    } catch (err: any) {
-      showToast("Failed to delete user profile.", 'error');
+      await updateUserRole(user.id, 'admin', shouldGrant);
+      await loadUsers();
+      showToast(`Admin role ${action === 'grant' ? 'granted' : 'revoked'} successfully`, 'success');
+    } catch (err: unknown) {
+      console.error(err);
+      showToast("Role change was denied. Privileged role changes require a super administrator.", 'error');
     }
   };
 
@@ -105,14 +85,14 @@ export function AdminDashboard() {
     setIsDeleting(id);
     try {
       await deleteResource(id);
-      showToast("Resource deleted successfully", 'success');
+      showToast("Resource archived successfully", 'success');
       refresh();
     } catch (err: any) {
       console.error(err);
       if (err?.code === '42501' || err?.message?.includes('row-level security')) {
-         showToast("Permission Denied: Ensure you have granted DELETE permissions in Supabase.", 'error');
+         showToast("Permission denied: only an authorized administrator can archive resources.", 'error');
       } else {
-         showToast("Failed to delete resource", 'error');
+         showToast("Failed to archive resource", 'error');
       }
     } finally {
       setIsDeleting(null);
@@ -129,95 +109,12 @@ export function AdminDashboard() {
     } catch (err: any) {
       console.error(err);
       if (err?.code === '42501' || err?.message?.includes('row-level security')) {
-         showToast("Permission Denied: Ensure you have granted INSERT permissions in Supabase.", 'error');
+         showToast("Permission denied: only an authorized administrator can import legacy resources.", 'error');
       } else {
          showToast("Failed to create resource", 'error');
       }
     }
   };
-
-  const [sqlQuery, setSqlQuery] = useState(`-- Complete Database Schema Setup
--- Run this in your Supabase SQL Editor
-
--- 1. Profiles Table (extends Supabase Auth)
-CREATE TABLE IF NOT EXISTS profiles (
-  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  name TEXT NOT NULL,
-  faculty TEXT,
-  role TEXT DEFAULT 'scholar', -- 'scholar' or 'admin'
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 2. Resources (Notes) Table
-CREATE TABLE IF NOT EXISTS resources (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  subject TEXT NOT NULL,
-  faculty TEXT NOT NULL,
-  semester TEXT NOT NULL,
-  author_name TEXT NOT NULL,
-  author_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-  file_url TEXT NOT NULL,
-  file_size TEXT,
-  resource_type TEXT DEFAULT 'PDF',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 3. Contributions Table (Pending Notes)
-CREATE TABLE IF NOT EXISTS contributions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  subject TEXT NOT NULL,
-  faculty TEXT NOT NULL,
-  semester TEXT NOT NULL,
-  contributor_name TEXT NOT NULL,
-  contributor_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-  file_url TEXT NOT NULL,
-  status TEXT DEFAULT 'pending', -- 'pending', 'approved', 'rejected'
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 4. Set up Row Level Security (RLS)
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE resources ENABLE ROW LEVEL SECURITY;
-ALTER TABLE contributions ENABLE ROW LEVEL SECURITY;
-
--- 5. Basic Security Policies
-DROP POLICY IF EXISTS "Public resources are viewable by everyone" ON resources;
-DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
-DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
-DROP POLICY IF EXISTS "Allow insert resources for everyone" ON resources;
-DROP POLICY IF EXISTS "Allow delete resources for everyone" ON resources;
-DROP POLICY IF EXISTS "Allow update resources for everyone" ON resources;
-
--- Everyone can read resources and approved contributions
-CREATE POLICY "Public resources are viewable by everyone" ON resources FOR SELECT USING (true);
-CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
-CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Allow insert resources for everyone" ON resources FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow delete resources for everyone" ON resources FOR DELETE USING (true);
-CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USING (true);
-`);
-  const [sqlResult, setSqlResult] = useState<any>(null);
-  const [sqlError, setSqlError] = useState<string | null>(null);
-  const [isExecuting, setIsExecuting] = useState(false);
-
-  const handleExecuteSql = async () => {
-    setIsExecuting(true);
-    setSqlResult(null);
-    setSqlError(null);
-    try {
-      setSqlError("Executing raw DDL SQL directly from the browser is restricted. Use Supabase Dashboard.");
-    } catch (err: any) {
-      setSqlError(err.message || "An error occurred");
-    } finally {
-      setIsExecuting(false);
-    }
-  };
-
-  const allNotes = subjects.flatMap(subject => 
-    subject.notes.map(note => ({ ...note, subjectName: subject.name }))
-  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -260,23 +157,13 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
           </button>
 
           <button 
-            onClick={() => setActiveTab('sql')}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
-              activeTab === 'sql' ? 'bg-[#002147] text-white' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Terminal size={18} />
-            <span className="font-medium text-sm">SQL Editor</span>
-          </button>
-
-          <button 
             onClick={() => setActiveTab('settings')}
             className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
               activeTab === 'settings' ? 'bg-[#002147] text-white' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <Settings size={18} />
-            <span className="font-medium text-sm">System Settings</span>
+            <span className="font-medium text-sm">System Status</span>
           </button>
         </div>
 
@@ -294,7 +181,7 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
                   className="px-4 py-2 bg-[#002147] text-white text-sm font-medium rounded hover:bg-[#001530] transition-colors flex items-center gap-2"
                 >
                   <Plus size={16} />
-                  Add New Resource
+                  Import Legacy Resource
                 </button>
               </div>
               <div className="overflow-x-auto">
@@ -322,9 +209,6 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button className="p-2 text-slate-400 hover:text-[#002147] hover:bg-blue-50 rounded transition-colors" title="Edit Resource">
-                              <Edit size={16} />
-                            </button>
                             <button 
                               onClick={() => handleDelete(resource.id)}
                               className="p-2 text-slate-400 hover:text-[#c1121f] hover:bg-red-50 rounded transition-colors" 
@@ -405,28 +289,21 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
                           </td>
                           <td className="px-6 py-4">
                             <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold uppercase tracking-widest ${
-                              user.role === 'admin' 
+                              user.roles.some((role) => role === 'admin' || role === 'super_admin')
                                 ? 'bg-red-50 text-red-600 border border-red-100' 
                                 : 'bg-blue-50 text-[#002147] border border-blue-100'
                             }`}>
-                              {user.role}
+                              {user.roles.join(', ')}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <button 
-                                onClick={() => handleUpdateRole(user.id, user.role)}
+                                onClick={() => handleUpdateRole(user)}
                                 className="p-2 text-slate-400 hover:text-[#c49b63] hover:bg-amber-50 rounded transition-colors" 
-                                title="Change Role"
+                                title={user.roles.includes('admin') ? 'Revoke admin role' : 'Grant admin role'}
                               >
                                 <Shield size={16} />
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteUser(user.id)}
-                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" 
-                                title="Delete Profile"
-                              >
-                                <UserX size={16} />
                               </button>
                             </div>
                           </td>
@@ -448,7 +325,7 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
                 <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
                 <div className="text-xs text-amber-800 leading-relaxed">
                   <span className="font-bold uppercase tracking-tight mr-1">Note:</span>
-                  User accounts are linked to Supabase Auth. Deleting a profile removes local metadata but doesn't delete the login account. Admin roles should be granted with extreme caution.
+                  Role changes use the audited database function. Only a super administrator can grant or revoke admin and super-admin memberships.
                 </div>
               </div>
             </div>
@@ -464,16 +341,6 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
                   </h2>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button 
-                    onClick={handleAddTestSubscriber}
-                    disabled={loadingSubscribers}
-                    className="flex items-center gap-2 px-3 py-1.5 border border-[#002147]/20 text-[#002147] rounded text-[10px] font-bold uppercase tracking-wider hover:bg-white transition-colors"
-                  >
-                    <Plus size={12} />
-                    Add Test
-                  </button>
-
-
                   {/* Compose a mail for newsletter subscribers to announce new archive additions. */}
 
 
@@ -536,79 +403,9 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
             </div>
           )}
 
-          {activeTab === 'sql' && (
-            <div className="bg-white border border-slate-200 shadow-sm rounded-lg overflow-hidden flex flex-col h-[600px]">
-              <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                <h2 className="text-lg font-bold text-[#002147] flex items-center gap-2">
-                  <Terminal size={20} className="text-[#c1121f]" />
-                  SQL Editor (Supabase)
-                </h2>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={handleExecuteSql}
-                    disabled={isExecuting}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors disabled:opacity-50"
-                  >
-                    <Play size={14} />
-                    {isExecuting ? 'Executing...' : 'Run Query'}
-                  </button>
-                </div>
-              </div>
-              
-              <div className="flex-1 flex flex-col p-4 gap-4 bg-slate-50">
-                <div className="bg-[#1e1e1e] rounded-lg overflow-hidden flex-1 flex flex-col border border-slate-300 shadow-inner">
-                  <div className="px-4 py-2 bg-[#2d2d2d] flex items-center gap-2 text-xs text-slate-400 font-mono">
-                    query.sql
-                  </div>
-                  <textarea 
-                    value={sqlQuery}
-                    onChange={(e) => setSqlQuery(e.target.value)}
-                    className="w-full flex-1 bg-transparent text-slate-300 font-mono p-4 focus:outline-none resize-none text-sm leading-relaxed"
-                    spellCheck="false"
-                  />
-                </div>
-                
-                <div className="h-48 bg-white border border-slate-200 rounded-lg overflow-hidden flex flex-col">
-                  <div className="px-4 py-2 bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider flex items-center justify-between">
-                    <span>Results</span>
-                  </div>
-                  <div className="p-4 overflow-auto flex-1 font-mono text-sm">
-                    {sqlError ? (
-                      <div className="text-red-600 flex gap-2">
-                        <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-                        <span>{sqlError}</span>
-                      </div>
-                    ) : sqlResult ? (
-                      <pre className="text-slate-700">{JSON.stringify(sqlResult, null, 2)}</pre>
-                    ) : (
-                      <div className="text-slate-400 italic">No results yet. Run a query to see output.</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'settings' && (
-            <div className="bg-white border border-slate-200 shadow-sm p-6 rounded-lg space-y-8">
-              <div className="pt-2">
-                <h3 className="text-lg font-bold text-[#002147] mb-1 flex items-center gap-2">
-                  <Settings size={18} />
-                  General Settings
-                </h3>
-                <p className="text-sm text-slate-500 mb-4">Configure global platform options.</p>
-                
-                <div className="space-y-4 max-w-md">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Platform Name</label>
-                    <input type="text" className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] bg-slate-50" defaultValue="Jana Bhawana E-Library" />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Admin Contact Email</label>
-                    <input type="email" className="w-full border border-slate-300 p-3 text-sm focus:outline-none focus:border-[#002147] bg-slate-50" defaultValue="hackingwithnirmal@gmail.com" />
-                  </div>
-                </div>
-              </div>
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 shadow-sm">
+              <SystemStatusPanel />
             </div>
           )}
         </div>
@@ -618,7 +415,7 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <h3 className="font-bold text-[#002147] text-lg">Add New Resource</h3>
+              <h3 className="font-bold text-[#002147] text-lg">Import Legacy Resource</h3>
               <button 
                 onClick={() => setShowAddModal(false)}
                 className="text-slate-400 hover:text-slate-600 transition-colors"
@@ -773,7 +570,7 @@ CREATE POLICY "Allow update resources for everyone" ON resources FOR UPDATE USIN
                 form="addResourceForm"
                 className="px-4 py-2 bg-[#002147] text-white font-medium text-sm rounded hover:bg-[#001530] transition-colors"
               >
-                Save Resource
+                Import Resource
               </button>
             </div>
           </div>

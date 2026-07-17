@@ -1,7 +1,9 @@
 // Copyright by nirmal sanjel | hackingwithnirmal@gmail.com | +977 9848744321
 import { createClient } from "@supabase/supabase-js";
+import { publicEnvironment } from "./env";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+const { supabaseUrl, supabaseAnonKey } = publicEnvironment.config;
+const safeSupabaseUrl = supabaseUrl || "https://configuration-required.invalid";
+const safeSupabaseAnonKey = supabaseAnonKey || "configuration-required";
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(safeSupabaseUrl, safeSupabaseAnonKey);

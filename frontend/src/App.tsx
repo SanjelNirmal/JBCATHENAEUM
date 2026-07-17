@@ -22,6 +22,7 @@ import { LoginModal } from "./components/LoginModal";
 import { CookieConsent, getCookie } from "./components/CookieConsent";
 import { FileText, FileBadge, FileCheck, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
+import { isAdminRole } from "./lib/roles";
 
 function NoteIcon({ type }: { type: string }) {
   if (type === 'PDF') return <FileCheck size={20} />;
@@ -51,7 +52,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (user && user.role === 'admin' && view === 'home') {
+    if (user && isAdminRole(user.role) && view === 'home') {
       // Auto-navigate to admin if they were on home and just logged in
       // Optional: setView('admin'); 
     }
@@ -123,7 +124,7 @@ export default function App() {
           onClose={closeLoginModal} 
           onSuccess={(profile) => { 
             closeLoginModal(); 
-            if (profile.role === 'admin') setView('admin'); 
+            if (isAdminRole(profile.role)) setView('admin');
           }} 
         />
       )}
@@ -372,7 +373,7 @@ export default function App() {
         </main>
       )}
 
-      {view === 'admin' && user?.role === 'admin' && (
+      {view === 'admin' && user && isAdminRole(user.role) && (
         <main className="flex-1 w-full pb-24 bg-slate-50">
           <AdminDashboard />
         </main>
