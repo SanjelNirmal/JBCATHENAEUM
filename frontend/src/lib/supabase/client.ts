@@ -17,4 +17,4 @@ export const supabase = createClient<Database>(safeUrl, safeKey, {
   },
 });
 
-export const LATEST_DATABASE_MIGRATION = "202607170008_review_queue_listing";
+export const LATEST_DATABASE_MIGRATION = "202607170009_review_queue_scan_status";

@@ -4,7 +4,7 @@ This procedure intentionally deletes every application object and row in the
 `public` schema. It preserves Supabase-managed Auth users and the `auth`,
 `storage`, `realtime`, `vault`, `extensions`, and migration-history schemas.
 
-The eight repository migrations are the complete application SQL. Together
+The nine repository migrations are the complete application SQL. Together
 they install 24 public tables, all columns and constraints, seven enums,
 indexes, triggers, RLS policies, grants, RPC functions, private Storage bucket
 configuration, and the real Jana Bhawana Campus academic catalog. They do not
@@ -44,6 +44,7 @@ content.
      202607170006 \
      202607170007 \
      202607170008 \
+     202607170009 \
      --status reverted \
      --linked
    ```
@@ -51,7 +52,7 @@ content.
    If the CLI rejects a version that was never recorded remotely, rerun the
    command with only the versions actually present in the REMOTE column.
 
-4. Preview the full replay. It must list migrations `001` through `008` in
+4. Preview the full replay. It must list migrations `001` through `009` in
    order:
 
    ```sh
@@ -102,3 +103,5 @@ The CLI executes these complete SQL files in filename order:
    listing without exposing contributor identifiers through browser grants.
 8. `202607170008_review_queue_listing.sql` — MFA-protected moderation queue
    projection without browser fan-out across private workflow tables.
+9. `202607170009_review_queue_scan_status.sql` — compensating type correction
+   for the queue projection's scan-status field.
