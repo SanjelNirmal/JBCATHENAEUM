@@ -11,6 +11,7 @@ const authMocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
   requestPasswordReset: vi.fn(),
   updatePassword: vi.fn(),
+  waitForCurrentSession: vi.fn(),
 }));
 const contextMocks = vi.hoisted(() => ({
   current: {
@@ -122,7 +123,9 @@ describe("authentication pages", () => {
   });
 
   it("updates the password when the recovery session is valid", async () => {
-    authMocks.getCurrentSession.mockResolvedValue({ user: { id: "user-1" } });
+    authMocks.waitForCurrentSession.mockResolvedValue({
+      user: { id: "user-1" },
+    });
     authMocks.updatePassword.mockResolvedValue(undefined);
     render(
       <MemoryRouter initialEntries={["/reset-password"]}>
@@ -144,7 +147,7 @@ describe("authentication pages", () => {
   });
 
   it("blocks password updates when the recovery link is expired", async () => {
-    authMocks.getCurrentSession.mockResolvedValue(null);
+    authMocks.waitForCurrentSession.mockResolvedValue(null);
     render(
       <MemoryRouter initialEntries={["/reset-password"]}>
         <PasswordPage />

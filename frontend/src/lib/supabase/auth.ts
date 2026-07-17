@@ -123,6 +123,16 @@ export async function getCurrentSession() {
   return data.session;
 }
 
+export async function waitForCurrentSession(timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  let session = await getCurrentSession();
+  while (!session && Date.now() < deadline) {
+    await new Promise((resolve) => window.setTimeout(resolve, 150));
+    session = await getCurrentSession();
+  }
+  return session;
+}
+
 export async function getAuthenticatorAssuranceLevel(): Promise<
   "aal1" | "aal2" | null
 > {

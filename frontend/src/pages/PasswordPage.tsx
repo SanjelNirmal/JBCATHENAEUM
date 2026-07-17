@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Seo } from "../components/Seo";
 import {
-  getCurrentSession,
   requestPasswordReset,
   updatePassword,
+  waitForCurrentSession,
 } from "../lib/supabase/auth";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
 
@@ -29,7 +29,7 @@ export default function PasswordPage() {
 
     setCheckingSession(true);
     setCanReset(false);
-    void getCurrentSession()
+    void waitForCurrentSession()
       .then((session) => {
         if (!active) return;
         setCanReset(Boolean(session));
