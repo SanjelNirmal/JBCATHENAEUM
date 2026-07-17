@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+select plan(29);
 
 select has_table('public', 'resource_upload_sessions', 'upload session table exists');
 select has_table('public', 'storage_settings', 'storage settings table exists');
@@ -46,6 +46,26 @@ select ok(
 select ok(
   not has_table_privilege('authenticated', 'public.resource_upload_sessions', 'INSERT'),
   'clients cannot issue their own upload sessions'
+);
+select ok(
+  not has_table_privilege('anon', 'public.resource_upload_sessions', 'SELECT'),
+  'anonymous clients cannot read upload sessions'
+);
+select ok(
+  not has_table_privilege('authenticated', 'public.resource_upload_sessions', 'UPDATE'),
+  'clients cannot update upload sessions directly'
+);
+select ok(
+  not has_table_privilege('authenticated', 'public.resource_upload_sessions', 'DELETE'),
+  'clients cannot delete upload sessions directly'
+);
+select ok(
+  not has_column_privilege('authenticated', 'public.resource_upload_sessions', 'storage_bucket', 'SELECT'),
+  'clients cannot read upload bucket names from session rows'
+);
+select ok(
+  not has_column_privilege('authenticated', 'public.resource_upload_sessions', 'storage_path', 'SELECT'),
+  'clients cannot read upload object paths from session rows'
 );
 select ok(
   not has_column_privilege('anon', 'public.resource_versions', 'storage_path', 'SELECT'),

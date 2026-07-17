@@ -11,7 +11,7 @@ Status: implemented and locally validated on 2026-07-17. Live infrastructure cha
 - Added database-side full-text and trigram search, explicit public publication filtering, total counts, 12-item public pages, 20-item admin pages, page-size controls, indexed filters, and 400 ms search debouncing.
 - Added server-applied admin resource filters for status, program, term, subject, contributor, creation date, sort, and page size.
 
-Primary files: `frontend/src/app/*`, `frontend/src/pages/*`, `frontend/src/lib/supabase/*`, `frontend/public/_redirects`, and migrations `202607170005_platform_completion.sql` and `202607170006_academic_catalog_seed.sql`.
+Primary files: `frontend/src/app/*`, `frontend/src/pages/*`, `frontend/src/lib/supabase/*`, `frontend/public/_redirects`, and migrations `202607170005_platform_completion.sql`, `202607170006_academic_catalog_seed.sql`, and `202607170007_admin_resource_listing.sql`.
 
 Security impact: invalid route values are bounded before query construction; the public search RPC returns only published, non-deleted resources tied to active academic records. RLS remains the authorization boundary.
 

@@ -295,44 +295,45 @@ export interface AdminResourceFilters {
   sort?: "recent" | "oldest" | "title" | "popular";
 }
 
+interface AdminResourceRpcRow {
+  id: string;
+  title: string;
+  status: ResourceStatus;
+  created_at: string;
+  program_id: string;
+  term_id: string;
+  subject_id: string;
+  owner_id: string | null;
+  download_count: number;
+  total_count: number;
+}
+
 export async function fetchAdminResources(
   page: number,
   pageSize: number,
   search: string,
   filters: AdminResourceFilters = {},
 ) {
-  const from = (page - 1) * pageSize;
-  let query = supabase
-    .from("resources")
-    .select(
-      "id,title,status,created_at,program_id,term_id,subject_id,owner_id,download_count",
-      { count: "exact" },
-    )
-    .range(from, from + pageSize - 1);
-  if (search.trim()) query = query.ilike("title", `%${search.trim()}%`);
-  if (filters.status) query = query.eq("status", filters.status);
-  if (filters.programId) query = query.eq("program_id", filters.programId);
-  if (filters.termId) query = query.eq("term_id", filters.termId);
-  if (filters.subjectId) query = query.eq("subject_id", filters.subjectId);
-  if (filters.contributorId)
-    query = query.eq("owner_id", filters.contributorId);
-  if (filters.createdFrom) query = query.gte("created_at", filters.createdFrom);
-  if (filters.createdTo) query = query.lt("created_at", filters.createdTo);
-  query =
-    filters.sort === "title"
-      ? query.order("title")
-      : filters.sort === "popular"
-        ? query
-            .order("download_count", { ascending: false })
-            .order("created_at", { ascending: false })
-        : query.order("created_at", { ascending: filters.sort === "oldest" });
-  const [{ data, count, error }, catalog] = await Promise.all([
-    query,
+  const [{ data, error }, catalog] = await Promise.all([
+    supabase.rpc("list_admin_resources", {
+      search_query: search.trim() || null,
+      status_filter: filters.status ?? null,
+      program_filter: filters.programId ?? null,
+      term_filter: filters.termId ?? null,
+      subject_filter: filters.subjectId ?? null,
+      contributor_filter: filters.contributorId ?? null,
+      created_from: filters.createdFrom ?? null,
+      created_to: filters.createdTo ?? null,
+      sort_by: filters.sort ?? "recent",
+      page_number: page,
+      page_size: pageSize,
+    }),
     fetchAcademicCatalog(),
   ]);
   if (error) throw error;
+  const rows = (data ?? []) as AdminResourceRpcRow[];
   return {
-    items: (data ?? []).map((item): AdminResourceRow => {
+    items: rows.map((item): AdminResourceRow => {
       const academic = catalog.find(
         (option) => option.subjectId === item.subject_id,
       );
@@ -347,7 +348,7 @@ export async function fetchAdminResources(
         ownerId: item.owner_id,
       };
     }),
-    total: count ?? 0,
+    total: Number(rows[0]?.total_count ?? 0),
   };
 }
 

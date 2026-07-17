@@ -47,6 +47,10 @@ supabase secrets set \
 ```
 
 Never place the service-role key or cleanup secret in Cloudflare/Vite variables.
+For testing from another device on the local network, append the exact origin
+(for example `http://192.168.101.5:3000`) to `ALLOWED_ORIGINS`; do not use `*`
+or allow an entire private-address range. Using `http://localhost:3000` already
+works without adding a secret value.
 
 ## Owner-run deployment
 

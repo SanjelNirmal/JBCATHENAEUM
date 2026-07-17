@@ -17,29 +17,53 @@ Stage 1 replaces browser-trusted roles with database memberships, restricts prof
 
 Configure these in Cloudflare Pages. Values prefixed with `VITE_` are intentionally public and must never contain a service-role key or another secret.
 
-| Variable | Required | Purpose |
-|---|---:|---|
-| `VITE_SUPABASE_URL` | Yes | Public Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Yes | Public Supabase anonymous/publishable key |
-| `VITE_APP_VERSION` | Recommended | Commit SHA or release identifier shown in System Status |
-| `VITE_DEPLOYED_AT` | Recommended | ISO-8601 deployment timestamp |
-| `VITE_RESOURCE_STORAGE_BUCKET` | No | Read-only Storage connectivity check; uploads are Stage 2 |
+| Variable                       |    Required | Purpose                                                   |
+| ------------------------------ | ----------: | --------------------------------------------------------- |
+| `VITE_SUPABASE_URL`            |         Yes | Public Supabase project URL                               |
+| `VITE_SUPABASE_ANON_KEY`       |         Yes | Public Supabase anonymous/publishable key                 |
+| `VITE_APP_VERSION`             | Recommended | Commit SHA or release identifier shown in System Status   |
+| `VITE_DEPLOYED_AT`             | Recommended | ISO-8601 deployment timestamp                             |
+| `VITE_RESOURCE_STORAGE_BUCKET` |          No | Read-only Storage connectivity check; uploads are Stage 2 |
 
 Do not configure `GEMINI_API_KEY` in the frontend build. The Vite injection that exposed it has been removed.
+
+## Browser-visible credentials
+
+The Supabase project URL and publishable key are intentionally public client
+configuration. They will appear in the JavaScript bundle and in browser Network
+requests. CORS does not make these values secret; authorization is enforced with
+Row Level Security, restricted grants, and authenticated Edge Function checks.
+
+Authenticated browser requests also include a short-lived user access token. A
+person who controls the browser can inspect their own token, so it must never be
+copied into tickets, chat messages, screenshots, analytics, or application logs.
+After accidental disclosure, sign out all sessions and sign in again. The old
+access token remains usable until its expiry, so keep the configured JWT lifetime
+appropriately short.
+
+The following values must never be shipped to or handled by browser code:
+
+- `SUPABASE_SERVICE_ROLE_KEY`
+- database passwords and connection strings containing passwords
+- Supabase management access tokens
+- third-party provider secrets
+
+These secrets belong only in Supabase Edge Function secrets or another trusted
+server-side environment.
 
 ## Cloudflare CSP origin allowlist
 
 Every non-self origin in `frontend/public/_headers` has a current application dependency:
 
-| Directive | Origin | Reason |
-|---|---|---|
-| `connect-src` | `https://*.supabase.co` | Supabase Auth, PostgREST, and Storage HTTPS calls |
-| `connect-src` | `wss://*.supabase.co` | Supabase auth/realtime WebSocket support |
-| `style-src` | `https://fonts.googleapis.com` | Inter and Playfair Display stylesheet import |
-| `font-src` | `https://fonts.gstatic.com` | Google Fonts files |
-| `img-src` | `https://images.unsplash.com` | Home-page archive photograph |
-| `frame-src` | `https://drive.google.com`, `https://docs.google.com` | Existing legacy document preview iframe |
-| `frame-src` | `https://*.supabase.co` | Short-lived signed preview of validated private PDFs |
+| Directive     | Origin                                                | Reason                                               |
+| ------------- | ----------------------------------------------------- | ---------------------------------------------------- |
+| `connect-src` | `https://*.supabase.co`                               | Supabase Auth, PostgREST, and Storage HTTPS calls    |
+| `connect-src` | `wss://*.supabase.co`                                 | Supabase auth/realtime WebSocket support             |
+| `style-src`   | `https://fonts.googleapis.com`                        | Inter and Playfair Display stylesheet import         |
+| `font-src`    | `https://fonts.gstatic.com`                           | Google Fonts files                                   |
+| `img-src`     | `https://images.unsplash.com`                         | Home-page archive photograph                         |
+| `frame-src`   | `https://drive.google.com`, `https://docs.google.com` | Existing legacy document preview iframe              |
+| `frame-src`   | `https://*.supabase.co`                               | Short-lived signed preview of validated private PDFs |
 
 `script-src` also contains one SHA-256 hash for the static organization JSON-LD block in `frontend/index.html`; it does not authorize arbitrary inline JavaScript.
 

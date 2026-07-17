@@ -1,4 +1,4 @@
-// Typed schema snapshot for migrations through 202607170006. Compare it with
+// Typed schema snapshot for migrations through 202607170007. Compare it with
 // `supabase gen types typescript --linked` after every linked deployment.
 export type Json =
   | string
@@ -307,6 +307,33 @@ export interface Database {
       admin_dashboard_metrics: {
         Args: Record<PropertyKey, never>;
         Returns: Record<string, number>;
+      };
+      list_admin_resources: {
+        Args: {
+          search_query: string | null;
+          status_filter: ResourceStatus | null;
+          program_filter: string | null;
+          term_filter: string | null;
+          subject_filter: string | null;
+          contributor_filter: string | null;
+          created_from: string | null;
+          created_to: string | null;
+          sort_by: string;
+          page_number: number;
+          page_size: number;
+        };
+        Returns: Array<{
+          id: string;
+          title: string;
+          status: ResourceStatus;
+          created_at: string;
+          program_id: string;
+          term_id: string;
+          subject_id: string;
+          owner_id: string | null;
+          download_count: number;
+          total_count: number;
+        }>;
       };
       set_user_role: {
         Args: {

@@ -76,10 +76,19 @@ export function SystemStatusPanel() {
     async function checkRuntime() {
       const [databaseResult, migrationResult] = await Promise.all([
         supabase.from("resources").select("id", { count: "exact", head: true }),
-        supabase
-          .from("subjects")
-          .select("id", { count: "exact", head: true })
-          .eq("code", "BCA 451"),
+        supabase.rpc("list_admin_resources", {
+          search_query: null,
+          status_filter: null,
+          program_filter: null,
+          term_filter: null,
+          subject_filter: null,
+          contributor_filter: null,
+          created_from: null,
+          created_to: null,
+          sort_by: "recent",
+          page_number: 1,
+          page_size: 1,
+        }),
       ]);
 
       let storageState: CheckState = "warning";
@@ -101,15 +110,10 @@ export function SystemStatusPanel() {
         databaseDetail: databaseResult.error
           ? "The resources query failed. Check deployment variables, network access, and RLS."
           : "Supabase responded to a read-only resources query.",
-        migration:
-          migrationResult.error || migrationResult.count !== 1
-            ? "warning"
-            : "healthy",
+        migration: migrationResult.error ? "warning" : "healthy",
         migrationDetail: migrationResult.error
           ? `Migration ${LATEST_DATABASE_MIGRATION} could not be verified from this session.`
-          : migrationResult.count !== 1
-            ? `Migration ${LATEST_DATABASE_MIGRATION} has not populated its catalog marker.`
-            : `Migration marker ${LATEST_DATABASE_MIGRATION} is present.`,
+          : `Migration boundary ${LATEST_DATABASE_MIGRATION} is present.`,
         storage: storageState,
         storageDetail,
       });
