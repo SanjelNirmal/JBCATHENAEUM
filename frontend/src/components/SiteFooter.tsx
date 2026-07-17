@@ -11,6 +11,23 @@ export function SiteFooter() {
           <p className="mt-3 text-sm leading-6">
             A moderated academic-resource archive for Jana Bhawana Campus.
           </p>
+          <div className="mt-5 border-l-2 border-[#c49b63] pl-4 text-sm leading-6">
+            <p className="font-semibold text-white">Created by Nirmal Sanjel</p>
+            <a
+              href="https://www.nirmalsanjel.com.np"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-[#d8b37a] transition-colors hover:text-white hover:underline"
+            >
+              www.nirmalsanjel.com.np
+            </a>
+            <a
+              href="mailto:admin@nirmalsanjel.com.np"
+              className="block text-[#d8b37a] transition-colors hover:text-white hover:underline"
+            >
+              admin@nirmalsanjel.com.np
+            </a>
+          </div>
         </div>
         <div>
           <h2 className="font-bold text-white">Platform</h2>
@@ -66,9 +83,12 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 px-5 py-6 text-center text-xs text-slate-400">
-        © 2026 JBC Athenaeum · Institutional policies require campus approval
-        before campus-wide launch.
+      <div className="border-t border-white/10 px-5 py-6 text-center text-xs leading-6 text-slate-400">
+        <p>© 2026 JBC Athenaeum. Created and maintained by Nirmal Sanjel.</p>
+        <p>
+          Independent academic archive · Campus-wide launch remains subject to
+          institutional approval.
+        </p>
       </div>
     </footer>
   );

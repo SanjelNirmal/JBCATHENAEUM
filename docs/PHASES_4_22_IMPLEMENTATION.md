@@ -133,6 +133,15 @@ Do not apply this to production until a restorable backup and an isolated previe
    - `VITE_APP_VERSION=<COMMIT_SHA>`
    - `VITE_DEPLOYED_AT=<ISO_8601_TIMESTAMP>`
 
+   In **Workers & Pages → JBC Athenaeum → Custom domains**, confirm
+   `jbc.nirmalsanjel.com.np` is active. Then create an account-level **Bulk
+   Redirect** from `https://jbcathenaeum.pages.dev` to
+   `https://jbc.nirmalsanjel.com.np` with status `301`, enabling **Preserve
+   query string**, **Subpath matching**, and **Preserve path suffix**. This
+   prevents search engines from treating the Pages hostname as a duplicate
+   site; hostname-based redirects are not supported in a Pages `_redirects`
+   file.
+
    Do not add the service-role key or custom Edge Function secrets to Cloudflare. Deploy to a preview first and verify `_headers`, `_redirects`, `robots.txt`, and `sitemap.xml` are present.
 
 10. Run the preview acceptance suite with distinct student, moderator, admin, and super-admin accounts:

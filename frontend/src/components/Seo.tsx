@@ -35,6 +35,7 @@ export function Seo({
     setMeta('meta[property="og:title"]', "content", title);
     setMeta('meta[property="og:description"]', "content", description);
     setMeta('meta[property="og:type"]', "content", "website");
+    setMeta('meta[property="og:site_name"]', "content", "JBC Athenaeum");
     setMeta('meta[property="og:url"]', "content", `${origin}${path}`);
     setMeta('meta[property="twitter:title"]', "content", title);
     setMeta('meta[property="twitter:description"]', "content", description);

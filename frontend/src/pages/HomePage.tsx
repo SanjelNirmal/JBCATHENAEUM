@@ -24,8 +24,8 @@ export default function HomePage() {
   return (
     <main id="main-content">
       <Seo
-        title="TU BCA notes and academic resources"
-        description="Find reviewed TU BCA notes, past questions, project reports, PDFs, and academic resources for Jana Bhawana Campus students on JBC Athenaeum by Nirmal Sanjel."
+        title="TU BCA Notes & Academic Resources"
+        description="Find reviewed TU BCA notes, past questions, project reports, PDFs, and academic resources for Jana Bhawana Campus students."
         path="/"
         keywords="Jana Bhawana Campus, JBC Athenaeum, TU notes, Tribhuvan University notes, BCA notes, BCA 4th semester notes, TU BCA resources, Jana Bhawana Campus notes, Nirmal Sanjel"
       />
