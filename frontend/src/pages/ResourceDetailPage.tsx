@@ -1,5 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, FileWarning, Flag, RefreshCw } from "lucide-react";
+import {
+  Check,
+  ExternalLink,
+  FileWarning,
+  Flag,
+  RefreshCw,
+  Share2,
+} from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
@@ -23,6 +30,7 @@ export default function ResourceDetailPage() {
   });
   const [reportOpen, setReportOpen] = useState(false);
   const [reportMessage, setReportMessage] = useState("");
+  const [shareMessage, setShareMessage] = useState("");
   if (query.isLoading)
     return (
       <main id="main-content">
@@ -69,6 +77,26 @@ export default function ResourceDetailPage() {
   const previewUrl = item.legacyUrl
     ? getLegacyPreviewUrl(item.legacyUrl)
     : getPublicResourceAccessUrl(item.id);
+  const resourceUrl = `${window.location.origin}/resources/${item.slug}`;
+  const shareResource = async () => {
+    setShareMessage("");
+    try {
+      const shareData = {
+        title: item.title,
+        text: item.description || `Academic resource for ${item.subjectName}.`,
+        url: resourceUrl,
+      };
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+        return;
+      }
+      await navigator.clipboard.writeText(resourceUrl);
+      setShareMessage("Resource link copied.");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setShareMessage("The share link could not be copied.");
+    }
+  };
   const submitReport = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -133,6 +161,14 @@ export default function ResourceDetailPage() {
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               type="button"
+              onClick={() => void shareResource()}
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
+            >
+              <Share2 size={17} />
+              Share resource
+            </button>
+            <button
+              type="button"
               onClick={() => window.location.reload()}
               className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 font-bold"
             >
@@ -168,6 +204,15 @@ export default function ResourceDetailPage() {
               </Link>
             )}
           </div>
+          {shareMessage && (
+            <p
+              aria-live="polite"
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-slate-100 p-3 text-sm"
+            >
+              <Check size={16} />
+              {shareMessage}
+            </p>
+          )}
           {reportMessage && (
             <p
               aria-live="polite"
