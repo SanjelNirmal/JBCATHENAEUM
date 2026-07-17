@@ -85,6 +85,18 @@ describe("safe error mapping", () => {
       "network",
     );
   });
+
+  it("maps Supabase recovery errors by code", () => {
+    expect(
+      toSafeErrorMessage({ code: "email_address_not_authorized" }, "auth"),
+    ).toContain("not configured");
+    expect(
+      toSafeErrorMessage({ code: "over_email_send_rate_limit" }, "auth"),
+    ).toContain("Too many recovery emails");
+    expect(
+      toSafeErrorMessage({ code: "over_request_rate_limit" }, "auth"),
+    ).toContain("few minutes");
+  });
 });
 
 describe("legacy resource URL validation", () => {

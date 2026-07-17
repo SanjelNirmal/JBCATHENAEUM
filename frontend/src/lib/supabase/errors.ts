@@ -8,6 +8,20 @@ const codeMessages: Record<string, string> = {
   P0002: "The requested item could not be found.",
   invalid_credentials: "The email or password is incorrect.",
   email_not_confirmed: "Verify your email address before signing in.",
+  email_address_not_authorized:
+    "Password recovery email delivery is not configured for this address. Contact the site administrator.",
+  email_provider_disabled:
+    "Email authentication is currently unavailable. Contact the site administrator.",
+  over_email_send_rate_limit:
+    "Too many recovery emails have been requested. Wait before trying again.",
+  over_request_rate_limit:
+    "Too many authentication requests were made. Wait a few minutes and try again.",
+  request_timeout: "The authentication request timed out. Please try again.",
+  captcha_failed:
+    "The security check could not be verified. Refresh the page and try again.",
+  weak_password:
+    "Use a stronger password that meets all password requirements.",
+  same_password: "Choose a password different from your current password.",
   mfa_required: "Multi-factor authentication is required for this action.",
   account_suspended:
     "This account is suspended. Contact a campus administrator for assistance.",

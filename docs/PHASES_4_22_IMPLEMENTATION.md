@@ -118,11 +118,20 @@ Do not apply this to production until a restorable backup and an isolated previe
 8. In Supabase Dashboard → Authentication:
 
    - Set Site URL to `https://jbc.nirmalsanjel.com.np`.
-   - Add the custom domain, Pages fallback, and preview `/login` and `/reset-password` redirect URLs.
+   - Add the exact production redirect URLs
+     `https://jbc.nirmalsanjel.com.np/login` and
+     `https://jbc.nirmalsanjel.com.np/reset-password`, plus the Pages fallback
+     and approved preview equivalents.
    - Require email confirmation.
    - Set the minimum password length to at least 10.
    - Enable TOTP MFA.
    - Enroll every moderator/admin/super-admin before granting production access.
+   - Configure and test a custom SMTP provider under **Email → SMTP Settings**.
+     The default Supabase sender is not production-ready: it only sends to
+     organization-member addresses and has a very low project-wide limit.
+     Verify signup confirmation and password recovery with a non-team test
+     account, then inspect **Auth → Logs** and the SMTP provider delivery log.
+     Never expose SMTP credentials through a `VITE_` variable.
 
 9. In Cloudflare Pages configure:
 
