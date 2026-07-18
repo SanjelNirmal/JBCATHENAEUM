@@ -10,15 +10,23 @@
 }
 
 html {
+  width: 100%;
   overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
 body {
+  width: 100%;
   min-width: 320px;
   overflow-x: hidden;
   background: #f8fafc;
   color: #0f172a;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
 }
 
 :focus-visible {
@@ -32,6 +40,25 @@ body {
 
 .safe-area-top {
   padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-page {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+@media (min-width: 640px) {
+  .safe-area-page {
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+  }
+}
+
+@media (min-width: 1024px) {
+  .safe-area-page {
+    padding-left: max(2rem, env(safe-area-inset-left));
+    padding-right: max(2rem, env(safe-area-inset-right));
+  }
 }
 
 .safe-area-inline {
@@ -52,6 +79,7 @@ input,
 select,
 textarea {
   accent-color: #002147;
+  max-width: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {

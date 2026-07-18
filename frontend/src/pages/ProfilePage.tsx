@@ -92,7 +92,7 @@ export default function ProfilePage() {
   return (
     <main
       id="main-content"
-      className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12"
+      className="safe-area-page mx-auto w-full max-w-6xl py-6 sm:px-6 sm:py-12"
     >
       <Seo
         title="My profile"
@@ -101,8 +101,8 @@ export default function ProfilePage() {
         noIndex
       />
       <AccountNav />
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+        <section className="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
           <div className="grid gap-4 sm:grid-cols-[104px_minmax(0,1fr)] sm:items-center xl:grid-cols-1">
             <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-lg bg-[#002147] text-2xl font-black text-white sm:h-28 sm:w-28">
               {hasUsableAvatar ? (
@@ -120,7 +120,7 @@ export default function ProfilePage() {
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                 Account profile
               </p>
-              <h1 className="mt-1 break-words font-serif text-2xl font-bold leading-tight text-[#002147] sm:text-3xl">
+              <h1 className="mt-1 break-words font-serif text-xl font-bold leading-tight text-[#002147] sm:text-3xl">
                 {profile.name}
               </h1>
               <p className="mt-1 break-all text-sm text-slate-600">
@@ -160,7 +160,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+        <section className="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-8">
           <h2 className="font-serif text-2xl font-bold text-[#002147]">
             Edit profile
           </h2>
@@ -245,7 +245,7 @@ export default function ProfilePage() {
             </label>
             <button
               disabled={busy}
-              className="min-h-12 rounded-lg bg-[#002147] px-5 font-bold text-white disabled:opacity-50"
+              className="min-h-12 w-full rounded-lg bg-[#002147] px-5 font-bold text-white disabled:opacity-50 sm:w-auto"
             >
               {busy ? "Saving…" : "Save profile"}
             </button>
@@ -258,7 +258,7 @@ export default function ProfilePage() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid gap-1 rounded-lg bg-slate-50 px-4 py-3 sm:grid-cols-[120px_minmax(0,1fr)] sm:items-center">
+    <div className="min-w-0 rounded-lg bg-slate-50 px-4 py-3 sm:grid sm:grid-cols-[120px_minmax(0,1fr)] sm:items-center sm:gap-1">
       <span className="font-medium text-slate-500">{label}</span>
       <span className="break-words font-semibold text-slate-900 sm:text-right">
         {value}
@@ -290,7 +290,7 @@ function Field({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}
-        className="mt-1 min-h-12 w-full rounded-lg border border-slate-300 px-4 outline-none focus:border-[#002147] focus:ring-2 focus:ring-[#002147]/15"
+        className="mt-1 min-h-12 w-full min-w-0 rounded-lg border border-slate-300 px-4 outline-none focus:border-[#002147] focus:ring-2 focus:ring-[#002147]/15"
       />
       {hint && (
         <span className="mt-1 block text-xs font-normal text-slate-500">

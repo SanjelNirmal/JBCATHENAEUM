@@ -19,19 +19,19 @@ const accountLinks = [
 
 export function AccountNav() {
   return (
-    <nav aria-label="Account" className="mb-8 overflow-x-auto pb-2">
-      <div className="flex min-w-max gap-2">
+    <nav aria-label="Account" className="mb-6 sm:mb-8">
+      <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
         {accountLinks.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === "/profile"}
             className={({ isActive }) =>
-              `inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-bold ${isActive ? "border-[#002147] bg-[#002147] text-white" : "border-slate-300 bg-white text-slate-700"}`
+              `inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-lg border px-2 text-center text-[11px] font-bold leading-tight sm:min-h-11 sm:flex-row sm:gap-2 sm:px-4 sm:text-sm ${isActive ? "border-[#002147] bg-[#002147] text-white" : "border-slate-300 bg-white text-slate-700"}`
             }
           >
             <item.icon size={17} aria-hidden="true" />
-            {item.label}
+            <span className="truncate">{item.label}</span>
           </NavLink>
         ))}
       </div>

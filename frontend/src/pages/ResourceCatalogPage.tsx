@@ -85,7 +85,7 @@ export default function ResourceCatalogPage() {
   return (
     <main
       id="main-content"
-      className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
+      className="safe-area-page mx-auto w-full max-w-7xl py-8 sm:px-6 sm:py-12 lg:px-8"
     >
       <Seo
         title="TU BCA & BICTE notes, PDFs, and past questions"
@@ -94,10 +94,10 @@ export default function ResourceCatalogPage() {
         keywords="TU BCA notes, JBC BCA notes, BCA notes Nepal, BICTE notes, Jana Bhawana Campus notes, JBC notes, Tribhuvan University past questions, BCA PDFs, BCA project report, Nirmal Sanjel"
       />
       <div className="max-w-3xl">
-        <h1 className="font-serif text-4xl font-bold text-[#002147] sm:text-5xl">
+        <h1 className="font-serif text-3xl font-bold leading-tight text-[#002147] sm:text-5xl">
           TU BCA and BICTE notes and resource catalog
         </h1>
-        <p className="mt-3 text-slate-600">
+        <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
           Search Jana Bhawana Campus notes, BCA PDFs, BICTE PDFs, past
           questions, project reports, and subject-wise Tribhuvan University
           resources.
@@ -105,7 +105,7 @@ export default function ResourceCatalogPage() {
       </div>
       <section
         aria-label="Resource filters"
-        className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6"
+        className="mt-6 rounded-lg border border-slate-200 bg-white p-4 sm:mt-8 sm:p-6"
       >
         <div className="flex items-center gap-2 font-bold text-[#002147]">
           <SlidersHorizontal size={18} />
@@ -114,8 +114,8 @@ export default function ResourceCatalogPage() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="sm:col-span-2 lg:col-span-4">
             <span className="sr-only">Search</span>
-            <div className="flex items-center rounded-xl border border-slate-300 px-3 focus-within:outline-[3px] focus-within:outline-offset-[3px] focus-within:outline-[#b7791f]">
-              <Search size={18} className="text-slate-400" />
+            <div className="flex min-w-0 items-center rounded-lg border border-slate-300 px-3 focus-within:outline-[3px] focus-within:outline-offset-[3px] focus-within:outline-[#b7791f]">
+              <Search size={18} className="shrink-0 text-slate-400" />
               <input
                 type="search"
                 name="q"
@@ -123,7 +123,7 @@ export default function ResourceCatalogPage() {
                 enterKeyHint="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="site-search-input min-h-11 min-w-0 flex-1 px-2"
+                className="site-search-input min-h-11 min-w-0 flex-1 px-2 text-sm sm:text-base"
                 placeholder="Title, subject, program, contributor or year"
               />
             </div>
@@ -258,7 +258,7 @@ export default function ResourceCatalogPage() {
           />
           <button
             onClick={clear}
-            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 font-bold text-slate-700"
+            className="mt-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 font-bold text-slate-700 sm:mt-6"
           >
             <X size={16} />
             Clear filters
@@ -303,12 +303,12 @@ export default function ResourceCatalogPage() {
             {results.data.items.map((item) => (
               <article
                 key={item.id}
-                className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6"
+                className="min-w-0 flex flex-col rounded-lg border border-slate-200 bg-white p-4 sm:p-6"
               >
                 <p className="text-xs font-bold uppercase tracking-wider text-[#85591f]">
                   {item.programName} · {item.termName}
                 </p>
-                <h2 className="mt-3 text-lg font-bold text-[#002147]">
+                <h2 className="mt-3 break-words text-base font-bold text-[#002147] sm:text-lg">
                   <Link
                     to={`/resources/${item.slug}`}
                     className="rounded focus-visible:outline-2"
@@ -375,7 +375,7 @@ function FilterSelect({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3"
+        className="mt-1 min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3"
       >
         <option value="">All</option>
         {options.map(([id, name]) => (

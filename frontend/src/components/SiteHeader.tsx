@@ -69,10 +69,10 @@ export function SiteHeader() {
   return (
     <>
       <header className="safe-area-top sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 min-[960px]:min-h-20 lg:px-8">
+        <div className="mx-auto flex min-h-14 max-w-7xl items-center gap-3 px-4 sm:min-h-16 sm:px-6 min-[960px]:min-h-20 lg:px-8">
           <Link
             to="/"
-            className="shrink-0 font-serif text-base font-black uppercase leading-tight text-[#002147] focus-visible:outline-2 focus-visible:outline-offset-4 sm:text-lg"
+            className="min-w-0 shrink whitespace-nowrap font-serif text-[15px] font-black uppercase leading-tight text-[#002147] focus-visible:outline-2 focus-visible:outline-offset-4 sm:text-lg"
           >
             JBC <span className="text-[#85591f]">Athenaeum</span>
           </Link>
@@ -165,7 +165,7 @@ export function SiteHeader() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label="Open navigation"
-            className="ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-slate-300 bg-white text-[#002147] min-[960px]:hidden"
+            className="ml-auto inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-[#002147] min-[960px]:hidden"
           >
             <Menu size={22} />
           </button>
