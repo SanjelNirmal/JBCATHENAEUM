@@ -35,21 +35,24 @@ export default function HomePage() {
           className="absolute -left-32 top-10 h-80 w-80 rounded-full bg-[#c49b63]/10 blur-3xl"
         />
         <div className="relative mx-auto grid max-w-7xl lg:min-h-[38rem] lg:grid-cols-[minmax(0,3fr)_minmax(22rem,2fr)]">
-          <div className="flex flex-col justify-center px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24 xl:pl-8 xl:pr-20">
-            <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#d8b37a] sm:text-sm">
-              <span aria-hidden="true" className="h-px w-9 bg-[#d8b37a]" />
+          <div className="flex min-w-0 flex-col justify-center px-5 pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-12 sm:px-8 sm:py-20 lg:px-12 lg:py-24 xl:pl-8 xl:pr-20">
+            <p className="flex min-w-0 items-center gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#d8b37a] sm:text-sm sm:tracking-[0.28em]">
+              <span
+                aria-hidden="true"
+                className="h-px w-8 shrink-0 bg-[#d8b37a] sm:w-9"
+              />
               Jana Bhawana Campus
             </p>
-            <h1 className="mt-6 max-w-3xl font-serif text-4xl font-black leading-[1.08] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 max-w-3xl font-serif text-3xl font-black leading-[1.08] sm:mt-6 sm:text-5xl lg:text-6xl">
               TU BCA and BICTE notes, past questions, and campus resources.
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-200 sm:mt-6 sm:text-lg sm:leading-8">
               Search reviewed notes, project reports, PDFs, past questions, and
               learning materials for Jana Bhawana Campus students. JBC
               Athenaeum is a moderated academic archive built for focused,
               reliable study.
             </p>
-            <div className="mt-9 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap gap-3 sm:mt-9">
               <Link
                 to="/resources"
                 className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#c49b63] px-6 font-bold text-[#001b3a] transition hover:bg-[#d8b37a]"
@@ -63,7 +66,7 @@ export default function HomePage() {
                 Contribute a PDF
               </Link>
             </div>
-            <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 sm:mt-10 sm:tracking-[0.2em]">
               Tribhuvan University · Chapagaun, Lalitpur
             </p>
           </div>
