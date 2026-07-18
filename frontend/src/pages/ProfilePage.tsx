@@ -258,7 +258,7 @@ export default function ProfilePage() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-lg bg-slate-50 px-4 py-3 sm:grid sm:grid-cols-[120px_minmax(0,1fr)] sm:items-center sm:gap-1">
+    <div className="grid min-w-0 gap-1 rounded-lg bg-slate-50 px-4 py-3 sm:grid-cols-[120px_minmax(0,1fr)] sm:items-center">
       <span className="font-medium text-slate-500">{label}</span>
       <span className="break-words font-semibold text-slate-900 sm:text-right">
         {value}

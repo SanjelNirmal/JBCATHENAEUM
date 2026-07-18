@@ -165,7 +165,7 @@ export function SiteHeader() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label="Open navigation"
-            className="ml-auto inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-[#002147] min-[960px]:hidden"
+            className="ml-auto inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-[#002147] transition active:scale-95 min-[960px]:hidden"
           >
             <Menu size={22} />
           </button>
@@ -335,7 +335,7 @@ function MobileBottomNav({ openMenu }: { openMenu: () => void }) {
         <button
           type="button"
           onClick={openMenu}
-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-xs font-bold text-slate-600"
+          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-xs font-bold text-slate-600 transition active:scale-95"
         >
           <Menu size={20} />
           Menu
@@ -358,7 +358,7 @@ function MobileNavLink({
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-xs font-bold ${isActive ? "bg-[#002147] text-white" : "text-slate-600"}`
+        `flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-xs font-bold transition active:scale-95 ${isActive ? "bg-[#002147] text-white" : "text-slate-600"}`
       }
     >
       <Icon size={20} />

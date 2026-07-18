@@ -80,6 +80,8 @@ select,
 textarea {
   accent-color: #002147;
   max-width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 @media (prefers-reduced-motion: reduce) {

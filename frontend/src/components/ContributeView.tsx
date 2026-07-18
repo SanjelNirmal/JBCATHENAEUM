@@ -391,17 +391,23 @@ export function ContributeView({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-24 font-sans md:px-12">
-      <div className="mb-14 text-center">
-        <div className="mb-6 flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#8a642f] sm:text-xs">
-          <span aria-hidden="true" className="h-px w-8 bg-[#c49b63] sm:w-12" />
+    <div className="safe-area-page mx-auto w-full max-w-5xl py-12 font-sans sm:py-16 md:px-12 md:py-24">
+      <div className="mb-8 text-center sm:mb-14">
+        <div className="mb-4 flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[#8a642f] sm:mb-6 sm:text-xs sm:tracking-[0.16em]">
+          <span
+            aria-hidden="true"
+            className="h-px w-6 bg-[#c49b63] sm:w-12"
+          />
           <span>Contribute to the archive</span>
-          <span aria-hidden="true" className="h-px w-8 bg-[#c49b63] sm:w-12" />
+          <span
+            aria-hidden="true"
+            className="h-px w-6 bg-[#c49b63] sm:w-12"
+          />
         </div>
-        <h1 className="mb-6 font-serif text-5xl font-black tracking-tighter text-[#002147] md:text-7xl">
+        <h1 className="mb-4 font-serif text-4xl font-black tracking-tight text-[#002147] sm:mb-6 sm:text-5xl md:text-7xl">
           Share a Resource
         </h1>
-        <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-slate-500">
+        <p className="mx-auto max-w-2xl text-base font-light leading-8 text-slate-500 sm:text-lg sm:leading-relaxed">
           Share notes, past questions, project reports, or other academic
           materials. Once reviewed, your contribution will become part of the
           JBC archive.
@@ -430,9 +436,9 @@ export function ContributeView({
           )}
         </div>
       ) : (
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/40 md:p-12">
-          <div className="mb-10 flex items-start gap-4 rounded-2xl bg-slate-50 p-5">
-            <Info className="mt-0.5 shrink-0 text-[#c49b63]" size={22} />
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/40 sm:p-8 md:p-12">
+          <div className="mb-7 flex items-start gap-3 rounded-lg bg-slate-50 p-4 sm:mb-10 sm:gap-4 sm:rounded-2xl sm:p-5">
+            <Info className="mt-0.5 shrink-0 text-[#c49b63]" size={20} />
             <p className="text-sm leading-6 text-slate-600">
               PDF only, maximum 25 MB. Uploaded files remain private and enter
               the administrator review queue without a content-based automatic
@@ -440,7 +446,7 @@ export function ContributeView({
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-7">
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-7">
             {resubmitResourceId && (
               <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
                 <span>Resubmitting an existing resource as a new version.</span>
@@ -453,13 +459,13 @@ export function ContributeView({
                 </button>
               </div>
             )}
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-5 md:grid-cols-2 md:gap-6">
               <label className="space-y-2 text-sm font-semibold text-slate-700">
                 Campus
                 <input
                   value={selection?.campusName ?? ""}
                   readOnly
-                  className="w-full rounded-xl border border-slate-200 bg-slate-100 p-3 text-slate-500"
+                  className="w-full min-w-0 rounded-lg border border-slate-200 bg-slate-100 p-3 text-slate-500 sm:rounded-xl"
                 />
               </label>
               <label className="space-y-2 text-sm font-semibold text-slate-700">
@@ -467,7 +473,7 @@ export function ContributeView({
                 <input
                   value={selection?.facultyName ?? ""}
                   readOnly
-                  className="w-full rounded-xl border border-slate-200 bg-slate-100 p-3 text-slate-500"
+                  className="w-full min-w-0 rounded-lg border border-slate-200 bg-slate-100 p-3 text-slate-500 sm:rounded-xl"
                 />
               </label>
               <label className="space-y-2 text-sm font-semibold text-slate-700">
@@ -698,7 +704,7 @@ export function ContributeView({
               </p>
             )}
 
-            <div className="flex flex-wrap justify-center gap-3 pt-3">
+            <div className="grid gap-3 pt-3 sm:flex sm:flex-wrap sm:justify-center">
               <button
                 type="submit"
                 disabled={
@@ -707,7 +713,7 @@ export function ContributeView({
                   catalog.length === 0 ||
                   !policyAccepted
                 }
-                className="flex items-center gap-3 rounded-xl bg-[#002147] px-8 py-4 text-xs font-black uppercase tracking-widest text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-[#002147] px-6 py-4 text-xs font-black uppercase tracking-widest text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:rounded-xl sm:px-8"
               >
                 {busy ? (
                   <Loader2 className="animate-spin" size={18} />
@@ -726,7 +732,7 @@ export function ContributeView({
                 <button
                   type="button"
                   onClick={() => void cancelUpload()}
-                  className="flex items-center gap-2 rounded-xl border border-red-200 px-6 py-4 text-xs font-bold uppercase tracking-wider text-red-600"
+                  className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-red-200 px-6 py-4 text-xs font-bold uppercase tracking-wider text-red-600 sm:w-auto sm:rounded-xl"
                 >
                   <X size={16} /> Cancel
                 </button>
@@ -738,7 +744,7 @@ export function ContributeView({
 
       {isAuthenticated && (
         <section
-          className="mt-12 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10"
+          className="mt-8 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:mt-12 sm:p-8 md:p-10"
           aria-labelledby="submission-history-heading"
         >
           <div className="mb-6 flex items-center gap-3">
