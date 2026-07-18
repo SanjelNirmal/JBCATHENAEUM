@@ -1,8 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import ResourceDetailPage from "../ResourceDetailPage";
+
+const openResourceForViewing = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({
+    viewerUrl: "about:blank?document=1",
+    downloadCount: 5,
+  }),
+);
 
 vi.mock("../../app/AuthContext", () => ({
   useCurrentAuth: () => ({ user: null }),
@@ -35,6 +43,7 @@ vi.mock("../../lib/supabase/resources", () => ({
   }),
   getLegacyPreviewUrl: vi.fn(),
   getPublicResourceAccessUrl: vi.fn().mockReturnValue("about:blank"),
+  openResourceForViewing,
   reportResource: vi.fn(),
 }));
 
@@ -62,6 +71,57 @@ describe("ResourceDetailPage", () => {
     expect(preview).toHaveClass("touch-pan-y", "overflow-y-auto");
     expect(
       screen.queryByRole("link", { name: /Open full document/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Open full screen" }),
+    ).toBeInTheDocument();
+  });
+
+  it("counts the open, offers optional support, and continues full screen", async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={["/resources/project-one"]}>
+          <Routes>
+            <Route
+              path="/resources/:resourceId"
+              element={<ResourceDetailPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Open full screen" }),
+    );
+    expect(openResourceForViewing).toHaveBeenCalledTimes(1);
+    expect(openResourceForViewing).toHaveBeenCalledWith(
+      "00000000-0000-4000-8000-000000000001",
+    );
+    expect(
+      screen.getByRole("dialog", { name: "Buy Me a Coffee" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("5")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Maybe later" }));
+    expect(
+      screen.queryByRole("dialog", { name: "Buy Me a Coffee" }),
+    ).not.toBeInTheDocument();
+    expect(
+      await screen.findByTitle("Full-screen view of Project I"),
+    ).toHaveAttribute(
+      "src",
+      "about:blank?document=1#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Exit full screen" }),
+    );
+    expect(
+      screen.queryByTitle("Full-screen view of Project I"),
     ).not.toBeInTheDocument();
   });
 });

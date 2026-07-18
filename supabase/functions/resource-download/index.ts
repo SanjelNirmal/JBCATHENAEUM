@@ -16,16 +16,18 @@ Deno.serve(async (request) => {
   try {
     const url = new URL(request.url);
     const resourceId = url.searchParams.get("resourceId");
+    const wantsJson = url.searchParams.get("format") === "json";
+    const recordOpen = url.searchParams.get("open") === "1";
     if (!resourceId)
       throw new PublicError("invalid_resource", "Resource is required.");
 
     const publicSupabase = anonymousClient();
     const { data: resource, error: resourceError } = await publicSupabase
       .from("resources")
-      .select("id,current_version_id")
+      .select("id,current_version_id,file_url")
       .eq("id", resourceId)
       .single();
-    if (resourceError || !resource?.current_version_id) {
+    if (resourceError || !resource) {
       throw new PublicError(
         "not_found",
         "Published resource was not found.",
@@ -34,6 +36,54 @@ Deno.serve(async (request) => {
     }
 
     const service = serviceClient();
+    if (!resource.current_version_id) {
+      let legacyUrl: URL;
+      try {
+        legacyUrl = new URL(String(resource.file_url ?? ""));
+      } catch {
+        throw new PublicError(
+          "not_available",
+          "The verified file is not available.",
+          404,
+        );
+      }
+      if (
+        legacyUrl.protocol !== "https:" ||
+        !["drive.google.com", "docs.google.com"].includes(legacyUrl.hostname)
+      ) {
+        throw new PublicError(
+          "not_available",
+          "The verified file is not available.",
+          404,
+        );
+      }
+      if (!wantsJson) {
+        return new Response(null, {
+          status: 302,
+          headers: {
+            ...corsHeaders(request),
+            Location: legacyUrl.toString(),
+            "Cache-Control": "private, no-store, max-age=0",
+            "Referrer-Policy": "no-referrer",
+          },
+        });
+      }
+      if (recordOpen) {
+        await service.rpc("increment_resource_download", {
+          target_resource_id: resourceId,
+        });
+      }
+      const { data: countedResource } = await service
+        .from("resources")
+        .select("download_count")
+        .eq("id", resourceId)
+        .single();
+      return jsonResponse(request, {
+        viewerUrl: legacyUrl.toString(),
+        downloadCount: Number(countedResource?.download_count ?? 0),
+      });
+    }
+
     const { data: version, error: versionError } = await service
       .from("resource_versions")
       .select("storage_bucket,storage_path,safe_filename,scan_status")
@@ -70,9 +120,20 @@ Deno.serve(async (request) => {
     if (signedError || !signed)
       throw signedError ?? new Error("Signed URL was not created");
 
-    if (download) {
+    if (download || recordOpen) {
       await service.rpc("increment_resource_download", {
         target_resource_id: resourceId,
+      });
+    }
+    if (wantsJson) {
+      const { data: countedResource } = await service
+        .from("resources")
+        .select("download_count")
+        .eq("id", resourceId)
+        .single();
+      return jsonResponse(request, {
+        viewerUrl: signed.signedUrl,
+        downloadCount: Number(countedResource?.download_count ?? 0),
       });
     }
     return new Response(null, {

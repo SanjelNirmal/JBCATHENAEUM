@@ -213,6 +213,31 @@ export function getPublicResourceAccessUrl(resourceId: string): string {
   return `${publicEnvironment.config.supabaseUrl}/functions/v1/resource-download?resourceId=${encodeURIComponent(resourceId)}`;
 }
 
+export async function openResourceForViewing(resourceId: string): Promise<{
+  viewerUrl: string;
+  downloadCount: number;
+}> {
+  const response = await fetch(
+    `${getPublicResourceAccessUrl(resourceId)}&open=1&format=json`,
+    {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    },
+  );
+  const payload = (await response.json().catch(() => null)) as {
+    viewerUrl?: string;
+    downloadCount?: number;
+    message?: string;
+  } | null;
+  if (!response.ok || !payload?.viewerUrl) {
+    throw new Error(payload?.message || "The document could not be opened.");
+  }
+  return {
+    viewerUrl: payload.viewerUrl,
+    downloadCount: Number(payload.downloadCount ?? 0),
+  };
+}
+
 export function validateLegacyResourceUrl(
   value: string | null | undefined,
 ): string | null {

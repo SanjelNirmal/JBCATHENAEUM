@@ -353,14 +353,15 @@ export function ContributeView({
     <div className="mx-auto w-full max-w-5xl px-6 py-24 font-sans md:px-12">
       <div className="mb-14 text-center">
         <div className="mb-6 inline-block rounded-full bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.3em] text-blue-600">
-          Secure contribution pipeline
+          Contribute to the archive
         </div>
         <h1 className="mb-6 font-serif text-5xl font-black tracking-tighter text-[#002147] md:text-7xl">
-          Submit Archive
+          Share a Resource
         </h1>
         <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-slate-500">
-          Upload one PDF to the private quarantine area. It will be validated
-          before entering the moderator review queue.
+          Share notes, past questions, project reports, or other academic
+          materials. Once reviewed, your contribution will become part of the
+          JBC archive.
         </p>
       </div>
 
