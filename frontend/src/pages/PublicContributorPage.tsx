@@ -120,7 +120,7 @@ export default function PublicContributorPage() {
           )}
           <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
             <Stat label="Resources" value={item.resourceCount} />
-            <Stat label="Ratings" value={item.ratingCount} />
+            <Stat label="Received" value={item.ratingCount} />
             <Stat
               label="Average"
               value={item.ratingCount ? item.averageRating.toFixed(1) : "—"}
@@ -130,6 +130,9 @@ export default function PublicContributorPage() {
               value={new Date(item.createdAt).toLocaleDateString()}
             />
           </div>
+          <p className="mt-3 text-xs leading-5 text-slate-500">
+            Ratings received on this contributor&apos;s published resources.
+          </p>
         </aside>
 
         <section>

@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(47);
+select plan(49);
 
 select has_column('public', 'profiles', 'account_status', 'profiles have a separate account status');
 select has_column('public', 'resources', 'search_vector', 'resources have a generated full-text vector');
@@ -17,6 +17,20 @@ select has_function('public', 'list_public_resource_ratings', array['uuid','inte
 select has_function('public', 'toggle_resource_bookmark', array['uuid','boolean'], 'bookmark toggle RPC exists');
 select has_function('public', 'save_resource_rating', array['uuid','smallint','text'], 'rating save RPC exists');
 select has_function('public', 'delete_resource_rating', array['uuid'], 'rating delete RPC exists');
+select ok(
+  position(
+    'resources.owner_id = profiles.id' in
+    pg_get_functiondef('public.get_public_contributor_profile(uuid)'::regprocedure)
+  ) > 0,
+  'contributor ratings are received on resources owned by the profile'
+);
+select ok(
+  position(
+    'rated_resources.owner_id = profile.id' in
+    pg_get_functiondef('public.get_public_resource_contributor(uuid)'::regprocedure)
+  ) > 0,
+  'resource contributor ratings are received rather than written by the profile'
+);
 select has_function('public', 'set_account_status', array['uuid','account_status','text'], 'audited account suspension RPC exists');
 select has_function('public', 'update_user_profile_safe', array['uuid','text','text','text','text'], 'safe staff profile update RPC exists');
 select has_function('public', 'assign_resource_reviewer', array['uuid','uuid'], 'reviewer assignment RPC exists');

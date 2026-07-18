@@ -18,4 +18,4 @@ export const supabase = createClient<Database>(safeUrl, safeKey, {
 });
 
 export const LATEST_DATABASE_MIGRATION =
-  "202607180012_public_engagement_profiles";
+  "202607180013_contributor_received_ratings";

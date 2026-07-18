@@ -1,5 +1,5 @@
 export const LATEST_DATABASE_MIGRATION =
-  "202607180012_upload_policy_acceptance";
+  "202607180013_contributor_received_ratings";
 
 type PublicEnvironmentSource = Record<string, string | boolean | undefined>;
 
