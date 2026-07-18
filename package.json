@@ -17,5 +17,8 @@
   "devDependencies": {
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3"
+  },
+  "dependencies": {
+    "@capacitor/ios": "^8.4.2"
   }
 }
