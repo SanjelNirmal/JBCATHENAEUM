@@ -31,6 +31,9 @@ const codeMessages: Record<string, string> = {
     "This account is disabled. Contact a campus administrator for assistance.",
   invalid_session: "The upload session is missing. Start the upload again.",
   expired_session: "The upload session expired. Start the upload again.",
+  invalid_filename: "Select a PDF with a valid filename.",
+  invalid_mime: "Only PDF uploads are accepted.",
+  invalid_size: "The selected PDF is too large. Use a PDF under 25 MB.",
   upload_missing:
     "The transferred file was not found in private Storage. Retry the upload.",
   size_mismatch:
@@ -39,6 +42,14 @@ const codeMessages: Record<string, string> = {
     "Confirm the current Upload Policy before uploading.",
   internal_error:
     "The upload service could not complete the request. Check the deployed database migration and Edge Function logs.",
+  signed_url_failed:
+    "The upload service could not create a Storage upload link. Check that the private Storage buckets exist.",
+  invalid_state:
+    "The upload is not valid for the current database state. Run the latest Supabase SQL setup files.",
+  not_found: "The upload session or selected academic item was not found.",
+  forbidden: "You do not have permission to perform this action.",
+  account_unavailable:
+    "This account is not active. Contact a campus administrator.",
 };
 
 export function getErrorCode(error: unknown): string {
@@ -65,6 +76,14 @@ export function toSafeErrorMessage(
     return codeMessages.email_not_confirmed;
   if (message.includes("authentication_required"))
     return codeMessages.authentication_required;
+  if (message.includes("upload policy acceptance is required"))
+    return codeMessages.policy_acceptance_required;
+  if (message.includes("function public.create_resource_upload_session"))
+    return "The upload database function is outdated. Run 13_upload_policy_acceptance.sql, then redeploy create-upload-session.";
+  if (message.includes("function public.complete_resource_upload"))
+    return "The upload completion database function is outdated. Run 15_manual_pdf_review_only.sql, then redeploy finalize-upload.";
+  if (message.includes("storage bucket") || message.includes("bucket not found"))
+    return "The private upload Storage bucket is missing. Run the Storage SQL setup and verify resource-quarantine exists.";
   if (message.includes("avatar url must start with https://"))
     return codeMessages["avatar url must start with https://"];
   if (message.includes("multi-factor") || message.includes("aal2"))
@@ -85,7 +104,7 @@ export function toSafeErrorMessage(
   const fallbacks: Record<ErrorContext, string> = {
     auth: "Authentication could not be completed. Please try again.",
     upload:
-      "The upload could not be completed. Your file has not been published.",
+      "The upload could not be completed. Your file has not been submitted for review.",
     review: "The review action could not be completed.",
     resource: "The resource could not be loaded.",
     network: "The network request failed. Please try again.",

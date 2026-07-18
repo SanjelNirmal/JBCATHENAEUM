@@ -44,9 +44,16 @@ async function invokeFunction<T>(
       typeof payload?.message === "string" ? payload.message : error.message,
     ) as Error & { code?: string };
     if (typeof payload?.error === "string") failure.code = payload.error;
+    else if (typeof payload?.code === "string") failure.code = payload.code;
     throw failure;
   }
-  if (data?.error) throw new Error(data.message || "Request failed.");
+  if (data?.error) {
+    const failure = new Error(data.message || "Request failed.") as Error & {
+      code?: string;
+    };
+    if (typeof data.error === "string") failure.code = data.error;
+    throw failure;
+  }
   return data as T;
 }
 
@@ -81,7 +88,9 @@ export function uploadPdfWithProgress(
       request.status >= 200 && request.status < 300
         ? resolve()
         : reject(
-            new Error("The upload failed. Retry while the session is active."),
+            new Error(
+              `The Storage upload failed with HTTP ${request.status}. Retry while the session is active.`,
+            ),
           ),
     );
     request.addEventListener("error", () =>
