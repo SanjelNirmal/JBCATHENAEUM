@@ -72,19 +72,19 @@ export async function fetchBookmarks(
 }
 
 export async function createBookmark(resourceId: string): Promise<void> {
-  const userId = await requireCurrentUserId();
-  const { error } = await supabase
-    .from("resource_bookmarks")
-    .insert({ user_id: userId, resource_id: resourceId });
-  if (error && error.code !== "23505") throw error;
+  await requireCurrentUserId();
+  const { error } = await supabase.rpc("toggle_resource_bookmark", {
+    target_resource_id: resourceId,
+    next_bookmarked: true,
+  });
+  if (error) throw error;
 }
 
 export async function deleteBookmark(resourceId: string): Promise<void> {
-  const userId = await requireCurrentUserId();
-  const { error } = await supabase
-    .from("resource_bookmarks")
-    .delete()
-    .eq("user_id", userId)
-    .eq("resource_id", resourceId);
+  await requireCurrentUserId();
+  const { error } = await supabase.rpc("toggle_resource_bookmark", {
+    target_resource_id: resourceId,
+    next_bookmarked: false,
+  });
   if (error) throw error;
 }

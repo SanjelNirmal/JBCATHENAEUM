@@ -57,29 +57,19 @@ export async function saveRating(
 ): Promise<void> {
   if (!Number.isInteger(rating) || rating < 1 || rating > 5)
     throw new Error("invalid_rating");
-  const userId = await requireCurrentUserId();
-  const value = { rating, review_text: reviewText.trim() || null };
-  const { error } = await supabase.from("resource_ratings").insert({
-    user_id: userId,
-    resource_id: resourceId,
-    ...value,
+  await requireCurrentUserId();
+  const { error } = await supabase.rpc("save_resource_rating", {
+    target_resource_id: resourceId,
+    next_rating: rating,
+    next_review_text: reviewText.trim() || null,
   });
-  if (!error) return;
-  if (error.code !== "23505") throw error;
-  const { error: updateError } = await supabase
-    .from("resource_ratings")
-    .update(value)
-    .eq("user_id", userId)
-    .eq("resource_id", resourceId);
-  if (updateError) throw updateError;
+  if (error) throw error;
 }
 
 export async function deleteRating(resourceId: string): Promise<void> {
-  const userId = await requireCurrentUserId();
-  const { error } = await supabase
-    .from("resource_ratings")
-    .delete()
-    .eq("user_id", userId)
-    .eq("resource_id", resourceId);
+  await requireCurrentUserId();
+  const { error } = await supabase.rpc("delete_resource_rating", {
+    target_resource_id: resourceId,
+  });
   if (error) throw error;
 }

@@ -17,6 +17,7 @@ import {
   saveNotificationPreferences,
   type NotificationPreferences,
 } from "../../lib/supabase/notificationPreferences";
+import { fetchPublicResourceRatings } from "../../lib/supabase/resources";
 import {
   fetchUserDevices,
   registerUserDevice,
@@ -102,6 +103,11 @@ export function useResourceRatings(
     queryFn: () => fetchOwnRating(resourceId),
     enabled: Boolean(userId && resourceId),
   });
+  const publicRatings = useQuery({
+    queryKey: ["public-resource-ratings", resourceId] as const,
+    queryFn: () => fetchPublicResourceRatings(resourceId),
+    enabled: Boolean(resourceId),
+  });
   const save = useMutation({
     mutationFn: (input: { rating: number; reviewText: string }) =>
       saveRating(resourceId, input.rating, input.reviewText),
@@ -129,7 +135,7 @@ export function useResourceRatings(
       ]);
     },
   });
-  return { summary, own, save, remove };
+  return { summary, own, publicRatings, save, remove };
 }
 
 export function useDownloadHistory(

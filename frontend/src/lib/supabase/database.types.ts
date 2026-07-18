@@ -1,4 +1,4 @@
-// Typed schema snapshot for migrations through 202607180011. Compare it with
+// Typed schema snapshot for migrations through 202607180012. Compare it with
 // `supabase gen types typescript --linked` after every linked deployment.
 export type Json =
   | string
@@ -55,12 +55,37 @@ interface PublicResourceSearchRow extends Record<string, unknown> {
   subject_name: string;
   category_id: string;
   category_name: string;
+  contributor_id: string | null;
   contributor_name: string;
   legacy_url: string | null;
   byte_size: number | null;
   page_count: number | null;
   download_count: number;
   created_at: string;
+  total_count: number;
+}
+
+interface PublicContributorProfileRow extends Record<string, unknown> {
+  id: string;
+  name: string;
+  faculty: string;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
+  resource_count: number;
+  rating_count: number;
+  average_rating: number;
+}
+
+interface PublicResourceRatingRow extends Record<string, unknown> {
+  id: string;
+  rating: number;
+  review_text: string | null;
+  created_at: string;
+  reviewer_id: string;
+  reviewer_name: string;
+  reviewer_faculty: string;
+  reviewer_avatar_url: string | null;
   total_count: number;
 }
 
@@ -368,6 +393,7 @@ export interface Database {
           term_filter: string | null;
           subject_filter: string | null;
           category_filter: string | null;
+          contributor_filter: string | null;
           academic_year_filter: number | null;
           uploaded_from: string | null;
           uploaded_to: string | null;
@@ -376,6 +402,41 @@ export interface Database {
           page_size: number;
         };
         Returns: PublicResourceSearchRow[];
+      };
+      get_public_contributor_profile: {
+        Args: { target_user_id: string };
+        Returns: PublicContributorProfileRow[];
+      };
+      get_public_resource_contributor: {
+        Args: { target_resource_id: string };
+        Returns: PublicContributorProfileRow[];
+      };
+      list_public_resource_ratings: {
+        Args: {
+          target_resource_id: string;
+          page_number: number;
+          page_size: number;
+        };
+        Returns: PublicResourceRatingRow[];
+      };
+      toggle_resource_bookmark: {
+        Args: {
+          target_resource_id: string;
+          next_bookmarked: boolean;
+        };
+        Returns: boolean;
+      };
+      save_resource_rating: {
+        Args: {
+          target_resource_id: string;
+          next_rating: number;
+          next_review_text: string | null;
+        };
+        Returns: undefined;
+      };
+      delete_resource_rating: {
+        Args: { target_resource_id: string };
+        Returns: undefined;
       };
       public_platform_stats: {
         Args: Record<PropertyKey, never>;

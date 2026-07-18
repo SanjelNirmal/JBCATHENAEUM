@@ -7,15 +7,17 @@ import {
   RefreshCw,
   Share2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
 import { BuyMeACoffeeModal } from "../components/BuyMeACoffeeModal";
 import { Seo } from "../components/Seo";
 import { ResourceEngagementPanel } from "../features/engagement/ResourceEngagementPanel";
+import { PublicResourceRatings } from "../features/engagement/PublicResourceRatings";
 import { useCurrentAuth } from "../app/AuthContext";
 import {
   fetchResource,
+  fetchPublicContributorProfile,
   getLegacyPreviewUrl,
   getPublicResourceAccessUrl,
   getTrackedResourceAccess,
@@ -36,6 +38,13 @@ export default function ResourceDetailPage() {
     queryKey: ["resource", resourceId],
     queryFn: () => fetchResource(resourceId),
     enabled: Boolean(resourceId),
+  });
+  const contributorId = query.data?.contributorId ?? null;
+  const contributorQuery = useQuery({
+    queryKey: ["resource-contributor", contributorId],
+    queryFn: () =>
+      contributorId ? fetchPublicContributorProfile(contributorId) : null,
+    enabled: Boolean(contributorId),
   });
   const [reportOpen, setReportOpen] = useState(false);
   const [reportMessage, setReportMessage] = useState("");
@@ -341,7 +350,21 @@ export default function ResourceDetailPage() {
                 label="Academic year"
                 value={String(item.academicYear ?? "—")}
               />
-              <Meta label="Contributor" value={item.contributorName} />
+              <Meta
+                label="Contributor"
+                value={
+                  contributorQuery.data ? (
+                    <Link
+                      to={`/contributors/${contributorQuery.data.id}`}
+                      className="font-semibold text-[#002147] underline-offset-2 hover:underline"
+                    >
+                      {contributorQuery.data.name}
+                    </Link>
+                  ) : (
+                    item.contributorName
+                  )
+                }
+              />
               <Meta
                 label="File size"
                 value={
@@ -359,6 +382,7 @@ export default function ResourceDetailPage() {
               />
             </dl>
             <ResourceEngagementPanel resourceId={item.id} />
+            <PublicResourceRatings resourceId={item.id} />
             <div className="mt-6 flex gap-2 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
               <FileWarning className="shrink-0" size={19} />
               <p>
@@ -380,7 +404,13 @@ export default function ResourceDetailPage() {
     </>
   );
 }
-function Meta({ label, value }: { label: string; value: string }) {
+function Meta({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | ReactNode;
+}) {
   return (
     <div className="flex justify-between gap-4 border-b border-slate-100 pb-2">
       <dt className="text-slate-500">{label}</dt>

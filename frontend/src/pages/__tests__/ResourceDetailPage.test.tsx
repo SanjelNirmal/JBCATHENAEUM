@@ -13,6 +13,10 @@ vi.mock("../../features/engagement/ResourceEngagementPanel", () => ({
   ResourceEngagementPanel: () => <div>Resource engagement</div>,
 }));
 
+vi.mock("../../features/engagement/PublicResourceRatings", () => ({
+  PublicResourceRatings: () => <div>Public ratings</div>,
+}));
+
 vi.mock("../../lib/supabase/resources", () => ({
   fetchResource: vi.fn().mockResolvedValue({
     id: "00000000-0000-4000-8000-000000000001",
@@ -31,12 +35,24 @@ vi.mock("../../lib/supabase/resources", () => ({
     subjectName: "Project-I",
     categoryId: "category-1",
     categoryName: "Projects",
+    contributorId: "00000000-0000-4000-8000-000000000009",
     contributorName: "Student",
     byteSize: 1_048_576,
     pageCount: 12,
     legacyUrl: null,
     downloadCount: 4,
     createdAt: "2026-07-17T00:00:00.000Z",
+  }),
+  fetchPublicContributorProfile: vi.fn().mockResolvedValue({
+    id: "00000000-0000-4000-8000-000000000009",
+    name: "Student",
+    faculty: "BCA",
+    avatarUrl: null,
+    bio: null,
+    createdAt: "2026-07-17T00:00:00.000Z",
+    resourceCount: 1,
+    ratingCount: 1,
+    averageRating: 4.5,
   }),
   getLegacyPreviewUrl: vi.fn(),
   getPublicResourceAccessUrl: vi

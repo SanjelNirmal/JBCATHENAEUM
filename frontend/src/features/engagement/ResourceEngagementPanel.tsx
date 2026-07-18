@@ -25,9 +25,10 @@ export function ResourceEngagementPanel({
 
   const toggleBookmark = async () => {
     setMessage("");
+    const nextBookmarked = !bookmark.data;
     try {
-      await bookmark.toggle(!bookmark.data);
-      setMessage(bookmark.data ? "Bookmark removed." : "Resource saved.");
+      await bookmark.toggle(nextBookmarked);
+      setMessage(nextBookmarked ? "Resource saved." : "Bookmark removed.");
     } catch (error) {
       setMessage(toSafeErrorMessage(error));
     }

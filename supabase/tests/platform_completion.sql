@@ -1,16 +1,22 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(40);
+select plan(47);
 
 select has_column('public', 'profiles', 'account_status', 'profiles have a separate account status');
 select has_column('public', 'resources', 'search_vector', 'resources have a generated full-text vector');
 select has_table('public', 'resource_download_events', 'download events support monthly analytics');
 select has_table('public', 'content_removal_requests', 'content removal workflow is persisted');
 select has_table('public', 'resource_deletion_jobs', 'recoverable storage cleanup jobs exist');
-select has_function('public', 'search_public_resources', array['text','uuid','uuid','uuid','uuid','uuid','integer','timestamptz','timestamptz','text','integer','integer'], 'public catalog search RPC exists');
+select has_function('public', 'search_public_resources', array['text','uuid','uuid','uuid','uuid','uuid','uuid','integer','timestamptz','timestamptz','text','integer','integer'], 'public catalog search RPC exists');
 select has_function('public', 'public_platform_stats', array[]::text[], 'public aggregate RPC exists');
 select has_function('public', 'admin_dashboard_metrics', array[]::text[], 'admin aggregate RPC exists');
+select has_function('public', 'get_public_contributor_profile', array['uuid'], 'public contributor profile RPC exists');
+select has_function('public', 'get_public_resource_contributor', array['uuid'], 'public resource contributor RPC exists');
+select has_function('public', 'list_public_resource_ratings', array['uuid','integer','integer'], 'public resource ratings RPC exists');
+select has_function('public', 'toggle_resource_bookmark', array['uuid','boolean'], 'bookmark toggle RPC exists');
+select has_function('public', 'save_resource_rating', array['uuid','smallint','text'], 'rating save RPC exists');
+select has_function('public', 'delete_resource_rating', array['uuid'], 'rating delete RPC exists');
 select has_function('public', 'set_account_status', array['uuid','account_status','text'], 'audited account suspension RPC exists');
 select has_function('public', 'update_user_profile_safe', array['uuid','text','text','text','text'], 'safe staff profile update RPC exists');
 select has_function('public', 'assign_resource_reviewer', array['uuid','uuid'], 'reviewer assignment RPC exists');

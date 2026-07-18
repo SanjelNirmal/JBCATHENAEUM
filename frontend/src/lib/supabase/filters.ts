@@ -7,6 +7,7 @@ export const resourceFilterSchema = z.object({
   term: z.string().uuid().optional().catch(undefined),
   subject: z.string().uuid().optional().catch(undefined),
   category: z.string().uuid().optional().catch(undefined),
+  contributor: z.string().uuid().optional().catch(undefined),
   year: z.coerce.number().int().min(1959).max(2200).optional().catch(undefined),
   from: z.string().datetime({ offset: true }).optional().catch(undefined),
   to: z.string().datetime({ offset: true }).optional().catch(undefined),

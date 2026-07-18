@@ -22,6 +22,7 @@ export interface ResourceCard {
   subjectName: string;
   categoryId: string;
   categoryName: string;
+  contributorId: string | null;
   contributorName: string;
   byteSize: number | null;
   pageCount: number | null;
@@ -54,6 +55,7 @@ interface SearchRow {
   subject_name: string;
   category_id: string;
   category_name: string;
+  contributor_id: string | null;
   contributor_name: string;
   legacy_url: string | null;
   byte_size: number | null;
@@ -81,6 +83,7 @@ function mapSearchRow(row: SearchRow): ResourceCard {
     subjectName: row.subject_name,
     categoryId: row.category_id,
     categoryName: row.category_name,
+    contributorId: row.contributor_id,
     contributorName: row.contributor_name,
     byteSize: row.byte_size,
     pageCount: row.page_count,
@@ -101,6 +104,7 @@ export async function searchResources(
     term_filter: filters.term ?? null,
     subject_filter: filters.subject ?? null,
     category_filter: filters.category ?? null,
+    contributor_filter: filters.contributor ?? null,
     academic_year_filter: filters.year ?? null,
     uploaded_from: filters.from ?? null,
     uploaded_to: filters.to ?? null,
@@ -152,6 +156,14 @@ export async function fetchResource(
   const category = academic.categories.find(
     (item) => item.id === resource.category_id,
   );
+  const { data: contributorRows, error: contributorError } = await supabase.rpc(
+    "get_public_resource_contributor",
+    { target_resource_id: resource.id },
+  );
+  if (contributorError) throw contributorError;
+  const contributor = Array.isArray(contributorRows)
+    ? contributorRows[0]
+    : null;
   return {
     id: resource.id,
     title: resource.title,
@@ -169,12 +181,95 @@ export async function fetchResource(
     subjectName: academic.subjectName,
     categoryId: resource.category_id,
     categoryName: category?.name ?? "Resource",
-    contributorName: resource.author_name ?? "Contributor",
+    contributorId: contributor?.id ?? null,
+    contributorName: contributor?.name ?? resource.author_name ?? "Contributor",
     byteSize: versionResult.data?.byte_size ?? null,
     pageCount: versionResult.data?.page_count ?? null,
     legacyUrl: validateLegacyResourceUrl(resource.file_url),
     downloadCount: resource.download_count,
     createdAt: resource.created_at,
+  };
+}
+
+export interface PublicContributorProfile {
+  id: string;
+  name: string;
+  faculty: string;
+  avatarUrl: string | null;
+  bio: string | null;
+  createdAt: string;
+  resourceCount: number;
+  ratingCount: number;
+  averageRating: number;
+}
+
+export interface PublicResourceRating {
+  id: string;
+  rating: number;
+  reviewText: string | null;
+  createdAt: string;
+  reviewerId: string;
+  reviewerName: string;
+  reviewerFaculty: string;
+  reviewerAvatarUrl: string | null;
+}
+
+export async function fetchPublicContributorProfile(
+  userId: string,
+): Promise<PublicContributorProfile | null> {
+  const { data, error } = await supabase.rpc("get_public_contributor_profile", {
+    target_user_id: userId,
+  });
+  if (error) throw error;
+  const row = Array.isArray(data) ? data[0] : null;
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    faculty: row.faculty,
+    avatarUrl: row.avatar_url,
+    bio: row.bio,
+    createdAt: row.created_at,
+    resourceCount: Number(row.resource_count ?? 0),
+    ratingCount: Number(row.rating_count ?? 0),
+    averageRating: Number(row.average_rating ?? 0),
+  };
+}
+
+export async function fetchPublicResourceRatings(
+  resourceId: string,
+  page = 1,
+  pageSize = 5,
+): Promise<{ items: PublicResourceRating[]; total: number }> {
+  const { data, error } = await supabase.rpc("list_public_resource_ratings", {
+    target_resource_id: resourceId,
+    page_number: page,
+    page_size: pageSize,
+  });
+  if (error) throw error;
+  const rows = (data ?? []) as Array<{
+    id: string;
+    rating: number;
+    review_text: string | null;
+    created_at: string;
+    reviewer_id: string;
+    reviewer_name: string;
+    reviewer_faculty: string;
+    reviewer_avatar_url: string | null;
+    total_count: number;
+  }>;
+  return {
+    items: rows.map((row) => ({
+      id: row.id,
+      rating: row.rating,
+      reviewText: row.review_text,
+      createdAt: row.created_at,
+      reviewerId: row.reviewer_id,
+      reviewerName: row.reviewer_name,
+      reviewerFaculty: row.reviewer_faculty,
+      reviewerAvatarUrl: row.reviewer_avatar_url,
+    })),
+    total: Number(rows[0]?.total_count ?? 0),
   };
 }
 

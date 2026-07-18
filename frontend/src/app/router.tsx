@@ -41,6 +41,13 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "contributors/:userId",
+        element: lazyElement(
+          () => import("../pages/PublicContributorPage"),
+          "Loading contributor profile",
+        ),
+      },
+      {
         path: "faculties",
         element: lazyElement(
           () => import("../pages/AcademicDirectoryPage"),
