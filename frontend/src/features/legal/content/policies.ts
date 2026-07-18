@@ -543,7 +543,7 @@ const terms: PolicyDocument = {
           type: "list",
           items: [
             "The Platform may review, reject, restrict, correct metadata, archive, remove, restore, suspend downloads, replace versions, or limit access to resources.",
-            "Automated and manual review may occur. Approval does not certify ownership, legal clearance, accuracy, or academic correctness.",
+            "Uploaded resource content is reviewed manually before approval. Approval does not certify ownership, legal clearance, accuracy, or academic correctness.",
             "Rejected uploads may remain in limited records for audit, dispute, security, or review purposes.",
             "Administrative decisions may be reviewed through the configured contact process where available.",
           ],
@@ -958,15 +958,7 @@ const upload: PolicyDocument = {
               "MIME and extension",
               ".pdf is required; inconsistent browser MIME labels are normalized.",
             ],
-            [
-              "Page count",
-              `PDF must contain at least one page and no more than ${uploadLimits.maxPagesLabel}.`,
-            ],
-            [
-              "Encrypted PDFs",
-              "Password-protected or encrypted PDFs are rejected.",
-            ],
-            ["Integrity check", "The file must be a readable PDF."],
+            ["Content decision", "Performed manually by an administrator."],
             ["Upload session", uploadLimits.uploadSessionLabel],
           ],
         },
@@ -988,7 +980,7 @@ const upload: PolicyDocument = {
       blocks: [
         {
           type: "paragraph",
-          text: "The current workflow is: upload, temporary or quarantine Storage, basic PDF integrity validation, moderator review, changes requested, rejection or approval, and publication where authorized.",
+          text: "The current workflow is: upload to private quarantine Storage, manual moderator review, changes requested, rejection or approval, and publication where authorized.",
         },
         {
           type: "list",
@@ -1009,8 +1001,8 @@ const upload: PolicyDocument = {
         {
           type: "list",
           items: [
-            "The Platform may calculate checksums, inspect MIME types, parse PDF structure, read PDF metadata, detect page count, generate previews or thumbnails where implemented, store versions, rename files internally, use generated storage paths, and record upload activity.",
-            "The integrity check confirms the PDF signature, completion marker, encryption state, and readable page structure. Content decisions are made during moderator review.",
+            "The Platform may calculate checksums, normalize MIME labels, generate previews or thumbnails where implemented, store versions, rename files internally, use generated storage paths, and record upload activity.",
+            "A successfully transferred .pdf file remains private and pending until a moderator reviews it. The intake service does not make a content-based approval or rejection decision.",
           ],
         },
       ],

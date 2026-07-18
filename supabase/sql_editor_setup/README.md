@@ -43,6 +43,11 @@ Run these files in this exact order:
 | 12 | `12_public_profiles_and_rating_actions.sql` | Public contributor profiles, public reviews and safe rating/bookmark actions |
 | 13 | `13_upload_policy_acceptance.sql` | Recorded Upload Policy acceptance |
 | 14 | `14_contributor_received_rating_calculation.sql` | Correct contributor rating statistics based on ratings received |
+| 15 | `15_manual_pdf_review_only.sql` | Disable content-based auto-rejection and require administrator approval |
+
+**Do not stop after file 14.** Files 04 and 10 establish the original upload
+and review-history foundation. File 15 deliberately replaces the intake
+decision with the current manual-review-only workflow.
 
 Each numbered file has its own transaction. If a file fails, stop at that
 number, copy the complete Supabase error, and fix the cause before continuing.

@@ -1,4 +1,4 @@
-// Typed schema snapshot for migrations through 202607180013. Compare it with
+// Typed schema snapshot for migrations through 202607180014. Compare it with
 // `supabase gen types typescript --linked` after every linked deployment.
 export type Json =
   | string

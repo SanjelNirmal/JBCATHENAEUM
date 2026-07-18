@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(49);
+select plan(51);
 
 select has_column('public', 'profiles', 'account_status', 'profiles have a separate account status');
 select has_column('public', 'resources', 'search_vector', 'resources have a generated full-text vector');
@@ -17,6 +17,15 @@ select has_function('public', 'list_public_resource_ratings', array['uuid','inte
 select has_function('public', 'toggle_resource_bookmark', array['uuid','boolean'], 'bookmark toggle RPC exists');
 select has_function('public', 'save_resource_rating', array['uuid','smallint','text'], 'rating save RPC exists');
 select has_function('public', 'delete_resource_rating', array['uuid'], 'rating delete RPC exists');
+select has_function('public', 'mark_manually_approved_version', array[]::text[], 'manual PDF approval trigger function exists');
+select ok(
+  exists (
+    select 1 from pg_trigger
+    where tgname = 'resource_reviews_mark_manual_approval'
+      and not tgisinternal
+  ),
+  'approved manual reviews mark their selected version publishable'
+);
 select ok(
   position(
     'resources.owner_id = profiles.id' in

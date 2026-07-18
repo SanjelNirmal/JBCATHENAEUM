@@ -1,5 +1,5 @@
 export const LATEST_DATABASE_MIGRATION =
-  "202607180013_contributor_received_ratings";
+  "202607180014_manual_pdf_review_only";
 
 type PublicEnvironmentSource = Record<string, string | boolean | undefined>;
 

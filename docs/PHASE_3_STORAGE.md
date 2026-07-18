@@ -8,7 +8,7 @@ Phase 3 replaces email contributions with authenticated PDF uploads. Files enter
 - Browser clients have no `storage.objects` policies and cannot choose object paths.
 - A trusted Edge Function creates a generated path and a two-hour signed upload URL.
 - The browser performs basic PDF/size checks for usability only.
-- `finalize-upload` downloads the quarantined bytes and verifies size, `%PDF-` signature, `%%EOF`, parseability, page count, encryption state, active PDF features, and SHA-256 uniqueness.
+- `finalize-upload` confirms the private quarantine object and exact transferred byte count, records a SHA-256 checksum, and sends the file to manual moderation. It does not parse PDF content or make a content-based approval/rejection decision.
 - Rejected or changes-requested resources can be resubmitted only by their owner. Each resubmission creates a generated quarantine path and a new immutable version while preserving prior review history. Clean versions rejected by a human reviewer remain private so authorized staff can audit the decision.
 - Failed, cancelled, expired, malformed, encrypted, duplicate, and active-content files are removed from quarantine and recorded with a terminal status.
 - Automated rejection records and validation reasons remain visible to administrators, but the rejected raw file is not previewable or recoverable from the application.
@@ -147,7 +147,7 @@ Codex did not modify the live Supabase project.
 - A submitter cannot claim or approve their own submission.
 - A moderator can preview and decide a clean submission but cannot publish it.
 - A rejected or changes-requested submission shows contributor feedback and can be resubmitted only by its owner as a new version.
-- An administrator can filter rejected review records and inspect the automated validation reason; unsafe or malformed bytes remain unavailable.
+- An administrator reviews each quarantined upload and decides whether to approve it, request changes, or reject it. Only manual approval makes the version eligible for publication.
 - A clean submission rejected by a human reviewer remains privately previewable to authorized staff as read-only history.
 - An administrator can promote an approved file; the quarantine copy is removed.
 - Direct public bucket URLs and Storage paths are unavailable.

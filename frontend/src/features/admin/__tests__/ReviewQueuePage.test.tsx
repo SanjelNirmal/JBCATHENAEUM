@@ -51,7 +51,7 @@ describe("ReviewQueuePage", () => {
           byteSize: 1200,
           pageCount: 2,
           mimeType: "application/pdf",
-          scanStatus: "clean",
+          scanStatus: "pending",
           duplicateWarning: false,
           reviewNotes: [],
         },
@@ -70,6 +70,12 @@ describe("ReviewQueuePage", () => {
     await userEvent.click(
       await screen.findByLabelText("Select Economics Notes"),
     );
+    expect(screen.getAllByText("Manual review pending").length).toBeGreaterThan(
+      0,
+    );
+    for (const button of screen.getAllByRole("button", { name: "Preview" })) {
+      expect(button).toBeEnabled();
+    }
     await userEvent.click(
       screen.getAllByRole("button", { name: "Approve" })[0],
     );

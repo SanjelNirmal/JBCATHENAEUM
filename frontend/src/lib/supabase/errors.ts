@@ -29,6 +29,16 @@ const codeMessages: Record<string, string> = {
     "This account is suspended. Contact a campus administrator for assistance.",
   account_disabled:
     "This account is disabled. Contact a campus administrator for assistance.",
+  invalid_session: "The upload session is missing. Start the upload again.",
+  expired_session: "The upload session expired. Start the upload again.",
+  upload_missing:
+    "The transferred file was not found in private Storage. Retry the upload.",
+  size_mismatch:
+    "The transferred file size did not match the selected file. Retry the upload.",
+  policy_acceptance_required:
+    "Confirm the current Upload Policy before uploading.",
+  internal_error:
+    "The upload service could not complete the request. Check the deployed database migration and Edge Function logs.",
 };
 
 export function getErrorCode(error: unknown): string {

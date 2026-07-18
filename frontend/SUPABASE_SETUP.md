@@ -8,7 +8,7 @@ For a new, empty Supabase project, use the simplified SQL Editor package:
 
 [`supabase/sql_editor_setup/README.md`](../supabase/sql_editor_setup/README.md)
 
-It provides clearly named files `01` through `14`, followed by the optional
+It provides clearly named files `01` through `15`, followed by the optional
 first-super-admin file `90` and read-only verification file `99`. Run them one
 at a time in numeric order.
 
@@ -43,6 +43,8 @@ The reviewed, data-preserving migrations are applied in filename order:
 `supabase/migrations/202607180012_upload_policy_acceptance.sql`
 
 `supabase/migrations/202607180013_contributor_received_ratings.sql`
+
+`supabase/migrations/202607180014_manual_pdf_review_only.sql`
 
 ## Auth redirects for web and native apps
 

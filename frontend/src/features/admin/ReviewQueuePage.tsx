@@ -33,7 +33,13 @@ function isActiveReview(item: ReviewQueueItem) {
 }
 
 function canPreviewReview(item: ReviewQueueItem) {
-  return item.scanStatus === "clean";
+  return item.scanStatus === "pending" || item.scanStatus === "clean";
+}
+
+function reviewStatusLabel(status: string) {
+  if (status === "pending") return "Manual review pending";
+  if (status === "clean") return "Manually approved";
+  return status.replaceAll("_", " ");
 }
 
 export default function ReviewQueuePage() {
@@ -165,8 +171,9 @@ export default function ReviewQueuePage() {
           </h1>
           <p className="mt-2 text-sm text-slate-600">
             Moderators cannot approve their own submissions; the database
-            enforces this rule. Completed and automated rejections remain
-            available as read-only review history.
+            enforces this rule. New uploads remain private until a moderator
+            previews and manually approves them. Earlier rejection history
+            remains available as read-only records.
           </p>
         </div>
         <button
@@ -383,7 +390,7 @@ export default function ReviewQueuePage() {
                   </label>
                   <p className="mt-3 text-sm">
                     {item.status.replace("_", " ")} · {item.subject} ·{" "}
-                    {item.category} · {item.scanStatus} ·{" "}
+                    {item.category} · {reviewStatusLabel(item.scanStatus)} ·{" "}
                     {item.byteSize
                       ? `${(item.byteSize / 1_048_576).toFixed(1)} MB`
                       : "—"}
@@ -600,7 +607,7 @@ function ReviewRow({
       </td>
       <td className="p-3">
         <span className="rounded-full border px-2 py-1 text-xs font-bold">
-          {item.scanStatus}
+          {reviewStatusLabel(item.scanStatus)}
         </span>
       </td>
       <td className="p-3">

@@ -62,6 +62,10 @@ const migrationCopies = [
     "202607180013_contributor_received_ratings.sql",
     "14_contributor_received_rating_calculation.sql",
   ],
+  [
+    "202607180014_manual_pdf_review_only.sql",
+    "15_manual_pdf_review_only.sql",
+  ],
 ] as const;
 
 describe("Supabase SQL Editor setup package", () => {
@@ -76,7 +80,7 @@ describe("Supabase SQL Editor setup package", () => {
     ]);
   });
 
-  it("keeps files 01 through 14 identical to the reviewed migrations", () => {
+  it("keeps files 01 through 15 identical to the reviewed migrations", () => {
     for (const [migrationName, friendlyName] of migrationCopies) {
       expect(
         readFileSync(resolve(setupDirectory, friendlyName), "utf8"),
@@ -104,6 +108,7 @@ describe("Supabase SQL Editor setup package", () => {
     expect(verification).toContain("28 tables");
     expect(verification).toContain("get_public_contributor_profile");
     expect(verification).toContain("upload_policy_version");
+    expect(verification).toContain("mark_manually_approved_version");
     expect(verification).toContain("new-project verification passed");
   });
 });

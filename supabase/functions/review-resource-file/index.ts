@@ -41,11 +41,11 @@ Deno.serve(async (request) => {
       versionError ||
       !version ||
       version.storage_bucket !== "resource-quarantine" ||
-      version.scan_status !== "clean"
+      !["pending", "clean"].includes(version.scan_status)
     ) {
       throw new PublicError(
         "not_available",
-        "Validated quarantine file was not found.",
+        "The quarantined file is not available for manual review.",
         404,
       );
     }

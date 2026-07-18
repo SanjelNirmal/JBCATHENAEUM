@@ -279,7 +279,7 @@ export function ContributeView({
       pendingUploadRef.current = null;
       setUploadState("success");
       setMessage(
-        `Submission ${result.submissionId} passed validation and entered the review queue.`,
+        `Submission ${result.submissionId} was received and entered the manual administrator review queue.`,
       );
       setTitle("");
       setDescription("");
@@ -406,9 +406,9 @@ export function ContributeView({
           <div className="mb-10 flex items-start gap-4 rounded-2xl bg-slate-50 p-5">
             <Info className="mt-0.5 shrink-0 text-[#c49b63]" size={22} />
             <p className="text-sm leading-6 text-slate-600">
-              PDF only, maximum 25 MB. The server verifies that the upload is a
-              readable, non-encrypted PDF, then sends it to a human moderator
-              for review. Browser MIME-label differences are normalized.
+              PDF only, maximum 25 MB. Uploaded files remain private and enter
+              the administrator review queue without a content-based automatic
+              rejection. Browser MIME-label differences are normalized.
             </p>
           </div>
 
@@ -658,7 +658,7 @@ export function ContributeView({
                   <Upload size={18} />
                 )}
                 {uploadState === "validating"
-                  ? "Validating PDF"
+                  ? "Sending for review"
                   : uploadState === "error" && pendingUploadRef.current
                     ? "Retry upload"
                     : "Upload PDF"}

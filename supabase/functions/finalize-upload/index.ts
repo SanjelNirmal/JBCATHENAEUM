@@ -1,4 +1,3 @@
-import { PDFDocument } from "npm:pdf-lib@1.17.1";
 import { authenticatedUser, serviceClient } from "../_shared/supabase.ts";
 import {
   errorResponse,
@@ -13,70 +12,16 @@ function toHex(bytes: ArrayBuffer): string {
     .join("");
 }
 
-async function validatePdf(bytes: Uint8Array) {
-  if (
-    bytes.length < 8 ||
-    new TextDecoder().decode(bytes.slice(0, 5)) !== "%PDF-"
-  ) {
-    throw new PublicError(
-      "invalid_signature",
-      "The uploaded file does not have a valid PDF signature.",
-    );
-  }
-  const tail = new TextDecoder().decode(
-    bytes.slice(Math.max(0, bytes.length - 4096)),
-  );
-  if (!tail.includes("%%EOF")) {
-    throw new PublicError(
-      "invalid_structure",
-      "The PDF appears incomplete or corrupted.",
-    );
-  }
-
-  let document: PDFDocument;
-  try {
-    document = await PDFDocument.load(bytes, {
-      ignoreEncryption: false,
-      updateMetadata: false,
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message.toLowerCase() : "";
-    if (message.includes("encrypt")) {
-      throw new PublicError(
-        "encrypted_pdf",
-        "Password-protected or encrypted PDFs are not accepted.",
-      );
-    }
-    throw new PublicError(
-      "invalid_structure",
-      "The PDF could not be parsed safely.",
-    );
-  }
-
-  const pageCount = document.getPageCount();
-  if (pageCount < 1 || pageCount > 5000) {
-    throw new PublicError(
-      "invalid_page_count",
-      "The PDF page count is outside the supported range.",
-    );
-  }
-  const checksum = toHex(await crypto.subtle.digest("SHA-256", bytes));
-  return { checksum, pageCount };
-}
-
 Deno.serve(async (request) => {
   const options = handleOptions(request);
   if (options) return options;
   if (request.method !== "POST")
     return jsonResponse(request, { error: "method_not_allowed" }, 405);
 
-  let sessionId = "";
-  let userId = "";
   try {
     const { user } = await authenticatedUser(request);
-    userId = user.id;
     const body = await request.json();
-    sessionId = String(body.sessionId ?? "");
+    const sessionId = String(body.sessionId ?? "");
     if (!sessionId)
       throw new PublicError("invalid_session", "Upload session is required.");
 
@@ -129,63 +74,30 @@ Deno.serve(async (request) => {
       );
     }
 
-    const validation = await validatePdf(bytes);
+    const checksum = toHex(await crypto.subtle.digest("SHA-256", bytes));
     const { data: submissionId, error: completeError } = await service.rpc(
       "complete_resource_upload",
       {
         target_session_id: sessionId,
         request_user_id: user.id,
         actual_byte_size: bytes.byteLength,
-        checksum_sha256: validation.checksum,
-        detected_page_count: validation.pageCount,
+        checksum_sha256: checksum,
+        detected_page_count: null,
         validation_result: {
-          validator: "pdf-integrity-v2",
-          signature: true,
-          eof: true,
-          encrypted: false,
+          validator: "manual-review-intake-v1",
+          automated_content_decision: false,
+          manual_review_required: true,
         },
       },
     );
     if (completeError) {
-      if (completeError.code === "23505") {
-        throw new PublicError(
-          "duplicate_pdf",
-          "This PDF already exists in the archive.",
-          409,
-        );
-      }
       throw completeError;
     }
     return jsonResponse(request, { submissionId, status: "submitted" });
   } catch (error) {
-    if (sessionId && userId) {
-      const service = serviceClient();
-      const { data: state } = await service
-        .from("resource_upload_sessions")
-        .select("storage_bucket,storage_path,status")
-        .eq("id", sessionId)
-        .maybeSingle();
-      if (
-        state &&
-        state.status !== "submitted" &&
-        state.status !== "published"
-      ) {
-        await service.storage
-          .from(state.storage_bucket)
-          .remove([state.storage_path]);
-        await service.rpc("fail_resource_upload", {
-          target_session_id: sessionId,
-          request_user_id: userId,
-          target_status: "failed",
-          supplied_failure_code:
-            error instanceof PublicError ? error.code : "validation_failed",
-          validation_result: {
-            validator: "pdf-integrity-v2",
-            accepted: false,
-          },
-        });
-      }
-    }
+    // Keep a successfully transferred quarantine object retryable. Expired
+    // sessions are removed later by the cleanup job; intake failures do not
+    // automatically reject the contributor's resource.
     return errorResponse(request, error);
   }
 });

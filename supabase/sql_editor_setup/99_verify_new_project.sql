@@ -1,4 +1,4 @@
--- Read-only new-project verification. Run after setup files 01 through 14.
+-- Read-only new-project verification. Run after setup files 01 through 15.
 -- The final transaction is rolled back
 -- so pgTAP and verification work cannot change production data.
 
@@ -124,7 +124,17 @@ begin
     raise exception 'Contributor received-rating calculation is not installed';
   end if;
 
-  raise notice 'JBC Athenaeum new-project verification passed: 28 tables, empty resource data, academic catalog, engagement functions, Upload Policy acceptance, and private buckets are present.';
+  if to_regprocedure('public.mark_manually_approved_version()') is null
+     or not exists (
+       select 1
+       from pg_trigger
+       where tgname = 'resource_reviews_mark_manual_approval'
+         and not tgisinternal
+     ) then
+    raise exception 'Manual-only PDF review workflow is not installed';
+  end if;
+
+  raise notice 'JBC Athenaeum new-project verification passed: 28 tables, empty resource data, academic catalog, engagement functions, Upload Policy acceptance, manual PDF review, and private buckets are present.';
 end
 $$;
 

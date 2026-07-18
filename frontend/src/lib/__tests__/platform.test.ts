@@ -86,6 +86,15 @@ describe("safe error mapping", () => {
     );
   });
 
+  it("shows actionable upload service failures", () => {
+    expect(
+      toSafeErrorMessage({ code: "expired_session" }, "upload"),
+    ).toContain("expired");
+    expect(
+      toSafeErrorMessage({ code: "internal_error" }, "upload"),
+    ).toContain("Edge Function logs");
+  });
+
   it("maps Supabase recovery errors by code", () => {
     expect(
       toSafeErrorMessage({ code: "email_address_not_authorized" }, "auth"),

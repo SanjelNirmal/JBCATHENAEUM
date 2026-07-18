@@ -28,10 +28,24 @@ async function invokeFunction<T>(
   body: Record<string, unknown>,
 ): Promise<T> {
   const { data, error } = await supabase.functions.invoke(name, { body });
-  if (error)
-    throw new Error(
-      typeof data?.message === "string" ? data.message : error.message,
-    );
+  if (error) {
+    let payload = data as Record<string, unknown> | null;
+    if (!payload && "context" in error && error.context instanceof Response) {
+      try {
+        payload = (await error.context.clone().json()) as Record<
+          string,
+          unknown
+        >;
+      } catch {
+        payload = null;
+      }
+    }
+    const failure = new Error(
+      typeof payload?.message === "string" ? payload.message : error.message,
+    ) as Error & { code?: string };
+    if (typeof payload?.error === "string") failure.code = payload.error;
+    throw failure;
+  }
   if (data?.error) throw new Error(data.message || "Request failed.");
   return data as T;
 }
