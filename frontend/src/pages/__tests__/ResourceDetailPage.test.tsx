@@ -5,13 +5,6 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import ResourceDetailPage from "../ResourceDetailPage";
 
-const openResourceForViewing = vi.hoisted(() =>
-  vi.fn().mockResolvedValue({
-    viewerUrl: "about:blank?document=1",
-    downloadCount: 5,
-  }),
-);
-
 vi.mock("../../app/AuthContext", () => ({
   useCurrentAuth: () => ({ user: null }),
 }));
@@ -43,7 +36,6 @@ vi.mock("../../lib/supabase/resources", () => ({
   }),
   getLegacyPreviewUrl: vi.fn(),
   getPublicResourceAccessUrl: vi.fn().mockReturnValue("about:blank"),
-  openResourceForViewing,
   reportResource: vi.fn(),
 }));
 
@@ -98,14 +90,9 @@ describe("ResourceDetailPage", () => {
     await userEvent.click(
       await screen.findByRole("button", { name: "Open in new window" }),
     );
-    expect(openResourceForViewing).toHaveBeenCalledTimes(1);
-    expect(openResourceForViewing).toHaveBeenCalledWith(
-      "00000000-0000-4000-8000-000000000001",
-    );
     expect(
       screen.getByRole("dialog", { name: "Buy Me a Coffee" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("5")).toBeInTheDocument();
 
     await userEvent.click(
       screen.getByRole("button", {
@@ -116,10 +103,11 @@ describe("ResourceDetailPage", () => {
       screen.queryByRole("dialog", { name: "Buy Me a Coffee" }),
     ).not.toBeInTheDocument();
     expect(windowOpen).toHaveBeenCalledWith(
-      "about:blank?document=1#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
+      "about:blank&open=1#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
       "_blank",
       "noopener,noreferrer",
     );
+    expect(screen.getByText("5")).toBeInTheDocument();
     windowOpen.mockRestore();
   });
 });

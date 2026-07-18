@@ -57,6 +57,11 @@ Deno.serve(async (request) => {
           404,
         );
       }
+      if (recordOpen) {
+        await service.rpc("increment_resource_download", {
+          target_resource_id: resourceId,
+        });
+      }
       if (!wantsJson) {
         return new Response(null, {
           status: 302,
@@ -66,11 +71,6 @@ Deno.serve(async (request) => {
             "Cache-Control": "private, no-store, max-age=0",
             "Referrer-Policy": "no-referrer",
           },
-        });
-      }
-      if (recordOpen) {
-        await service.rpc("increment_resource_download", {
-          target_resource_id: resourceId,
         });
       }
       const { data: countedResource } = await service

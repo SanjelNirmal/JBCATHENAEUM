@@ -7,7 +7,7 @@ import {
   RefreshCw,
   Share2,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
 import { BuyMeACoffeeModal } from "../components/BuyMeACoffeeModal";
@@ -17,7 +17,6 @@ import {
   fetchResource,
   getLegacyPreviewUrl,
   getPublicResourceAccessUrl,
-  openResourceForViewing,
   reportResource,
 } from "../lib/supabase/resources";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
@@ -33,14 +32,11 @@ export default function ResourceDetailPage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [reportMessage, setReportMessage] = useState("");
   const [shareMessage, setShareMessage] = useState("");
-  const [openMessage, setOpenMessage] = useState("");
-  const [openBusy, setOpenBusy] = useState(false);
   const [coffeeOpen, setCoffeeOpen] = useState(false);
   const [pendingViewerUrl, setPendingViewerUrl] = useState("");
-  const [openedDownloadCount, setOpenedDownloadCount] = useState<number | null>(
-    null,
-  );
-  const openRequestActive = useRef(false);
+  const [pendingDownloadCount, setPendingDownloadCount] = useState<
+    number | null
+  >(null);
   if (query.isLoading)
     return (
       <main id="main-content">
@@ -91,25 +87,14 @@ export default function ResourceDetailPage() {
     ? basePreviewUrl
     : `${basePreviewUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
   const resourceUrl = `${window.location.origin}/resources/${item.slug}`;
-  const prepareDocument = async () => {
-    if (openRequestActive.current) return;
-    openRequestActive.current = true;
-    setOpenBusy(true);
-    setOpenMessage("");
-    try {
-      const result = await openResourceForViewing(item.id);
-      const viewerUrl = isLegacy
-        ? getLegacyPreviewUrl(result.viewerUrl)
-        : `${result.viewerUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
-      setOpenedDownloadCount(result.downloadCount);
-      setPendingViewerUrl(viewerUrl);
-      setCoffeeOpen(true);
-    } catch (error) {
-      setOpenMessage(toSafeErrorMessage(error, "resource"));
-    } finally {
-      openRequestActive.current = false;
-      setOpenBusy(false);
-    }
+  const prepareDocument = () => {
+    const accessUrl = `${getPublicResourceAccessUrl(item.id)}&open=1`;
+    setPendingViewerUrl(
+      isLegacy
+        ? accessUrl
+        : `${accessUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`,
+    );
+    setCoffeeOpen(true);
   };
   const cancelDocumentOpen = () => {
     setCoffeeOpen(false);
@@ -117,7 +102,16 @@ export default function ResourceDetailPage() {
   };
   const openDocumentWindow = () => {
     if (!pendingViewerUrl) return;
+    const expectedCount = (pendingDownloadCount ?? item.downloadCount) + 1;
+    setPendingDownloadCount(expectedCount);
     window.open(pendingViewerUrl, "_blank", "noopener,noreferrer");
+    window.setTimeout(() => {
+      void query.refetch().then((result) => {
+        if ((result.data?.downloadCount ?? 0) >= expectedCount) {
+          setPendingDownloadCount(null);
+        }
+      });
+    }, 1800);
     setCoffeeOpen(false);
     setPendingViewerUrl("");
   };
@@ -204,13 +198,12 @@ export default function ResourceDetailPage() {
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <button
-              type="button"
-              onClick={() => void prepareDocument()}
-                disabled={openBusy}
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white disabled:cursor-wait disabled:opacity-60"
+                type="button"
+                onClick={prepareDocument}
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
               >
-              <ExternalLink aria-hidden="true" size={17} />
-              {openBusy ? "Preparing document…" : "Open in new window"}
+                <ExternalLink aria-hidden="true" size={17} />
+                Open in new window
               </button>
               <button
                 type="button"
@@ -257,14 +250,6 @@ export default function ResourceDetailPage() {
                 </Link>
               )}
             </div>
-            {openMessage && (
-              <p
-                role="status"
-                className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-800"
-              >
-                {openMessage}
-              </p>
-            )}
             {shareMessage && (
               <p
                 aria-live="polite"
@@ -346,7 +331,7 @@ export default function ResourceDetailPage() {
               <Meta
                 label="Downloads"
                 value={(
-                  openedDownloadCount ?? item.downloadCount
+                  pendingDownloadCount ?? item.downloadCount
                 ).toLocaleString()}
               />
             </dl>

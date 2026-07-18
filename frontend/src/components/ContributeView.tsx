@@ -352,8 +352,16 @@ export function ContributeView({
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-24 font-sans md:px-12">
       <div className="mb-14 text-center">
-        <div className="mb-6 inline-block rounded-full bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.3em] text-blue-600">
-          Contribute to the archive
+        <div className="mb-6 flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#8a642f] sm:text-xs">
+          <span
+            aria-hidden="true"
+            className="h-px w-8 bg-[#c49b63] sm:w-12"
+          />
+          <span>Contribute to the archive</span>
+          <span
+            aria-hidden="true"
+            className="h-px w-8 bg-[#c49b63] sm:w-12"
+          />
         </div>
         <h1 className="mb-6 font-serif text-5xl font-black tracking-tighter text-[#002147] md:text-7xl">
           Share a Resource
