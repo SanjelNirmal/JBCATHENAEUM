@@ -213,6 +213,38 @@ export function getPublicResourceAccessUrl(resourceId: string): string {
   return `${publicEnvironment.config.supabaseUrl}/functions/v1/resource-download?resourceId=${encodeURIComponent(resourceId)}`;
 }
 
+export async function getTrackedResourceAccess(
+  resourceId: string,
+): Promise<{ viewerUrl: string; downloadCount: number }> {
+  const { data } = await supabase.auth.getSession();
+  const response = await fetch(
+    `${getPublicResourceAccessUrl(resourceId)}&open=1&format=json`,
+    {
+      headers: {
+        apikey: publicEnvironment.config.supabaseAnonKey,
+        ...(data.session
+          ? { Authorization: `Bearer ${data.session.access_token}` }
+          : {}),
+      },
+      cache: "no-store",
+    },
+  );
+  if (!response.ok) throw new Error("resource_access_failed");
+  const body = (await response.json()) as {
+    viewerUrl?: unknown;
+    downloadCount?: unknown;
+  };
+  if (typeof body.viewerUrl !== "string")
+    throw new Error("resource_access_failed");
+  const viewerUrl = new URL(body.viewerUrl);
+  if (viewerUrl.protocol !== "https:")
+    throw new Error("resource_access_failed");
+  return {
+    viewerUrl: viewerUrl.toString(),
+    downloadCount: Number(body.downloadCount ?? 0),
+  };
+}
+
 export function validateLegacyResourceUrl(
   value: string | null | undefined,
 ): string | null {

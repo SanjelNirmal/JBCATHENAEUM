@@ -3,6 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { FileUp, LibraryBig } from "lucide-react";
 import { LoadingState } from "../components/AsyncState";
 import { Seo } from "../components/Seo";
+import { AccountNav } from "../components/AccountNav";
 import { useCurrentAuth } from "../app/AuthContext";
 import { updateMyProfile } from "../lib/supabase/profiles";
 import { supabase } from "../lib/supabase/client";
@@ -89,13 +90,17 @@ export default function ProfilePage() {
   const hasUsableAvatar = avatarPreview && !avatarFailed;
 
   return (
-    <main id="main-content" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+    <main
+      id="main-content"
+      className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12"
+    >
       <Seo
         title="My profile"
         description="View and update your JBC Athenaeum profile."
         path="/profile"
         noIndex
       />
+      <AccountNav />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="grid gap-4 sm:grid-cols-[104px_minmax(0,1fr)] sm:items-center xl:grid-cols-1">
@@ -127,7 +132,10 @@ export default function ProfilePage() {
             <Row label="Role" value={profile.role.replaceAll("_", " ")} />
             <Row label="Status" value={profile.account_status} />
             <Row label="Faculty" value={profile.faculty ?? "Unspecified"} />
-            <Row label="Member since" value={new Date(profile.created_at).toLocaleDateString()} />
+            <Row
+              label="Member since"
+              value={new Date(profile.created_at).toLocaleDateString()}
+            />
           </div>
           {profile.bio && (
             <div className="mt-6 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-700">
@@ -160,7 +168,10 @@ export default function ProfilePage() {
             Update the public details shown across JBC Athenaeum.
           </p>
           {message && (
-            <p className="mt-5 rounded-xl bg-slate-100 p-4 text-sm" role="status">
+            <p
+              className="mt-5 rounded-xl bg-slate-100 p-4 text-sm"
+              role="status"
+            >
               {message}
             </p>
           )}
@@ -169,14 +180,18 @@ export default function ProfilePage() {
               label="Full name"
               name="name"
               value={form.name}
-              onChange={(value) => setForm((current) => ({ ...current, name: value }))}
+              onChange={(value) =>
+                setForm((current) => ({ ...current, name: value }))
+              }
               required
             />
             <Field
               label="Faculty or program"
               name="faculty"
               value={form.faculty}
-              onChange={(value) => setForm((current) => ({ ...current, faculty: value }))}
+              onChange={(value) =>
+                setForm((current) => ({ ...current, faculty: value }))
+              }
               required
             />
             <Field
@@ -219,7 +234,10 @@ export default function ProfilePage() {
                 rows={6}
                 value={form.bio}
                 onChange={(event) =>
-                  setForm((current) => ({ ...current, bio: event.target.value }))
+                  setForm((current) => ({
+                    ...current,
+                    bio: event.target.value,
+                  }))
                 }
                 maxLength={2000}
                 className="mt-1 w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-[#002147] focus:ring-2 focus:ring-[#002147]/15"
@@ -274,7 +292,11 @@ function Field({
         required={required}
         className="mt-1 min-h-12 w-full rounded-lg border border-slate-300 px-4 outline-none focus:border-[#002147] focus:ring-2 focus:ring-[#002147]/15"
       />
-      {hint && <span className="mt-1 block text-xs font-normal text-slate-500">{hint}</span>}
+      {hint && (
+        <span className="mt-1 block text-xs font-normal text-slate-500">
+          {hint}
+        </span>
+      )}
     </label>
   );
 }

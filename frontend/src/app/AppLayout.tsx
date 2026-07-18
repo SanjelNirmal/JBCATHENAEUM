@@ -1,6 +1,7 @@
 import { Outlet, ScrollRestoration } from "react-router-dom";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
+import { PwaManager } from "../components/PwaManager";
 
 export function AppLayout() {
   return (
@@ -14,6 +15,7 @@ export function AppLayout() {
       <SiteHeader />
       <Outlet />
       <SiteFooter />
+      <PwaManager />
       <ScrollRestoration />
     </div>
   );

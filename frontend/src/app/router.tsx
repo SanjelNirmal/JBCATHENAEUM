@@ -91,8 +91,46 @@ export const router = createBrowserRouter([
       },
       {
         path: "profile",
-        element: lazyElement(() => import("../pages/ProfilePage"), "Loading profile"),
+        element: lazyElement(
+          () => import("../pages/ProfilePage"),
+          "Loading profile",
+        ),
       },
+      ...["account", "account/profile"].map((path) => ({
+        path,
+        element: lazyElement(
+          () => import("../pages/ProfilePage"),
+          "Loading profile",
+        ),
+      })),
+      ...["account/bookmarks", "profile/bookmarks"].map((path) => ({
+        path,
+        element: lazyElement(
+          () => import("../pages/AccountBookmarksPage"),
+          "Loading bookmarks",
+        ),
+      })),
+      ...["account/downloads", "profile/downloads"].map((path) => ({
+        path,
+        element: lazyElement(
+          () => import("../pages/AccountDownloadsPage"),
+          "Loading download history",
+        ),
+      })),
+      ...["account/preferences", "profile/preferences"].map((path) => ({
+        path,
+        element: lazyElement(
+          () => import("../pages/AccountPreferencesPage"),
+          "Loading preferences",
+        ),
+      })),
+      ...["account/devices", "profile/devices"].map((path) => ({
+        path,
+        element: lazyElement(
+          () => import("../pages/AccountDevicesPage"),
+          "Loading devices",
+        ),
+      })),
       {
         path: "login",
         element: lazyElement(

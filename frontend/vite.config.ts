@@ -2,10 +2,53 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      VitePWA({
+        registerType: "prompt",
+        injectRegister: false,
+        manifest: false,
+        workbox: {
+          navigateFallback: "index.html",
+          globPatterns: ["**/*.{js,css,html,png,jpg,jpeg,svg,ico,woff2}"],
+          globIgnores: ["**/*.pdf", "payment/**"],
+          cleanupOutdatedCaches: true,
+          runtimeCaching: [
+            {
+              urlPattern: /\/auth\/v1\//,
+              handler: "NetworkOnly",
+            },
+            {
+              urlPattern: /\/rest\/v1\//,
+              handler: "NetworkOnly",
+            },
+            {
+              urlPattern: /\/functions\/v1\//,
+              handler: "NetworkOnly",
+            },
+            {
+              urlPattern: /\/storage\/v1\/object\//,
+              handler: "NetworkOnly",
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\//,
+              handler: "CacheFirst",
+              options: {
+                cacheName: "jbc-public-fonts-v1",
+                expiration: { maxEntries: 12, maxAgeSeconds: 31_536_000 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+          ],
+        },
+        devOptions: { enabled: false },
+      }),
+    ],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "."),

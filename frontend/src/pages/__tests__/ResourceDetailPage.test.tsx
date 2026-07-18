@@ -9,6 +9,10 @@ vi.mock("../../app/AuthContext", () => ({
   useCurrentAuth: () => ({ user: null }),
 }));
 
+vi.mock("../../features/engagement/ResourceEngagementPanel", () => ({
+  ResourceEngagementPanel: () => <div>Resource engagement</div>,
+}));
+
 vi.mock("../../lib/supabase/resources", () => ({
   fetchResource: vi.fn().mockResolvedValue({
     id: "00000000-0000-4000-8000-000000000001",
@@ -35,7 +39,13 @@ vi.mock("../../lib/supabase/resources", () => ({
     createdAt: "2026-07-17T00:00:00.000Z",
   }),
   getLegacyPreviewUrl: vi.fn(),
-  getPublicResourceAccessUrl: vi.fn().mockReturnValue("about:blank"),
+  getPublicResourceAccessUrl: vi
+    .fn()
+    .mockReturnValue("data:application/pdf,"),
+  getTrackedResourceAccess: vi.fn().mockResolvedValue({
+    viewerUrl: "https://example.test/signed-document",
+    downloadCount: 5,
+  }),
   reportResource: vi.fn(),
 }));
 
@@ -70,7 +80,12 @@ describe("ResourceDetailPage", () => {
   });
 
   it("counts the open, offers optional support, and opens a new window", async () => {
-    const windowOpen = vi.spyOn(window, "open").mockReturnValue(null);
+    const replace = vi.fn();
+    const target = {
+      location: { replace },
+      opener: window,
+    } as unknown as Window;
+    const windowOpen = vi.spyOn(window, "open").mockReturnValue(target);
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -102,10 +117,9 @@ describe("ResourceDetailPage", () => {
     expect(
       screen.queryByRole("dialog", { name: "Buy Me a Coffee" }),
     ).not.toBeInTheDocument();
-    expect(windowOpen).toHaveBeenCalledWith(
-      "about:blank&open=1#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
-      "_blank",
-      "noopener,noreferrer",
+    expect(windowOpen).toHaveBeenCalledWith("about:blank", "_blank");
+    expect(replace).toHaveBeenCalledWith(
+      "https://example.test/signed-document#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
     );
     expect(screen.getByText("5")).toBeInTheDocument();
     windowOpen.mockRestore();

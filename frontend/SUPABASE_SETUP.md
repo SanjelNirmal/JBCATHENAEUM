@@ -16,6 +16,16 @@ The reviewed, data-preserving migrations are applied in filename order:
 
 `supabase/migrations/202607170006_academic_catalog_seed.sql`
 
+`supabase/migrations/202607170007_admin_resource_listing.sql`
+
+`supabase/migrations/202607170008_review_queue_listing.sql`
+
+`supabase/migrations/202607170009_review_queue_scan_status.sql`
+
+`supabase/migrations/202607180010_rejected_review_history.sql`
+
+`supabase/migrations/202607180011_account_engagement_pwa_foundation.sql`
+
 The database security and model tests are:
 
 `supabase/tests/stage1_security.sql`
@@ -27,6 +37,8 @@ The database security and model tests are:
 `supabase/tests/platform_completion.sql`
 
 `supabase/tests/academic_catalog_seed.sql`
+
+`supabase/tests/account_engagement.sql`
 
 After applying migrations to the linked preview project, compare the checked-in
 schema snapshot with freshly generated types before promoting the frontend:

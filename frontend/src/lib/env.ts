@@ -1,4 +1,5 @@
-export const LATEST_DATABASE_MIGRATION = "202607180010_rejected_review_history";
+export const LATEST_DATABASE_MIGRATION =
+  "202607180011_account_engagement_pwa_foundation";
 
 type PublicEnvironmentSource = Record<string, string | boolean | undefined>;
 

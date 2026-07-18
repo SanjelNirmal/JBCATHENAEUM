@@ -6,6 +6,7 @@ import { EmptyState, ErrorState, LoadingState } from "../components/AsyncState";
 import { Seo } from "../components/Seo";
 import {
   fetchNotifications,
+  markAllNotificationsRead,
   markNotificationRead,
 } from "../lib/supabase/notifications";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
@@ -16,6 +17,7 @@ export default function NotificationsPage() {
   const location = useLocation();
   const client = useQueryClient();
   const [message, setMessage] = useState("");
+  const [markingAll, setMarkingAll] = useState(false);
   const query = useQuery({
     queryKey: ["notifications", auth.user?.id],
     queryFn: fetchNotifications,
@@ -39,6 +41,23 @@ export default function NotificationsPage() {
       setMessage(toSafeErrorMessage(error));
     }
   };
+  const markAllRead = async () => {
+    setMarkingAll(true);
+    setMessage("");
+    try {
+      const updatedCount = await markAllNotificationsRead();
+      setMessage(
+        updatedCount > 0
+          ? `${updatedCount} notification${updatedCount === 1 ? "" : "s"} marked as read.`
+          : "All notifications are already read.",
+      );
+      await client.invalidateQueries({ queryKey: ["notifications"] });
+    } catch (error) {
+      setMessage(toSafeErrorMessage(error));
+    } finally {
+      setMarkingAll(false);
+    }
+  };
 
   return (
     <main id="main-content" className="mx-auto w-full max-w-4xl px-5 py-16">
@@ -48,11 +67,22 @@ export default function NotificationsPage() {
         path="/notifications"
         noIndex
       />
-      <div className="flex items-center gap-3">
-        <Bell aria-hidden="true" className="text-[#85591f]" />
-        <h1 className="font-serif text-4xl font-bold text-[#002147]">
-          Notifications
-        </h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Bell aria-hidden="true" className="text-[#85591f]" />
+          <h1 className="font-serif text-4xl font-bold text-[#002147]">
+            Notifications
+          </h1>
+        </div>
+        <button
+          type="button"
+          disabled={markingAll || !query.data?.some((item) => !item.readAt)}
+          onClick={() => void markAllRead()}
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-[#002147] disabled:opacity-50"
+        >
+          <Check size={17} aria-hidden="true" />
+          {markingAll ? "Marking…" : "Mark all read"}
+        </button>
       </div>
       <p className="mt-2 text-slate-600">
         Submission decisions and account updates appear here.
