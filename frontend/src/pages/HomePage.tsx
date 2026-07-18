@@ -24,10 +24,10 @@ export default function HomePage() {
   return (
     <main id="main-content">
       <Seo
-        title="TU BCA Notes & Academic Resources"
-        description="Find reviewed TU BCA notes, past questions, project reports, PDFs, and academic resources for Jana Bhawana Campus students."
+        title="TU BCA & BICTE Notes & Academic Resources"
+        description="Find reviewed JBC BCA notes, BICTE notes, past questions, project reports, PDFs, and academic resources for Jana Bhawana Campus students."
         path="/"
-        keywords="Jana Bhawana Campus, JBC Athenaeum, TU notes, Tribhuvan University notes, BCA notes, BCA 4th semester notes, TU BCA resources, Jana Bhawana Campus notes, Nirmal Sanjel"
+        keywords="Jana Bhawana Campus, JBC Athenaeum, JBC BCA notes, BCA notes, BICTE notes, TU notes, Tribhuvan University notes, BCA 4th semester notes, TU BCA resources, Jana Bhawana Campus notes, Nirmal Sanjel"
       />
       <section className="relative overflow-hidden bg-[#001b3a] text-white">
         <div
@@ -41,12 +41,13 @@ export default function HomePage() {
               Jana Bhawana Campus
             </p>
             <h1 className="mt-6 max-w-3xl font-serif text-4xl font-black leading-[1.08] sm:text-5xl lg:text-6xl">
-              TU BCA notes, past questions, and campus resources.
+              TU BCA and BICTE notes, past questions, and campus resources.
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
               Search reviewed notes, project reports, PDFs, past questions, and
-              learning materials for Jana Bhawana Campus students. JBC Athenaeum
-              is a moderated academic archive built for focused, reliable study.
+              learning materials for Jana Bhawana Campus students. JBC
+              Athenaeum is a moderated academic archive built for focused,
+              reliable study.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link

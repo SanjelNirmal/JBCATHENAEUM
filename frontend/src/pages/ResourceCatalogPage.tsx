@@ -88,18 +88,19 @@ export default function ResourceCatalogPage() {
       className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
     >
       <Seo
-        title="TU BCA notes, PDFs, and past questions"
-        description="Search reviewed TU BCA notes, Jana Bhawana Campus PDFs, past questions, project reports, and subject-wise academic resources."
+        title="TU BCA & BICTE notes, PDFs, and past questions"
+        description="Search reviewed JBC BCA notes, BICTE notes, Jana Bhawana Campus PDFs, past questions, project reports, and subject-wise academic resources."
         path="/resources"
-        keywords="TU BCA notes, BCA notes Nepal, Jana Bhawana Campus notes, JBC notes, Tribhuvan University past questions, BCA PDFs, BCA project report, Nirmal Sanjel"
+        keywords="TU BCA notes, JBC BCA notes, BCA notes Nepal, BICTE notes, Jana Bhawana Campus notes, JBC notes, Tribhuvan University past questions, BCA PDFs, BCA project report, Nirmal Sanjel"
       />
       <div className="max-w-3xl">
         <h1 className="font-serif text-4xl font-bold text-[#002147] sm:text-5xl">
-          TU BCA notes and resource catalog
+          TU BCA and BICTE notes and resource catalog
         </h1>
         <p className="mt-3 text-slate-600">
-          Search Jana Bhawana Campus notes, BCA PDFs, past questions, project
-          reports, and subject-wise Tribhuvan University resources.
+          Search Jana Bhawana Campus notes, BCA PDFs, BICTE PDFs, past
+          questions, project reports, and subject-wise Tribhuvan University
+          resources.
         </p>
       </div>
       <section

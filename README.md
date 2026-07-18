@@ -55,6 +55,12 @@ npx cap open android
 npx cap open ios
 ```
 
+The native app identifier is `np.com.nirmalsanjel.jbcathenaeum`.
+
+For local iOS builds with a Personal Team, keep automatic signing enabled and
+do not add the `Associated Domains` capability. That capability requires a paid
+Apple Developer account and a matching provisioning profile.
+
 See [the mobile release runbook](docs/MOBILE_RELEASE.md) for prerequisites,
 signing, deep-link association, Supabase redirect URLs, privacy declarations,
 payment policy, honest test status, and release blockers.
