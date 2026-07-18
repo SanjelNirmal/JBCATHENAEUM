@@ -14,6 +14,7 @@ const Users = lazy(() => import("./UserManagementPage"));
 const Academic = lazy(() => import("./AcademicStructurePage"));
 const Reports = lazy(() => import("./ReportsManagementPage"));
 const Audit = lazy(() => import("./AuditLogPage"));
+const Newsletter = lazy(() => import("./NewsletterPage"));
 const Settings = lazy(() => import("./AdminSettingsPage"));
 
 export default function AdminApp() {
@@ -56,6 +57,7 @@ export default function AdminApp() {
           <Route path="users" element={<Users />} />
           <Route path="academic-structure" element={<Academic />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="newsletter" element={<Newsletter />} />
           <Route path="audit-logs" element={<Audit />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />

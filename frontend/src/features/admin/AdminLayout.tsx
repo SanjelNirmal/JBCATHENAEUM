@@ -3,6 +3,7 @@ import {
   BookOpen,
   ClipboardCheck,
   FileText,
+  Mail,
   Menu,
   ScrollText,
   Settings,
@@ -21,6 +22,7 @@ const links = [
   ["/admin/users", "Users", Users],
   ["/admin/academic-structure", "Academic structure", BookOpen],
   ["/admin/reports", "Reports", ShieldAlert],
+  ["/admin/newsletter", "Newsletter", Mail],
   ["/admin/audit-logs", "Audit logs", ScrollText],
   ["/admin/settings", "Settings", Settings],
 ] as const;

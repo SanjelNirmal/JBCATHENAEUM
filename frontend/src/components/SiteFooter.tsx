@@ -2,12 +2,13 @@ import {
   ArrowUpRight,
   Coffee,
   FileCheck2,
-  GraduationCap,
   Mail,
   ShieldCheck,
 } from "lucide-react";
+import type { FormEvent } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { subscribeToNewsletter } from "../lib/supabase/newsletter";
 import { BuyMeACoffeeModal } from "./BuyMeACoffeeModal";
 
 const platformLinks = [
@@ -34,17 +35,46 @@ const accountLinks = [
 
 export function SiteFooter() {
   const [coffeeOpen, setCoffeeOpen] = useState(false);
+  const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+
+  const handleNewsletterSignup = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const email = subscriberEmail.trim();
+
+    if (!email || !email.includes("@")) {
+      setNewsletterStatus("error");
+      setNewsletterMessage("Enter a valid email address.");
+      return;
+    }
+
+    setNewsletterStatus("loading");
+    try {
+      const inserted = await subscribeToNewsletter(email);
+      setSubscriberEmail("");
+      setNewsletterStatus("success");
+      setNewsletterMessage(
+        inserted
+          ? "Subscribed to archive updates."
+          : "This email is already subscribed.",
+      );
+    } catch (error) {
+      console.error(error);
+      setNewsletterStatus("error");
+      setNewsletterMessage("Newsletter signup failed. Try again later.");
+    }
+  };
+
   return (
     <>
       <footer className="mt-auto border-t border-[#c49b63]/20 bg-[#001b3a] text-slate-300">
         <div className="mx-auto grid max-w-7xl gap-x-10 gap-y-8 px-5 py-8 sm:grid-cols-2 sm:px-6 sm:py-10 lg:grid-cols-[1.35fr_0.8fr_1fr_1.05fr] lg:px-8">
           <section aria-label="Platform summary">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#c49b63]/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#d8b37a]">
-                <GraduationCap aria-hidden="true" size={14} />
-                Jana Bhawana Campus resources
-              </div>
-              <h2 className="mt-4 font-serif text-2xl font-bold leading-tight text-white">
+              <h2 className="font-serif text-2xl font-bold leading-tight text-white">
                 JBC Athenaeum
               </h2>
               <p className="mt-3 max-w-md text-sm leading-6 text-slate-300">
@@ -58,6 +88,47 @@ export function SiteFooter() {
                   label="Protected document access"
                 />
               </div>
+              <form
+                onSubmit={handleNewsletterSignup}
+                className="mt-5 max-w-sm"
+                aria-label="Newsletter subscription"
+              >
+                <label
+                  htmlFor="footer-newsletter-email"
+                  className="block text-xs font-bold uppercase tracking-[0.14em] text-[#d8b37a]"
+                >
+                  Newsletter
+                </label>
+                <div className="mt-2 flex overflow-hidden rounded-lg border border-white/10 bg-white/5 focus-within:border-[#d8b37a]">
+                  <input
+                    id="footer-newsletter-email"
+                    type="email"
+                    value={subscriberEmail}
+                    onChange={(event) => setSubscriberEmail(event.target.value)}
+                    placeholder="Email for new resources"
+                    disabled={newsletterStatus === "loading"}
+                    className="min-h-10 min-w-0 flex-1 bg-transparent px-3 text-sm text-white placeholder:text-slate-400 focus:outline-none disabled:opacity-60"
+                  />
+                  <button
+                    type="submit"
+                    disabled={newsletterStatus === "loading"}
+                    className="inline-flex min-h-10 items-center justify-center gap-2 border-l border-white/10 bg-[#c49b63] px-3 text-xs font-bold uppercase tracking-wider text-[#001b3a] transition hover:bg-[#d8b37a] disabled:opacity-60"
+                  >
+                    {newsletterStatus === "loading" ? "Joining" : "Join"}
+                  </button>
+                </div>
+                {newsletterMessage && (
+                  <p
+                    className={`mt-2 text-xs ${
+                      newsletterStatus === "error"
+                        ? "text-red-200"
+                        : "text-slate-300"
+                    }`}
+                  >
+                    {newsletterMessage}
+                  </p>
+                )}
+              </form>
             </div>
           </section>
 
