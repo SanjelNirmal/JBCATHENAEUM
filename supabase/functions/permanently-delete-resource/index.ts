@@ -41,22 +41,11 @@ Deno.serve(async (request) => {
 
     const { data: resource, error: resourceError } = await service
       .from("resources")
-      .select("status,archived_at")
+      .select("id")
       .eq("id", resourceId)
       .single();
     if (resourceError || !resource)
       throw new PublicError("not_found", "Resource was not found.", 404);
-    if (
-      resource.status !== "archived" ||
-      !resource.archived_at ||
-      new Date(resource.archived_at).getTime() > Date.now() - 90 * 86_400_000
-    ) {
-      throw new PublicError(
-        "retention_required",
-        "The 90-day archived retention period has not elapsed.",
-        409,
-      );
-    }
     const { data: versions, error: versionError } = await service
       .from("resource_versions")
       .select("storage_bucket,storage_path")

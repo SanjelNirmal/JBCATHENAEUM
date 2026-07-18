@@ -20,7 +20,7 @@ Security impact: invalid route values are bounded before query construction; the
 - Completed authenticated, verified-email PDF contribution with normalized academic metadata, local draft recovery, upload progress, cancellation, retry, confirmation, and resubmission.
 - Added My Submissions feedback/actions and a private notifications page.
 - Split administration into overview, reviews, resources, users, academic structure, reports/removals, audit logs, and read-only settings.
-- Added review claim/preview/decision, contributor links, responsive tables/cards, bulk decisions, audited reviewer assignment, archive/restore, safe metadata/profile editing, status/role controls, and retryable retention-gated permanent deletion.
+- Added review claim/preview/decision, contributor links, responsive tables/cards, bulk decisions, audited reviewer assignment, archive/restore, safe metadata/profile editing, status/role controls, and retryable Super Admin permanent deletion with AAL2 and exact-text confirmation.
 
 Primary files: `frontend/src/components/ContributeView.tsx`, `frontend/src/pages/MySubmissionsPage.tsx`, `frontend/src/pages/NotificationsPage.tsx`, `frontend/src/features/admin/*`, and the upload/review/deletion Edge Functions.
 

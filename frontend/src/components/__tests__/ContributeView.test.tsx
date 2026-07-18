@@ -31,6 +31,7 @@ const catalog = [
     programSlug: "bbs",
     curriculumVersionId: "curriculum",
     curriculumName: "Current",
+    curriculumIsCurrent: true,
     termId: "term",
     termName: "First semester",
     termSlug: "first",
@@ -129,6 +130,63 @@ describe("ContributeView", () => {
       screen.getByText(/Only files with a .pdf extension/),
     ).toBeInTheDocument();
     expect(api.createUploadSession).not.toHaveBeenCalled();
+  });
+
+  it("separates old and new BCA subjects by syllabus", async () => {
+    const newSubject = {
+      ...catalog[0],
+      programId: "bca",
+      programName: "BCA",
+      programSlug: "bca",
+      curriculumVersionId: "bca-new",
+      curriculumName: "New BCA syllabus (2025)",
+      curriculumIsCurrent: true,
+      termId: "new-fourth",
+      termName: "4th Semester",
+      subjectId: "new-python",
+      subjectName: "Python Programming",
+    };
+    const oldSubject = {
+      ...newSubject,
+      curriculumVersionId: "bca-old",
+      curriculumName: "Old BCA syllabus (currently studied)",
+      curriculumIsCurrent: false,
+      termId: "old-fourth",
+      subjectId: "old-scripting",
+      subjectName: "Scripting Language",
+    };
+    api.fetchAcademicCatalog.mockResolvedValue([newSubject, oldSubject]);
+    api.fetchContributorSubmissions.mockResolvedValue([]);
+    api.loadContributionDraft.mockReturnValue(null);
+
+    renderContributeView({
+      isAuthenticated: true,
+      emailVerified: true,
+      initialName: "Student",
+    });
+
+    const syllabus = await screen.findByLabelText("Syllabus");
+    expect(
+      within(syllabus).getByRole("option", {
+        name: "New BCA syllabus (2025)",
+      }),
+    ).toBeVisible();
+    expect(
+      within(syllabus).getByRole("option", {
+        name: "Old BCA syllabus (currently studied)",
+      }),
+    ).toBeVisible();
+
+    expect(
+      screen.getByRole("option", { name: "Python Programming" }),
+    ).toBeVisible();
+    await userEvent.selectOptions(syllabus, "bca-old");
+    expect(
+      screen.getByRole("option", { name: "Scripting Language" }),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("option", { name: "Python Programming" }),
+    ).not.toBeInTheDocument();
   });
 
   it("accepts a PDF when the browser reports a generic MIME type", async () => {

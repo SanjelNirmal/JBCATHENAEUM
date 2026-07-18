@@ -8,9 +8,13 @@ For a new, empty Supabase project, use the simplified SQL Editor package:
 
 [`supabase/sql_editor_setup/README.md`](../supabase/sql_editor_setup/README.md)
 
-It provides clearly named files `01` through `15`, followed by the optional
+It provides clearly named files `01` through `17`, followed by the optional
 first-super-admin file `90` and read-only verification file `99`. Run them one
 at a time in numeric order.
+
+For an intentional destructive reinstall of an existing Supabase database, use:
+
+[`supabase/reinstall/README.md`](../supabase/reinstall/README.md)
 
 ## Existing project upgrades
 
@@ -45,6 +49,10 @@ The reviewed, data-preserving migrations are applied in filename order:
 `supabase/migrations/202607180013_contributor_received_ratings.sql`
 
 `supabase/migrations/202607180014_manual_pdf_review_only.sql`
+
+`supabase/migrations/202607180015_super_admin_resource_deletion.sql`
+
+`supabase/migrations/202607180016_bca_old_new_curricula.sql`
 
 ## Auth redirects for web and native apps
 

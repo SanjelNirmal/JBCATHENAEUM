@@ -12,10 +12,12 @@ export interface AcademicSubjectOption {
   programSlug: string;
   curriculumVersionId: string;
   curriculumName: string;
+  curriculumIsCurrent: boolean;
   termId: string;
   termName: string;
   termSlug: string;
   subjectId: string;
+  subjectCode: string | null;
   subjectName: string;
   subjectSlug: string;
   categories: Array<{ id: string; name: string; slug: string }>;
@@ -59,7 +61,7 @@ export async function fetchAcademicCatalog(): Promise<AcademicSubjectOption[]> {
     supabase
       .from("subjects")
       .select(
-        "id,program_id,curriculum_version_id,term_id,name,slug,display_order",
+        "id,program_id,curriculum_version_id,term_id,name,slug,code,display_order",
       )
       .eq("is_active", true)
       .order("display_order"),
@@ -87,6 +89,9 @@ export async function fetchAcademicCatalog(): Promise<AcademicSubjectOption[]> {
   );
   const termOrder = new Map(
     (terms.data ?? []).map((item) => [item.id, item.display_order]),
+  );
+  const curriculumOrder = new Map(
+    (curricula.data ?? []).map((item, index) => [item.id, index]),
   );
   const subjectOrder = new Map(
     (subjects.data ?? []).map((item) => [item.id, item.display_order]),
@@ -120,10 +125,12 @@ export async function fetchAcademicCatalog(): Promise<AcademicSubjectOption[]> {
         programSlug: program.slug,
         curriculumVersionId: curriculum.id,
         curriculumName: curriculum.name,
+        curriculumIsCurrent: curriculum.is_current,
         termId: term.id,
         termName: term.name,
         termSlug: term.slug,
         subjectId: subject.id,
+        subjectCode: subject.code,
         subjectName: subject.name,
         subjectSlug: subject.slug,
         categories: (categories.data ?? [])
@@ -137,6 +144,8 @@ export async function fetchAcademicCatalog(): Promise<AcademicSubjectOption[]> {
     (left, right) =>
       (programOrder.get(left.programId) ?? 0) -
         (programOrder.get(right.programId) ?? 0) ||
+      (curriculumOrder.get(left.curriculumVersionId) ?? 0) -
+        (curriculumOrder.get(right.curriculumVersionId) ?? 0) ||
       (termOrder.get(left.termId) ?? 0) - (termOrder.get(right.termId) ?? 0) ||
       (subjectOrder.get(left.subjectId) ?? 0) -
         (subjectOrder.get(right.subjectId) ?? 0) ||

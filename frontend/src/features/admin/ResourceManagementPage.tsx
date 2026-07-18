@@ -21,7 +21,10 @@ import {
   LoadingState,
 } from "../../components/AsyncState";
 import { Seo } from "../../components/Seo";
-import type { ResourceStatus } from "../../lib/supabase/database.types";
+import type {
+  AppRole,
+  ResourceStatus,
+} from "../../lib/supabase/database.types";
 import {
   archiveResource,
   bulkResourceState,
@@ -41,6 +44,10 @@ import { fetchAcademicCatalog } from "../../lib/supabase/academic";
 import { fetchUsers } from "../../lib/supabase/profiles";
 import { pageCount } from "../../lib/supabase/pagination";
 import { useDebouncedValue } from "../../lib/useDebouncedValue";
+
+export function canPermanentlyDeleteResource(role: AppRole | undefined) {
+  return role === "super_admin";
+}
 
 export default function ResourceManagementPage() {
   const auth = useCurrentAuth();
@@ -166,8 +173,8 @@ export default function ResourceManagementPage() {
         const result = await permanentlyDeleteResource(item.id, confirmation);
         setMessage(
           result.cleanupPending
-            ? "Resource deleted after retention checks. Private storage cleanup is queued for retry."
-            : "Resource and managed storage permanently deleted after retention checks.",
+            ? "Resource deleted. Private storage cleanup is queued for retry."
+            : "Resource and managed storage permanently deleted.",
         );
       } else if (dialog.items.length === 1)
         await runSingle(dialog.items[0], dialog.kind);
@@ -250,8 +257,8 @@ export default function ResourceManagementPage() {
         Resource management
       </h1>
       <p className="mt-2 text-sm text-slate-600">
-        Soft archive is the default. Permanent deletion is super-admin only and
-        retention-gated.
+        Soft archive is the default. Super Admins can permanently delete any
+        resource after two-factor and exact-text confirmation.
       </p>
       <div className="mt-5 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-4">
         <label className="text-sm font-semibold">
@@ -491,7 +498,9 @@ export default function ResourceManagementPage() {
                         <ResourceActions
                           item={item}
                           busy={busy}
-                          superAdmin={auth.profile?.role === "super_admin"}
+                          superAdmin={canPermanentlyDeleteResource(
+                            auth.profile?.role,
+                          )}
                           edit={() => void showEditor(item)}
                           preview={() => void preview(item)}
                           archive={() =>
@@ -710,7 +719,7 @@ export default function ResourceManagementPage() {
           title={`${dialog.kind} ${dialog.items.length} resource${dialog.items.length === 1 ? "" : "s"}`}
           description={
             dialog.kind === "delete"
-              ? "This removes database and storage records only after the 90-day retention requirement. It cannot be undone."
+              ? "This immediately removes the resource, its database records, ratings, bookmarks, reviews, and managed PDF files. It cannot be undone."
               : "This action is audited. Archiving hides a resource from public access; restoring re-enables the previous valid state."
           }
           confirmLabel={
@@ -852,12 +861,13 @@ function ResourceActions({
       >
         <Edit3 size={16} />
       </button>
-      {superAdmin && item.status === "archived" && (
+      {superAdmin && (
         <button
           onClick={remove}
           title="Permanently delete"
           aria-label="Permanently delete"
-          className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-red-300 text-red-700"
+          disabled={busy}
+          className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-red-300 text-red-700 disabled:opacity-40"
         >
           <Trash2 size={16} />
         </button>

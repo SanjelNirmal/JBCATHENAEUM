@@ -7,9 +7,9 @@
 -- storage, realtime, vault, extensions, and supabase_migrations. Existing
 -- auth.users accounts survive and migration 001 rebuilds their profiles.
 --
--- Run this file once in the Supabase SQL Editor, then replay migrations
--- 202607170001 through 202607180010 in filename order as documented in
--- README.md in this directory.
+-- Run this file once in the Supabase SQL Editor, then run setup files
+-- 01 through 17 from supabase/sql_editor_setup in exact order as documented
+-- in README.md in this directory.
 
 begin;
 

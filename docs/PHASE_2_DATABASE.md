@@ -38,8 +38,12 @@ rows. A deployment with one BCA fourth-semester resource therefore exposes only
 that program and term in the contribution form. The follow-up catalog migration
 adds four contribution-ready programs from published institutional sources:
 
-- BCA: eight semesters and 58 core/elective subject choices from the
+- BCA (new): eight semesters and 58 core/elective subject choices from the
   [Tribhuvan University BCA Course Structure](https://portal.tu.edu.np/downloads/2025_11_27_15_22_42.pdf).
+- BCA (old/currently studied): the separate 126-credit, eight-semester
+  `CACS`/`CAPJ` course structure supplied by Jana Bhawana Campus, including its
+  ten elective options. Uploaders must explicitly choose old or new before
+  selecting a semester and subject.
 - BICTE: eight semesters and 46 subject choices from the
   [Jana Bhawana Campus BICTE course page](https://janabhawana.edu.np/coursesdetail/15).
 - BBS: four years and 21 subjects from the
@@ -47,12 +51,13 @@ adds four contribution-ready programs from published institutional sources:
 - MBS: four semesters and 19 subjects from the
   [Jana Bhawana Campus MBS course page](https://janabhawana.edu.np/coursesdetail/11).
 
-Existing current curricula and matching term/subject slugs are reused. This is
-important because replacing the original BCA fourth-semester row would orphan
-or misclassify already-published resources. BA/BSW and B.Ed remain available for
-administrator setup after the campus approves a complete current curriculum;
-the public campus pages currently expose incomplete or mixed-version subject
-lists, so the migration does not invent missing options.
+Existing current curricula and matching term/subject slugs are reused. The
+current BCA curriculum is labelled `New BCA syllabus (2025)` and the supplied
+structure is added as `Old BCA syllabus (currently studied)`. This avoids
+orphaning or silently relabelling published resources. BA/BSW and B.Ed remain
+available for administrator setup after the campus approves a complete current
+curriculum; the public campus pages currently expose incomplete or
+mixed-version subject lists, so the migration does not invent missing options.
 
 ## Compatibility bridge
 

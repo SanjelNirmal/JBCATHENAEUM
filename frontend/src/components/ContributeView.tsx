@@ -56,6 +56,7 @@ export function ContributeView({
   const [catalog, setCatalog] = useState<AcademicSubjectOption[]>([]);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [programId, setProgramId] = useState("");
+  const [curriculumVersionId, setCurriculumVersionId] = useState("");
   const [termId, setTermId] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -81,12 +82,19 @@ export function ContributeView({
         setCatalog(options);
         const draft = loadContributionDraft();
         const first = draft
-          ? options.find((item) => item.subjectId === draft.subjectId)
+          ? options.find(
+              (item) =>
+                item.programId === draft.programId &&
+                item.curriculumVersionId === draft.curriculumVersionId &&
+                item.termId === draft.termId &&
+                item.subjectId === draft.subjectId,
+            )
           : options[0];
         if (first) {
-          setProgramId(draft?.programId ?? first.programId);
-          setTermId(draft?.termId ?? first.termId);
-          setSubjectId(draft?.subjectId ?? first.subjectId);
+          setProgramId(first.programId);
+          setCurriculumVersionId(first.curriculumVersionId);
+          setTermId(first.termId);
+          setSubjectId(first.subjectId);
           setCategoryId(draft?.categoryId ?? first.categories[0]?.id ?? "");
           if (draft) {
             setTitle(draft.title);
@@ -158,8 +166,23 @@ export function ContributeView({
       Array.from(
         new Map(
           catalog
-            .filter((item) => item.programId === programId)
+            .filter(
+              (item) =>
+                item.programId === programId &&
+                item.curriculumVersionId === curriculumVersionId,
+            )
             .map((item) => [item.termId, item]),
+        ).values(),
+      ),
+    [catalog, programId, curriculumVersionId],
+  );
+  const curricula = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          catalog
+            .filter((item) => item.programId === programId)
+            .map((item) => [item.curriculumVersionId, item]),
         ).values(),
       ),
     [catalog, programId],
@@ -167,15 +190,19 @@ export function ContributeView({
   const subjects = useMemo(
     () =>
       catalog.filter(
-        (item) => item.programId === programId && item.termId === termId,
+        (item) =>
+          item.programId === programId &&
+          item.curriculumVersionId === curriculumVersionId &&
+          item.termId === termId,
       ),
-    [catalog, programId, termId],
+    [catalog, programId, curriculumVersionId, termId],
   );
   const selection = catalog.find((item) => item.subjectId === subjectId);
 
   const resetAcademicSelection = (nextProgramId: string) => {
     const next = catalog.find((item) => item.programId === nextProgramId);
     setProgramId(nextProgramId);
+    setCurriculumVersionId(next?.curriculumVersionId ?? "");
     setTermId(next?.termId ?? "");
     setSubjectId(next?.subjectId ?? "");
     setCategoryId(next?.categories[0]?.id ?? "");
@@ -347,6 +374,7 @@ export function ContributeView({
     pendingUploadRef.current = null;
     setResubmitResourceId(submission.resourceId);
     setProgramId(submission.programId);
+    setCurriculumVersionId(submission.curriculumVersionId);
     setTermId(submission.termId);
     setSubjectId(submission.subjectId);
     setCategoryId(submission.categoryId);
@@ -479,6 +507,34 @@ export function ContributeView({
                 </select>
               </label>
               <label className="space-y-2 text-sm font-semibold text-slate-700">
+                Syllabus
+                <select
+                  required
+                  value={curriculumVersionId}
+                  onChange={(event) => {
+                    const next = catalog.find(
+                      (item) =>
+                        item.programId === programId &&
+                        item.curriculumVersionId === event.target.value,
+                    );
+                    setCurriculumVersionId(event.target.value);
+                    setTermId(next?.termId ?? "");
+                    setSubjectId(next?.subjectId ?? "");
+                    setCategoryId(next?.categories[0]?.id ?? "");
+                  }}
+                  className="w-full rounded-xl border border-slate-300 p-3"
+                >
+                  {curricula.map((item) => (
+                    <option
+                      key={item.curriculumVersionId}
+                      value={item.curriculumVersionId}
+                    >
+                      {item.curriculumName}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="space-y-2 text-sm font-semibold text-slate-700">
                 Term
                 <select
                   required
@@ -487,6 +543,7 @@ export function ContributeView({
                     const next = catalog.find(
                       (item) =>
                         item.programId === programId &&
+                        item.curriculumVersionId === curriculumVersionId &&
                         item.termId === event.target.value,
                     );
                     setTermId(event.target.value);
@@ -512,7 +569,9 @@ export function ContributeView({
                 >
                   {subjects.map((item) => (
                     <option key={item.subjectId} value={item.subjectId}>
-                      {item.subjectName}
+                      {item.subjectCode
+                        ? `${item.subjectCode} — ${item.subjectName}`
+                        : item.subjectName}
                     </option>
                   ))}
                 </select>

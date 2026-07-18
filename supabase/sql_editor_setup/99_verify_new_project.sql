@@ -1,4 +1,4 @@
--- Read-only new-project verification. Run after setup files 01 through 15.
+-- Read-only new-project verification. Run after setup files 01 through 17.
 -- The final transaction is rolled back
 -- so pgTAP and verification work cannot change production data.
 
@@ -73,12 +73,59 @@ begin
   if (
     select count(*)
     from public.terms
+    join public.curriculum_versions
+      on curriculum_versions.id = terms.curriculum_version_id
+     and curriculum_versions.is_current
     join public.programs on programs.id = terms.program_id
     where programs.slug = 'bca'
       and terms.term_number between 1 and 8
       and terms.is_active
   ) <> 8 then
     raise exception 'The BCA eight-semester structure was not seeded';
+  end if;
+
+  if (
+    select count(*)
+    from public.curriculum_versions
+    join public.programs on programs.id = curriculum_versions.program_id
+    where programs.slug = 'bca'
+      and curriculum_versions.slug in ('old-bca-syllabus', 'catalog-current')
+      and curriculum_versions.name in (
+        'Old BCA syllabus (currently studied)',
+        'New BCA syllabus (2025)'
+      )
+      and curriculum_versions.is_active
+  ) < 2 then
+    raise exception 'Both old and new BCA syllabus catalogs must be active';
+  end if;
+
+  if (
+    select count(*)
+    from public.terms
+    join public.curriculum_versions
+      on curriculum_versions.id = terms.curriculum_version_id
+    join public.programs on programs.id = terms.program_id
+    where programs.slug = 'bca'
+      and curriculum_versions.slug = 'old-bca-syllabus'
+      and terms.term_number between 1 and 8
+      and terms.is_active
+  ) <> 8 then
+    raise exception 'The old BCA syllabus must contain all eight semesters';
+  end if;
+
+  if not exists (
+    select 1
+    from public.subjects
+    join public.curriculum_versions
+      on curriculum_versions.id = subjects.curriculum_version_id
+    join public.programs on programs.id = subjects.program_id
+    where programs.slug = 'bca'
+      and curriculum_versions.slug = 'old-bca-syllabus'
+      and subjects.code = 'CACS251'
+      and subjects.name = 'Operating Systems'
+      and subjects.is_active
+  ) then
+    raise exception 'The old BCA subject catalog was not seeded';
   end if;
 
   if not exists (
@@ -114,7 +161,7 @@ begin
       and table_name = 'resource_upload_sessions'
       and column_name = 'upload_policy_version'
   ) then
-    raise exception 'Upload Policy acceptance columns are missing';
+    raise exception 'Upload Policy acceptance columns are missing. Run 13_upload_policy_acceptance.sql successfully before running 99_verify_new_project.sql.';
   end if;
 
   if position(
@@ -134,7 +181,15 @@ begin
     raise exception 'Manual-only PDF review workflow is not installed';
   end if;
 
-  raise notice 'JBC Athenaeum new-project verification passed: 28 tables, empty resource data, academic catalog, engagement functions, Upload Policy acceptance, manual PDF review, and private buckets are present.';
+  if to_regprocedure('public.permanently_delete_resource(uuid,uuid,jsonb)') is null
+     or position(
+       'immediate_deletion' in
+       pg_get_functiondef('public.permanently_delete_resource(uuid,uuid,jsonb)'::regprocedure)
+     ) = 0 then
+    raise exception 'Immediate Super Admin resource deletion is not installed';
+  end if;
+
+  raise notice 'JBC Athenaeum new-project verification passed: 28 tables, empty resource data, old and new BCA curricula, engagement functions, Upload Policy acceptance, manual PDF review, Super Admin deletion, and private buckets are present.';
 end
 $$;
 

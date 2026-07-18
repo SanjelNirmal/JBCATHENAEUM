@@ -30,14 +30,8 @@ const migrationCopies = [
     "202607170006_academic_catalog_seed.sql",
     "06_jbc_academic_catalog_seed.sql",
   ],
-  [
-    "202607170007_admin_resource_listing.sql",
-    "07_admin_resource_listing.sql",
-  ],
-  [
-    "202607170008_review_queue_listing.sql",
-    "08_moderator_review_queue.sql",
-  ],
+  ["202607170007_admin_resource_listing.sql", "07_admin_resource_listing.sql"],
+  ["202607170008_review_queue_listing.sql", "08_moderator_review_queue.sql"],
   [
     "202607170009_review_queue_scan_status.sql",
     "09_review_queue_scan_status_fix.sql",
@@ -62,10 +56,12 @@ const migrationCopies = [
     "202607180013_contributor_received_ratings.sql",
     "14_contributor_received_rating_calculation.sql",
   ],
+  ["202607180014_manual_pdf_review_only.sql", "15_manual_pdf_review_only.sql"],
   [
-    "202607180014_manual_pdf_review_only.sql",
-    "15_manual_pdf_review_only.sql",
+    "202607180015_super_admin_resource_deletion.sql",
+    "16_super_admin_resource_deletion.sql",
   ],
+  ["202607180016_bca_old_new_curricula.sql", "17_bca_old_new_curricula.sql"],
 ] as const;
 
 describe("Supabase SQL Editor setup package", () => {
@@ -80,7 +76,7 @@ describe("Supabase SQL Editor setup package", () => {
     ]);
   });
 
-  it("keeps files 01 through 15 identical to the reviewed migrations", () => {
+  it("keeps files 01 through 17 identical to the reviewed migrations", () => {
     for (const [migrationName, friendlyName] of migrationCopies) {
       expect(
         readFileSync(resolve(setupDirectory, friendlyName), "utf8"),
@@ -109,6 +105,8 @@ describe("Supabase SQL Editor setup package", () => {
     expect(verification).toContain("get_public_contributor_profile");
     expect(verification).toContain("upload_policy_version");
     expect(verification).toContain("mark_manually_approved_version");
+    expect(verification).toContain("immediate_deletion");
+    expect(verification).toContain("old-bca-syllabus");
     expect(verification).toContain("new-project verification passed");
   });
 });

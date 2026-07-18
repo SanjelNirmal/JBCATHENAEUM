@@ -9,7 +9,7 @@ Institutional owners must approve the final values. Recommended limited-beta sta
 - Database recovery point objective (RPO): 24 hours with daily backups; reduce to minutes only after PITR is funded and enabled.
 - Storage RPO: 24 hours using an independent object export.
 - Recovery time objective (RTO): 8 hours for a limited beta.
-- Soft archive retention before permanent resource deletion: 90 days.
+- Soft archive remains the normal reversible removal path. An active Super Admin may immediately and permanently delete a resource after AAL2 and exact-text confirmation; recovery then depends on available database and Storage backups.
 - Backup retention: at least 30 days off-site for database logical exports and Storage copies, subject to approved privacy/retention policy.
 - Restore drill: quarterly and before campus-wide launch.
 

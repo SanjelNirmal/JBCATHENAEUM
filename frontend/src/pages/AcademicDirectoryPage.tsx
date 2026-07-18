@@ -117,9 +117,14 @@ export default function AcademicDirectoryPage() {
                   to={`/subjects/${subject.subjectSlug}`}
                   className="rounded-xl border border-slate-200 bg-white p-5 font-bold text-[#002147] hover:border-[#85591f]"
                 >
+                  {subject.subjectCode && (
+                    <span className="mr-2 text-xs text-[#85591f]">
+                      {subject.subjectCode}
+                    </span>
+                  )}
                   {subject.subjectName}
                   <span className="mt-1 block text-sm font-normal text-slate-500">
-                    {subject.termName}
+                    {subject.curriculumName} · {subject.termName}
                   </span>
                 </Link>
               ))}

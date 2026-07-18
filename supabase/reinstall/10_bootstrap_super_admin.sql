@@ -1,4 +1,4 @@
--- Run only after all nine migrations have completed successfully.
+-- Run only after SQL Editor setup files 01 through 17 have completed.
 -- Change only the owner_email value below to the verified Auth email.
 -- This does not create an Auth user or store the email in a public table.
 

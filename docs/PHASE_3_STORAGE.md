@@ -20,18 +20,18 @@ The validator rejects common active PDF constructs, but it is not a commercial m
 
 ## Edge Functions
 
-| Function                      | Authentication                                    | Purpose                                                                             |
-| ----------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `create-upload-session`       | User JWT validated inside function                | Create draft/session and issue generated signed upload URL                          |
-| `finalize-upload`             | User JWT validated inside function                | Download and validate actual PDF bytes, checksum, and submit                        |
-| `cancel-upload`               | User JWT validated inside function                | Abort and remove owned quarantine upload                                            |
-| `review-resource-file`        | Moderator/admin JWT                               | Five-minute private review preview                                                  |
+| Function                      | Authentication                                    | Purpose                                                                               |
+| ----------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `create-upload-session`       | User JWT validated inside function                | Create draft/session and issue generated signed upload URL                            |
+| `finalize-upload`             | User JWT validated inside function                | Download and validate actual PDF bytes, checksum, and submit                          |
+| `cancel-upload`               | User JWT validated inside function                | Abort and remove owned quarantine upload                                              |
+| `review-resource-file`        | Moderator/admin JWT                               | Five-minute private review preview                                                    |
 | `decide-resource-review`      | Moderator/admin JWT                               | Apply the database review decision and retain a clean private copy for review history |
-| `publish-resource`            | Admin JWT                                         | Promote clean approved PDF and publish atomically where possible                    |
-| `resource-download`           | Public, explicit published-row check              | Redirect to short-lived private signed URL                                          |
-| `cleanup-uploads`             | Cron secret                                       | Remove expired/orphaned quarantine objects                                          |
-| `submit-removal-request`      | Public, validation and rate limit inside function | Persist a structured content-removal request                                        |
-| `permanently-delete-resource` | Super-admin JWT with AAL2                         | Apply retention-gated deletion and create retryable Storage cleanup work            |
+| `publish-resource`            | Admin JWT                                         | Promote clean approved PDF and publish atomically where possible                      |
+| `resource-download`           | Public, explicit published-row check              | Redirect to short-lived private signed URL                                            |
+| `cleanup-uploads`             | Cron secret                                       | Remove expired/orphaned quarantine objects                                            |
+| `submit-removal-request`      | Public, validation and rate limit inside function | Persist a structured content-removal request                                          |
+| `permanently-delete-resource` | Super-admin JWT with AAL2                         | Apply exact-confirmation permanent deletion and create retryable Storage cleanup work |
 
 Supabase documents that private buckets require authenticated access or signed URLs, and that bucket-level MIME/size restrictions are supported: https://supabase.com/docs/guides/storage/buckets/fundamentals
 

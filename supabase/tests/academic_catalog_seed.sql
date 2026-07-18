@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(12);
+select plan(15);
 
 select is(
   (
@@ -177,6 +177,54 @@ select is(
   ),
   1::bigint,
   'the legacy BCA fourth-semester row is reused instead of duplicated'
+);
+
+select is(
+  (
+    select count(*)
+    from public.curriculum_versions
+    join public.programs on programs.id = curriculum_versions.program_id
+    where programs.slug = 'bca'
+      and curriculum_versions.is_active
+      and curriculum_versions.name in (
+        'New BCA syllabus (2025)',
+        'Old BCA syllabus (currently studied)'
+      )
+  ),
+  2::bigint,
+  'BCA exposes separate old and new syllabus choices'
+);
+
+select is(
+  (
+    select count(*)
+    from public.terms
+    join public.curriculum_versions
+      on curriculum_versions.id = terms.curriculum_version_id
+    join public.programs on programs.id = terms.program_id
+    where programs.slug = 'bca'
+      and curriculum_versions.slug = 'old-bca-syllabus'
+      and terms.term_number between 1 and 8
+      and terms.is_active
+  ),
+  8::bigint,
+  'the old BCA syllabus contains all eight semesters'
+);
+
+select ok(
+  exists (
+    select 1
+    from public.subjects
+    join public.curriculum_versions
+      on curriculum_versions.id = subjects.curriculum_version_id
+    join public.programs on programs.id = subjects.program_id
+    where programs.slug = 'bca'
+      and curriculum_versions.slug = 'old-bca-syllabus'
+      and subjects.code = 'CAPJ256'
+      and subjects.name = 'Project I'
+      and subjects.is_active
+  ),
+  'the old BCA subject list follows the supplied course structure'
 );
 
 select * from finish();

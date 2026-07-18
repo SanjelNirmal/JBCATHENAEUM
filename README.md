@@ -6,7 +6,7 @@ The application now includes:
 
 - Shareable React Router routes and URL-backed resource filters.
 - PostgreSQL full-text/trigram search with server-side pagination.
-- Normalized campus, faculty, program, curriculum, term, subject, and category records.
+- Normalized campus, faculty, program, curriculum, term, subject, and category records, including separate old/currently-studied and new/2025 BCA syllabus choices.
 - Private PDF quarantine and published Storage buckets with signed access.
 - Authenticated contribution, draft recovery, review feedback, resubmission, and notifications.
 - MFA/AAL2-protected moderation, role, suspension, bulk action, and deletion workflows.
@@ -86,6 +86,7 @@ npx playwright install chromium
 Apply migrations in filename order and deploy Edge Functions only after reviewing the owner runbooks:
 
 - [New Supabase account — numbered SQL Editor setup](supabase/sql_editor_setup/README.md)
+- [Clean Supabase reinstall](supabase/reinstall/README.md)
 - [Supabase setup](frontend/SUPABASE_SETUP.md)
 - [Phases 4–22 implementation and deployment](docs/PHASES_4_22_IMPLEMENTATION.md)
 - [Operations and monitoring](docs/OPERATIONS_MONITORING.md)

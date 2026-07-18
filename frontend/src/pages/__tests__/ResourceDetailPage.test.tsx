@@ -28,6 +28,8 @@ vi.mock("../../lib/supabase/resources", () => ({
     resourceType: "project",
     programId: "program-1",
     programName: "BCA",
+    curriculumVersionId: "curriculum-old",
+    curriculumName: "Old BCA syllabus (currently studied)",
     facultyId: "faculty-1",
     facultyName: "Humanities and Social Sciences",
     termId: "term-1",
@@ -56,9 +58,7 @@ vi.mock("../../lib/supabase/resources", () => ({
     averageRating: 4.5,
   }),
   getLegacyPreviewUrl: vi.fn(),
-  getPublicResourceAccessUrl: vi
-    .fn()
-    .mockReturnValue("data:application/pdf,"),
+  getPublicResourceAccessUrl: vi.fn().mockReturnValue("data:application/pdf,"),
   reportResource: vi.fn(),
 }));
 
@@ -89,6 +89,9 @@ describe("ResourceDetailPage", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Open in new window" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Old BCA syllabus (currently studied)"),
     ).toBeInTheDocument();
   });
 

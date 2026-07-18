@@ -22,11 +22,7 @@ import {
   reportResource,
 } from "../lib/supabase/resources";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
-import {
-  navigationAdapter,
-  publicAppUrl,
-  shareAdapter,
-} from "../platform";
+import { navigationAdapter, publicAppUrl, shareAdapter } from "../platform";
 
 export default function ResourceDetailPage() {
   const { resourceId = "" } = useParams();
@@ -312,7 +308,14 @@ export default function ResourceDetailPage() {
             </p>
             <dl className="mt-6 space-y-3 text-sm">
               <Meta label="Program" value={item.programName} />
+              <Meta
+                label="Syllabus"
+                value={item.curriculumName ?? "Unspecified syllabus"}
+              />
               <Meta label="Term" value={item.termName} />
+              {item.subjectCode && (
+                <Meta label="Course code" value={item.subjectCode} />
+              )}
               <Meta label="Subject" value={item.subjectName} />
               <Meta
                 label="Academic year"
@@ -365,13 +368,7 @@ export default function ResourceDetailPage() {
     </>
   );
 }
-function Meta({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | ReactNode;
-}) {
+function Meta({ label, value }: { label: string; value: string | ReactNode }) {
   return (
     <div className="flex justify-between gap-4 border-b border-slate-100 pb-2">
       <dt className="text-slate-500">{label}</dt>

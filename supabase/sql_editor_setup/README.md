@@ -27,27 +27,30 @@ Run **one file at a time**. For each file:
 
 Run these files in this exact order:
 
-| Order | SQL file | What it installs |
-|---:|---|---|
-| 01 | `01_core_security_profiles_and_roles.sql` | Profiles, resources, trusted roles, audit log, RLS foundation and Auth profile trigger |
-| 02 | `02_academic_structure_and_resources.sql` | Campus, faculty, program, curriculum, term, subject, category and resource-version structure |
-| 03 | `03_submissions_reviews_and_notifications.sql` | Submission, moderation, notification, report and feedback workflows |
-| 04 | `04_private_pdf_storage_and_uploads.sql` | Private PDF buckets, upload sessions and trusted storage functions |
-| 05 | `05_search_admin_accounts_and_analytics.sql` | Search, account controls, analytics, removal requests and administration functions |
-| 06 | `06_jbc_academic_catalog_seed.sql` | Jana Bhawana Campus BCA, BICTE, BBS and MBS catalog |
-| 07 | `07_admin_resource_listing.sql` | Protected administrator resource listing |
-| 08 | `08_moderator_review_queue.sql` | Protected moderator review queue |
-| 09 | `09_review_queue_scan_status_fix.sql` | Review queue scan-status compatibility correction |
-| 10 | `10_rejected_upload_review_history.sql` | Rejected upload and moderation history |
-| 11 | `11_bookmarks_ratings_devices_and_preferences.sql` | Bookmarks, ratings, devices and notification preferences |
-| 12 | `12_public_profiles_and_rating_actions.sql` | Public contributor profiles, public reviews and safe rating/bookmark actions |
-| 13 | `13_upload_policy_acceptance.sql` | Recorded Upload Policy acceptance |
-| 14 | `14_contributor_received_rating_calculation.sql` | Correct contributor rating statistics based on ratings received |
-| 15 | `15_manual_pdf_review_only.sql` | Disable content-based auto-rejection and require administrator approval |
+| Order | SQL file                                           | What it installs                                                                             |
+| ----: | -------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+|    01 | `01_core_security_profiles_and_roles.sql`          | Profiles, resources, trusted roles, audit log, RLS foundation and Auth profile trigger       |
+|    02 | `02_academic_structure_and_resources.sql`          | Campus, faculty, program, curriculum, term, subject, category and resource-version structure |
+|    03 | `03_submissions_reviews_and_notifications.sql`     | Submission, moderation, notification, report and feedback workflows                          |
+|    04 | `04_private_pdf_storage_and_uploads.sql`           | Private PDF buckets, upload sessions and trusted storage functions                           |
+|    05 | `05_search_admin_accounts_and_analytics.sql`       | Search, account controls, analytics, removal requests and administration functions           |
+|    06 | `06_jbc_academic_catalog_seed.sql`                 | Jana Bhawana Campus BCA, BICTE, BBS and MBS catalog                                          |
+|    07 | `07_admin_resource_listing.sql`                    | Protected administrator resource listing                                                     |
+|    08 | `08_moderator_review_queue.sql`                    | Protected moderator review queue                                                             |
+|    09 | `09_review_queue_scan_status_fix.sql`              | Review queue scan-status compatibility correction                                            |
+|    10 | `10_rejected_upload_review_history.sql`            | Rejected upload and moderation history                                                       |
+|    11 | `11_bookmarks_ratings_devices_and_preferences.sql` | Bookmarks, ratings, devices and notification preferences                                     |
+|    12 | `12_public_profiles_and_rating_actions.sql`        | Public contributor profiles, public reviews and safe rating/bookmark actions                 |
+|    13 | `13_upload_policy_acceptance.sql`                  | Recorded Upload Policy acceptance                                                            |
+|    14 | `14_contributor_received_rating_calculation.sql`   | Correct contributor rating statistics based on ratings received                              |
+|    15 | `15_manual_pdf_review_only.sql`                    | Disable content-based auto-rejection and require administrator approval                      |
+|    16 | `16_super_admin_resource_deletion.sql`             | Allow immediate, audited permanent deletion by an authenticated Super Admin                  |
+|    17 | `17_bca_old_new_curricula.sql`                     | Add separate old/currently-studied and new/2025 BCA syllabus catalogs                        |
 
-**Do not stop after file 14.** Files 04 and 10 establish the original upload
-and review-history foundation. File 15 deliberately replaces the intake
-decision with the current manual-review-only workflow.
+**Do not stop after file 16.** Files 04 and 10 establish the original upload
+and review-history foundation. File 15 replaces the intake decision with the
+manual-review-only workflow, and file 16 enables the protected Super Admin
+permanent-delete action. File 17 adds both BCA syllabus choices.
 
 Each numbered file has its own transaction. If a file fails, stop at that
 number, copy the complete Supabase error, and fix the cause before continuing.

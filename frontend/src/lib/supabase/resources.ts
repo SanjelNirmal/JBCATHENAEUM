@@ -14,11 +14,14 @@ export interface ResourceCard {
   resourceType: string;
   programId: string;
   programName: string;
+  curriculumVersionId?: string;
+  curriculumName?: string;
   facultyId: string;
   facultyName: string;
   termId: string;
   termName: string;
   subjectId: string;
+  subjectCode?: string | null;
   subjectName: string;
   categoryId: string;
   categoryName: string;
@@ -173,11 +176,14 @@ export async function fetchResource(
     resourceType: resource.resource_type,
     programId: academic.programId,
     programName: academic.programName,
+    curriculumVersionId: academic.curriculumVersionId,
+    curriculumName: academic.curriculumName,
     facultyId: academic.facultyId,
     facultyName: academic.facultyName,
     termId: academic.termId,
     termName: academic.termName,
     subjectId: academic.subjectId,
+    subjectCode: academic.subjectCode,
     subjectName: academic.subjectName,
     categoryId: resource.category_id,
     categoryName: category?.name ?? "Resource",

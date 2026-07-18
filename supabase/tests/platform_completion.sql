@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(51);
+select plan(52);
 
 select has_column('public', 'profiles', 'account_status', 'profiles have a separate account status');
 select has_column('public', 'resources', 'search_vector', 'resources have a generated full-text vector');
@@ -45,7 +45,14 @@ select has_function('public', 'update_user_profile_safe', array['uuid','text','t
 select has_function('public', 'assign_resource_reviewer', array['uuid','uuid'], 'reviewer assignment RPC exists');
 select has_function('public', 'archive_review_submission', array['uuid','text'], 'audited review archive RPC exists');
 select has_function('public', 'bulk_resource_state', array['uuid[]','text','text'], 'audited bulk resource RPC exists');
-select has_function('public', 'permanently_delete_resource', array['uuid','uuid','jsonb'], 'retention-gated deletion RPC exists');
+select has_function('public', 'permanently_delete_resource', array['uuid','uuid','jsonb'], 'Super Admin deletion RPC exists');
+select ok(
+  position(
+    'immediate_deletion' in
+    pg_get_functiondef('public.permanently_delete_resource(uuid,uuid,jsonb)'::regprocedure)
+  ) > 0,
+  'Super Admin deletion no longer requires an archived retention period'
+);
 select has_function('public', 'create_content_removal_request', array['uuid','text','text','text','text','text','text','text'], 'service removal-request boundary exists');
 select has_function('public', 'list_admin_resources', array['text','resource_status','uuid','uuid','uuid','uuid','timestamptz','timestamptz','text','integer','integer'], 'private admin resource listing exists');
 select has_function('public', 'list_review_queue', array['text','submission_status','integer','integer'], 'private moderation queue listing exists');
@@ -62,7 +69,7 @@ select ok(not has_table_privilege('authenticated', 'public.resource_download_eve
 select ok(not has_function_privilege('authenticated', 'public.increment_resource_download(uuid)', 'EXECUTE'), 'browser clients cannot increment download analytics');
 select ok(has_function_privilege('service_role', 'public.increment_resource_download(uuid)', 'EXECUTE'), 'trusted download function can write analytics');
 select ok(not has_function_privilege('authenticated', 'public.permanently_delete_resource(uuid,uuid,jsonb)', 'EXECUTE'), 'browser clients cannot permanently delete resources');
-select ok(has_function_privilege('service_role', 'public.permanently_delete_resource(uuid,uuid,jsonb)', 'EXECUTE'), 'trusted deletion function can apply retention-gated deletion');
+select ok(has_function_privilege('service_role', 'public.permanently_delete_resource(uuid,uuid,jsonb)', 'EXECUTE'), 'trusted deletion function can permanently delete for a Super Admin');
 select ok(not has_function_privilege('anon', 'public.create_content_removal_request(uuid,text,text,text,text,text,text,text)', 'EXECUTE'), 'anonymous users cannot bypass the rate-limited removal Edge Function');
 select ok(not has_table_privilege('anon', 'public.content_removal_requests', 'INSERT'), 'anonymous users cannot insert removal requests directly');
 select ok(not has_column_privilege('authenticated', 'public.profiles', 'account_status', 'UPDATE'), 'users cannot update account status directly');
