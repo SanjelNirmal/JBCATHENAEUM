@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "prebuild": "npm run generate:sitemap",
     "build": "vite build",
+    "prebuild:native": "npm run generate:sitemap",
     "build:native": "vite build --mode native",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
