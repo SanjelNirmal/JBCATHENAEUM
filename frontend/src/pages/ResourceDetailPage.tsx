@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Check,
+  Download,
   ExternalLink,
   FileWarning,
   Flag,
@@ -18,6 +19,7 @@ import {
   fetchResource,
   fetchPublicContributorProfile,
   getLegacyPreviewUrl,
+  getDownloadUrl,
   getPublicResourceAccessUrl,
   reportResource,
 } from "../lib/supabase/resources";
@@ -96,14 +98,22 @@ export default function ResourceDetailPage() {
     : `${basePreviewUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
   const resourceUrl = publicAppUrl(`/resources/${item.slug}`);
   const openDocumentWindow = () => {
-    const accessUrl = `${getPublicResourceAccessUrl(item.id)}&open=1`;
+    const accessUrl = getPublicResourceAccessUrl(item.id);
     const viewerUrl = isLegacy
       ? accessUrl
       : `${accessUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
-    const expectedCount = (pendingDownloadCount ?? item.downloadCount) + 1;
     void navigationAdapter.openExternal(viewerUrl).catch(() => {
       setReportMessage(
         "The document could not be opened. Refresh the preview and try again.",
+      );
+    });
+  };
+  const downloadDocument = () => {
+    const downloadUrl = getDownloadUrl(item.id);
+    const expectedCount = (pendingDownloadCount ?? item.downloadCount) + 1;
+    void navigationAdapter.openExternal(downloadUrl).catch(() => {
+      setReportMessage(
+        "The document could not be downloaded. Refresh the preview and try again.",
       );
     });
     setPendingDownloadCount(expectedCount);
@@ -120,7 +130,6 @@ export default function ResourceDetailPage() {
     try {
       const shareData = {
         title: item.title,
-        text: item.description || `Academic resource for ${item.subjectName}.`,
         url: resourceUrl,
       };
       const outcome = await shareAdapter.share(shareData);
@@ -179,7 +188,36 @@ export default function ResourceDetailPage() {
                 </p>
               </div>
             )}
-            <div className="overflow-hidden rounded-2xl border border-slate-300 bg-slate-200">
+            <div className="mb-4 rounded-2xl border border-[#c49b63]/30 bg-[#001b3a] p-5 text-white md:hidden">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d8b37a]">
+                Mobile PDF viewer
+              </p>
+              <h2 className="mt-2 font-serif text-2xl font-bold">
+                Open the PDF in the reader
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-slate-200">
+                Mobile browsers and app webviews do not reliably scroll embedded
+                PDF previews. Open the document in the system PDF viewer for a
+                readable, scrollable view.
+              </p>
+              <button
+                type="button"
+                onClick={openDocumentWindow}
+                className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#d8b37a] px-5 font-bold text-[#001b3a] shadow-sm"
+              >
+                <ExternalLink aria-hidden="true" size={18} />
+                Open readable PDF
+              </button>
+              <button
+                type="button"
+                onClick={downloadDocument}
+                className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 px-5 font-bold text-white"
+              >
+                <Download aria-hidden="true" size={18} />
+                Download PDF
+              </button>
+            </div>
+            <div className="hidden overflow-hidden rounded-2xl border border-slate-300 bg-slate-200 md:block">
               <iframe
                 title={`Preview of ${item.title}`}
                 src={previewUrl}
@@ -208,6 +246,14 @@ export default function ResourceDetailPage() {
               >
                 <Share2 size={17} />
                 Share resource
+              </button>
+              <button
+                type="button"
+                onClick={downloadDocument}
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
+              >
+                <Download aria-hidden="true" size={17} />
+                Download PDF
               </button>
               <button
                 type="button"

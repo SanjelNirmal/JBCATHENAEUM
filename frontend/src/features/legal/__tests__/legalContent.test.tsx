@@ -95,10 +95,9 @@ describe("legal policy pages", () => {
     expect(policies).not.toBeNull();
     const scope = within(policies as HTMLElement);
 
-    expect(scope.getByRole("link", { name: "Policies" })).toHaveAttribute(
-      "href",
-      "/policies",
-    );
+    expect(
+      scope.getByRole("link", { name: "Policy Overview" }),
+    ).toHaveAttribute("href", "/policies");
     expect(scope.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute(
       "href",
       "/privacy",

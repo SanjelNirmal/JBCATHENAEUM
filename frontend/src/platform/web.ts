@@ -33,8 +33,16 @@ export const webShareAdapter: ShareAdapter = {
     return typeof navigator.share === "function";
   },
   async share(input) {
-    if (navigator.share && (!navigator.canShare || navigator.canShare(input))) {
-      await navigator.share(input);
+    const sharePayload: ShareData = {
+      title: input.title,
+      url: input.url,
+      ...(input.text ? { text: input.text } : {}),
+    };
+    if (
+      navigator.share &&
+      (!navigator.canShare || navigator.canShare(sharePayload))
+    ) {
+      await navigator.share(sharePayload);
       return "shared";
     }
     await navigator.clipboard.writeText(input.url);

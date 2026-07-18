@@ -58,6 +58,7 @@ vi.mock("../../lib/supabase/resources", () => ({
     averageRating: 4.5,
   }),
   getLegacyPreviewUrl: vi.fn(),
+  getDownloadUrl: vi.fn().mockReturnValue("data:application/pdf,&download=1"),
   getPublicResourceAccessUrl: vi.fn().mockReturnValue("data:application/pdf,"),
   reportResource: vi.fn(),
 }));
@@ -95,7 +96,7 @@ describe("ResourceDetailPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("counts the open and opens a new window directly", async () => {
+  it("opens a readable viewer without increasing downloads", async () => {
     const openExternal = vi
       .spyOn(navigationAdapter, "openExternal")
       .mockResolvedValue();
@@ -122,7 +123,38 @@ describe("ResourceDetailPage", () => {
       screen.queryByRole("dialog", { name: "Buy Me a Coffee" }),
     ).not.toBeInTheDocument();
     expect(openExternal).toHaveBeenCalledWith(
-      "data:application/pdf,&open=1#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
+      "data:application/pdf,#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
+    );
+    expect(screen.getByText("4")).toBeInTheDocument();
+    openExternal.mockRestore();
+  });
+
+  it("counts explicit downloads only", async () => {
+    const openExternal = vi
+      .spyOn(navigationAdapter, "openExternal")
+      .mockResolvedValue();
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={["/resources/project-one"]}>
+          <Routes>
+            <Route
+              path="/resources/:resourceId"
+              element={<ResourceDetailPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    const downloadButtons = await screen.findAllByRole("button", {
+      name: "Download PDF",
+    });
+    await userEvent.click(downloadButtons[0]);
+    expect(openExternal).toHaveBeenCalledWith(
+      "data:application/pdf,&download=1",
     );
     expect(screen.getByText("5")).toBeInTheDocument();
     openExternal.mockRestore();

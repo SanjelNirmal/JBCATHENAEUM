@@ -11,7 +11,7 @@ export interface StorageAdapter {
 
 export interface ShareInput {
   title: string;
-  text: string;
+  text?: string;
   url: string;
 }
 

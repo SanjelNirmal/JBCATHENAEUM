@@ -21,7 +21,7 @@ Deno.serve(async (request) => {
     const url = new URL(request.url);
     const resourceId = url.searchParams.get("resourceId");
     const wantsJson = url.searchParams.get("format") === "json";
-    const recordOpen = url.searchParams.get("open") === "1";
+    const download = url.searchParams.get("download") === "1";
     if (!resourceId)
       throw new PublicError("invalid_resource", "Resource is required.");
 
@@ -72,7 +72,7 @@ Deno.serve(async (request) => {
           404,
         );
       }
-      if (recordOpen) {
+      if (download) {
         const { error: recordError } = await service.rpc(
           "record_resource_download",
           {
@@ -133,7 +133,6 @@ Deno.serve(async (request) => {
       .eq("singleton", true)
       .single();
     const expiresIn = Number(settings?.signed_download_seconds ?? 300);
-    const download = url.searchParams.get("download") === "1";
     const { data: signed, error: signedError } = await service.storage
       .from(version.storage_bucket)
       .createSignedUrl(
@@ -144,7 +143,7 @@ Deno.serve(async (request) => {
     if (signedError || !signed)
       throw signedError ?? new Error("Signed URL was not created");
 
-    if (download || recordOpen) {
+    if (download) {
       const { error: recordError } = await service.rpc(
         "record_resource_download",
         {

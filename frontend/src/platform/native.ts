@@ -96,8 +96,8 @@ export const nativeShareAdapter: ShareAdapter = {
     const url = safePublicShareUrl(input.url);
     await Share.share({
       title: input.title,
-      text: input.text,
       url: url.toString(),
+      ...(input.text ? { text: input.text } : {}),
     });
     return "shared";
   },

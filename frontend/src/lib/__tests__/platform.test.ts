@@ -146,4 +146,15 @@ describe("resource detail lookup", () => {
   it("rejects malformed resource identifiers", () => {
     expect(getResourceLookup("not/a/resource?id=1")).toBeNull();
   });
+
+  it("recovers a valid slug when shared text is appended after the URL", () => {
+    expect(
+      getResourceLookup(
+        "lostlink-project-proposal-project-1-9173631d LostLink Project Proposal Project 1 by Nirmal SANJEL 2026",
+      ),
+    ).toEqual({
+      column: "slug",
+      value: "lostlink-project-proposal-project-1-9173631d",
+    });
+  });
 });

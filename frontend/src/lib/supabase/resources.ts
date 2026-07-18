@@ -282,7 +282,7 @@ export async function fetchPublicResourceRatings(
 export function getResourceLookup(
   resourceIdOrSlug: string,
 ): { column: "id" | "slug"; value: string } | null {
-  const value = resourceIdOrSlug.trim();
+  const value = normalizeResourceLookupValue(resourceIdOrSlug);
   const isUuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
       value,
@@ -291,6 +291,12 @@ export function getResourceLookup(
     /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) && value.length <= 180;
   if (!isUuid && !isSlug) return null;
   return { column: isUuid ? "id" : "slug", value };
+}
+
+function normalizeResourceLookupValue(value: string): string {
+  const trimmed = value.trim();
+  const firstToken = trimmed.split(/\s+/)[0] ?? trimmed;
+  return firstToken.trim();
 }
 
 export async function fetchPublicStats(): Promise<{
@@ -319,7 +325,7 @@ export async function getTrackedResourceAccess(
 ): Promise<{ viewerUrl: string; downloadCount: number }> {
   const { data } = await supabase.auth.getSession();
   const response = await fetch(
-    `${getPublicResourceAccessUrl(resourceId)}&open=1&format=json`,
+    `${getPublicResourceAccessUrl(resourceId)}&format=json`,
     {
       headers: {
         apikey: publicEnvironment.config.supabaseAnonKey,
