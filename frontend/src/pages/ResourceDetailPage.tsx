@@ -22,7 +22,12 @@ import {
   reportResource,
 } from "../lib/supabase/resources";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
-import { webNavigationAdapter, webShareAdapter } from "../platform";
+import {
+  navigationAdapter,
+  platformRuntime,
+  publicAppUrl,
+  shareAdapter,
+} from "../platform";
 
 export default function ResourceDetailPage() {
   const { resourceId = "" } = useParams();
@@ -89,24 +94,27 @@ export default function ResourceDetailPage() {
   const previewUrl = item.legacyUrl
     ? basePreviewUrl
     : `${basePreviewUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
-  const resourceUrl = `${window.location.origin}/resources/${item.slug}`;
+  const resourceUrl = publicAppUrl(`/resources/${item.slug}`);
   const prepareDocument = () => {
     const accessUrl = `${getPublicResourceAccessUrl(item.id)}&open=1`;
-    setPendingViewerUrl(
-      isLegacy
-        ? accessUrl
-        : `${accessUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`,
-    );
+    const viewerUrl = isLegacy
+      ? accessUrl
+      : `${accessUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
+    if (platformRuntime.isNative()) {
+      void openDocumentWindow(viewerUrl);
+      return;
+    }
+    setPendingViewerUrl(viewerUrl);
     setCoffeeOpen(true);
   };
   const cancelDocumentOpen = () => {
     setCoffeeOpen(false);
     setPendingViewerUrl("");
   };
-  const openDocumentWindow = async () => {
-    if (!pendingViewerUrl) return;
-    const fallbackUrl = pendingViewerUrl;
-    const documentWindow = webNavigationAdapter.reserveExternal();
+  const openDocumentWindow = async (requestedUrl = pendingViewerUrl) => {
+    if (!requestedUrl) return;
+    const fallbackUrl = requestedUrl;
+    const documentWindow = navigationAdapter.reserveExternal();
     setCoffeeOpen(false);
     setPendingViewerUrl("");
     let expectedCount = (pendingDownloadCount ?? item.downloadCount) + 1;
@@ -117,10 +125,10 @@ export default function ResourceDetailPage() {
         ? access.viewerUrl
         : `${access.viewerUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
       if (documentWindow) documentWindow.navigate(targetUrl);
-      else await webNavigationAdapter.openExternal(targetUrl);
+      else await navigationAdapter.openExternal(targetUrl);
     } catch {
       if (documentWindow) documentWindow.navigate(fallbackUrl);
-      else await webNavigationAdapter.openExternal(fallbackUrl);
+      else await navigationAdapter.openExternal(fallbackUrl);
       setReportMessage(
         "The document opened, but signed-in download history could not be confirmed.",
       );
@@ -142,7 +150,7 @@ export default function ResourceDetailPage() {
         text: item.description || `Academic resource for ${item.subjectName}.`,
         url: resourceUrl,
       };
-      const outcome = await webShareAdapter.share(shareData);
+      const outcome = await shareAdapter.share(shareData);
       if (outcome === "copied") setShareMessage("Resource link copied.");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;

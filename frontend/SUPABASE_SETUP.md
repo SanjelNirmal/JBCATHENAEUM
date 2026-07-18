@@ -26,6 +26,22 @@ The reviewed, data-preserving migrations are applied in filename order:
 
 `supabase/migrations/202607180011_account_engagement_pwa_foundation.sql`
 
+`supabase/migrations/202607180012_upload_policy_acceptance.sql`
+
+## Auth redirects for web and native apps
+
+Keep the production web callback and add the Capacitor custom-scheme callback
+to the live Supabase Auth redirect allowlist:
+
+```text
+https://jbc.nirmalsanjel.com.np/auth/callback
+jbcathenaeum://auth/callback
+```
+
+Local development may additionally allow
+`http://localhost:3000/auth/callback`. Do not use wildcards for production
+callbacks and do not add service-role credentials to the mobile app.
+
 The database security and model tests are:
 
 `supabase/tests/stage1_security.sql`

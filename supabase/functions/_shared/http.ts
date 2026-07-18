@@ -1,6 +1,10 @@
 const productionOrigins = [
   "https://jbc.nirmalsanjel.com.np",
   "https://jbcathenaeum.pages.dev",
+  // Capacitor's packaged WebViews. These origins do not grant authorization;
+  // user JWTs and RLS remain mandatory for private operations.
+  "capacitor://localhost",
+  "https://localhost",
 ];
 
 const configuredOrigins = new Set([

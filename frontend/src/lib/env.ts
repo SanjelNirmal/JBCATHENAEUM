@@ -9,6 +9,9 @@ export interface PublicEnvironment {
   appVersion: string;
   deployedAt: string;
   storageBucket: string;
+  publicAppUrl: string;
+  environmentName: "development" | "preview" | "production";
+  nativeExternalPaymentsEnabled: boolean;
 }
 
 export interface EnvironmentIssue {
@@ -22,6 +25,12 @@ export function validatePublicEnvironment(source: PublicEnvironmentSource): {
 } {
   const supabaseUrl = String(source.VITE_SUPABASE_URL ?? "").trim();
   const supabaseAnonKey = String(source.VITE_SUPABASE_ANON_KEY ?? "").trim();
+  const configuredPublicAppUrl = String(
+    source.VITE_PUBLIC_APP_URL ?? "https://jbc.nirmalsanjel.com.np",
+  ).trim();
+  const configuredEnvironment = String(
+    source.VITE_PUBLIC_ENVIRONMENT ?? "development",
+  ).trim();
   const issues: EnvironmentIssue[] = [];
 
   if (!supabaseUrl) {
@@ -56,6 +65,26 @@ export function validatePublicEnvironment(source: PublicEnvironmentSource): {
     });
   }
 
+  let publicAppUrl = "https://jbc.nirmalsanjel.com.np";
+  try {
+    const parsedUrl = new URL(configuredPublicAppUrl);
+    if (
+      parsedUrl.protocol === "https:" &&
+      !parsedUrl.username &&
+      !parsedUrl.password
+    ) {
+      publicAppUrl = parsedUrl.origin;
+    }
+  } catch {
+    // Fall back to the production public origin. This value is client-safe and
+    // prevents native share sheets from ever exposing capacitor:// URLs.
+  }
+  const environmentName = ["development", "preview", "production"].includes(
+    configuredEnvironment,
+  )
+    ? (configuredEnvironment as PublicEnvironment["environmentName"])
+    : "development";
+
   return {
     config: {
       supabaseUrl,
@@ -63,6 +92,11 @@ export function validatePublicEnvironment(source: PublicEnvironmentSource): {
       appVersion: String(source.VITE_APP_VERSION ?? "unversioned"),
       deployedAt: String(source.VITE_DEPLOYED_AT ?? "not supplied"),
       storageBucket: String(source.VITE_RESOURCE_STORAGE_BUCKET ?? "").trim(),
+      publicAppUrl,
+      environmentName,
+      nativeExternalPaymentsEnabled:
+        String(source.VITE_NATIVE_EXTERNAL_PAYMENTS_ENABLED ?? "false") ===
+        "true",
     },
     issues,
   };

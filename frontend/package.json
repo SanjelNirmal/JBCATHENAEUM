@@ -6,15 +6,27 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
+    "build:native": "vite build --mode native",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:public": "playwright test e2e/public.spec.ts"
+    "test:e2e:public": "playwright test e2e/public.spec.ts",
+    "cap:sync": "npm run build:native && cap sync",
+    "cap:android": "npm run build:native && cap sync android && cap open android",
+    "cap:ios": "npm run build:native && cap sync ios && cap open ios",
+    "cap:copy": "npm run build:native && cap copy",
+    "cap:update": "cap update"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/ios": "^8.4.2",
+    "@capacitor/share": "^8.0.1",
     "@supabase/supabase-js": "^2.105.4",
     "@tanstack/react-query": "^5.101.2",
     "lucide-react": "^0.546.0",
@@ -26,6 +38,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
+    "@capacitor/cli": "^8.4.2",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^6.9.1",

@@ -2,6 +2,8 @@ import { Outlet, ScrollRestoration } from "react-router-dom";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
 import { PwaManager } from "../components/PwaManager";
+import { NativeAppManager } from "../components/NativeAppManager";
+import { OfflineBanner } from "../components/OfflineBanner";
 
 export function AppLayout() {
   return (
@@ -16,6 +18,8 @@ export function AppLayout() {
       <Outlet />
       <SiteFooter />
       <PwaManager />
+      <OfflineBanner />
+      <NativeAppManager />
       <ScrollRestoration />
     </div>
   );

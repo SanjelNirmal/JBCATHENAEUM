@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "REPLACE_WITH_APPLE_TEAM_ID.np.com.nirmalsanjel.jbcathenaeum"
+        ],
+        "components": [
+          { "/": "/auth/callback", "comment": "Supabase PKCE callback" },
+          {
+            "/": "/payment/return",
+            "comment": "Server-verified payment return"
+          },
+          { "/": "/resources/*", "comment": "Public resource detail" }
+        ]
+      }
+    ]
+  }
+}

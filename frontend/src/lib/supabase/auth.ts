@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "./client";
 import { isAppRole, resolveEffectiveRole, type AppRole } from "../roles";
 import type { AccountStatus } from "./database.types";
+import { nativeAuthCallbackUrl, platformRuntime } from "../../platform";
 
 export interface UserProfile {
   id: string;
@@ -81,13 +82,24 @@ export async function signIn(email: string, password: string) {
   return { user: data.user, profile };
 }
 
+function authCallbackUrl(
+  next: string,
+  type: "signup" | "recovery" | "magiclink" | "oauth",
+): string {
+  if (platformRuntime.isNative()) return nativeAuthCallbackUrl(next, type);
+  const url = new URL("/auth/callback", window.location.origin);
+  url.searchParams.set("next", next);
+  url.searchParams.set("type", type);
+  return url.toString();
+}
+
 export async function signUp(
   email: string,
   password: string,
   name: string,
   faculty: string,
 ) {
-  const redirectTo = `${window.location.origin}/login?verified=1`;
+  const redirectTo = authCallbackUrl("/login?verified=1", "signup");
   const { data, error } = await supabase.auth.signUp({
     email: email.trim(),
     password,
@@ -107,7 +119,7 @@ export async function signOut() {
 
 export async function requestPasswordReset(email: string) {
   const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-    redirectTo: `${window.location.origin}/reset-password`,
+    redirectTo: authCallbackUrl("/reset-password", "recovery"),
   });
   if (error) throw error;
 }
@@ -115,6 +127,14 @@ export async function requestPasswordReset(email: string) {
 export async function updatePassword(password: string) {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) throw error;
+}
+
+export async function exchangeAuthCode(code: string) {
+  if (!/^[A-Za-z0-9._~+/=-]{1,2048}$/.test(code))
+    throw new Error("invalid_auth_callback");
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) throw error;
+  return data.session;
 }
 
 export async function getCurrentSession() {

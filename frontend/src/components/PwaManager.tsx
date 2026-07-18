@@ -1,6 +1,7 @@
 import { Download, RefreshCw, WifiOff, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
+import { platformRuntime } from "../platform";
 
 interface InstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -8,6 +9,11 @@ interface InstallPromptEvent extends Event {
 }
 
 export function PwaManager() {
+  if (platformRuntime.isNative()) return null;
+  return <WebPwaManager />;
+}
+
+function WebPwaManager() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(
     null,
   );

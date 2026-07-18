@@ -7,7 +7,7 @@ import { EmptyState, ErrorState, LoadingState } from "../components/AsyncState";
 import { Seo } from "../components/Seo";
 import { useUserDevices } from "../features/engagement/hooks";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
-import { webDeviceAdapter } from "../platform";
+import { deviceAdapter, platformRuntime } from "../platform";
 
 export default function AccountDevicesPage() {
   const auth = useCurrentAuth();
@@ -26,11 +26,15 @@ export default function AccountDevicesPage() {
   const register = async () => {
     setMessage("");
     try {
-      const registration = await webDeviceAdapter.register(name);
+      const registration = await deviceAdapter.register(name);
       if (!registration) throw new Error("device_registration_unavailable");
       await query.register.mutateAsync(registration);
       setName("");
-      setMessage("This browser is registered to your account.");
+      setMessage(
+        platformRuntime.isNative()
+          ? "This app installation is registered to your account."
+          : "This browser is registered to your account.",
+      );
     } catch (error) {
       setMessage(toSafeErrorMessage(error));
     }
@@ -63,11 +67,14 @@ export default function AccountDevicesPage() {
         </h1>
       </div>
       <p className="mt-2 text-slate-600">
-        Device registration prepares the platform for a future mobile app. Push
-        delivery is not active.
+        Registered installations can be revoked from your account. Device IDs
+        are random installation identifiers, not authentication credentials.
+        Push delivery is not active.
       </p>
       <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="font-bold text-[#002147]">Register this browser</h2>
+        <h2 className="font-bold text-[#002147]">
+          Register this {platformRuntime.isNative() ? "app" : "browser"}
+        </h2>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <label className="flex-1 text-sm font-semibold text-slate-700">
             Device name
@@ -85,7 +92,9 @@ export default function AccountDevicesPage() {
             onClick={() => void register()}
             className="min-h-11 self-end rounded-lg bg-[#002147] px-5 font-bold text-white disabled:opacity-50"
           >
-            {query.register.isPending ? "Registering…" : "Register browser"}
+            {query.register.isPending
+              ? "Registering…"
+              : `Register ${platformRuntime.isNative() ? "app" : "browser"}`}
           </button>
         </div>
         {message && (
@@ -105,7 +114,7 @@ export default function AccountDevicesPage() {
         ) : query.data?.length === 0 ? (
           <EmptyState
             title="No registered devices"
-            message="Register this browser when you are ready."
+            message={`Register this ${platformRuntime.isNative() ? "app" : "browser"} when you are ready.`}
           />
         ) : (
           <ul className="space-y-3">

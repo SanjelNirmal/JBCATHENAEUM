@@ -1,3 +1,11 @@
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = [
+  "http://localhost:3000/auth/callback",
+  "https://jbc.nirmalsanjel.com.np/auth/callback",
+  "jbcathenaeum://auth/callback",
+]
+
 [functions.create-upload-session]
 verify_jwt = false
 

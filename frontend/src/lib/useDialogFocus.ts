@@ -1,4 +1,5 @@
 import { useEffect, useRef, type RefObject } from "react";
+import { registerNativeDismissHandler } from "../platform/backNavigation";
 
 const focusableSelector = [
   "a[href]",
@@ -57,8 +58,12 @@ export function useDialogFocus(
     };
 
     document.addEventListener("keydown", handleKey);
+    const unregisterNativeDismiss = registerNativeDismissHandler(() =>
+      escapeHandler.current(),
+    );
     return () => {
       document.removeEventListener("keydown", handleKey);
+      unregisterNativeDismiss();
       previous?.focus();
     };
   }, [active, container]);

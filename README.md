@@ -12,6 +12,7 @@ The application now includes:
 - MFA/AAL2-protected moderation, role, suspension, bulk action, and deletion workflows.
 - Real database aggregates, reports, removal requests, audit logs, and deployment diagnostics.
 - Responsive table/card layouts, focus-managed dialogs/drawers, reduced-motion support, and automated accessibility checks.
+- Capacitor 8 Android/iOS projects with shared React/Supabase code, strict deep links, and release runbooks.
 
 ## Local development
 
@@ -39,7 +40,24 @@ frontend/public/payment/nmb-payment-qr.png
 
 If the image is absent, the modal safely falls back to the bank details. The
 application does not collect payment receipts, transaction references, banking
-credentials, or screenshots.
+credentials, or screenshots. The native app does not show this optional support
+prompt; paid-content and external-payment controls remain disabled pending
+Apple/Google policy review.
+
+## Android and iOS
+
+Capacitor belongs to the `frontend` workspace:
+
+```sh
+cd frontend
+npm run cap:sync
+npx cap open android
+npx cap open ios
+```
+
+See [the mobile release runbook](docs/MOBILE_RELEASE.md) for prerequisites,
+signing, deep-link association, Supabase redirect URLs, privacy declarations,
+payment policy, honest test status, and release blockers.
 
 ## Quality gates
 

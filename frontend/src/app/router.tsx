@@ -153,6 +153,20 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "auth/callback",
+        element: lazyElement(
+          () => import("../pages/AuthCallbackPage"),
+          "Completing authentication",
+        ),
+      },
+      {
+        path: "payment/return",
+        element: lazyElement(
+          () => import("../pages/PaymentReturnPage"),
+          "Checking payment return",
+        ),
+      },
+      {
         path: "admin/*",
         element: lazyElement(
           () => import("../features/admin/AdminApp"),

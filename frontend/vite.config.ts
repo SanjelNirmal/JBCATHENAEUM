@@ -4,12 +4,17 @@ import path from "path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+  const nativeBuild = mode === "native";
   return {
     plugins: [
       react(),
       tailwindcss(),
       VitePWA({
+        // Keep the web/PWA build unchanged, but do not generate a service
+        // worker for the native WebView bundle. Native assets ship with the
+        // application and private API/document responses remain network-only.
+        disable: nativeBuild,
         registerType: "prompt",
         injectRegister: false,
         manifest: false,
