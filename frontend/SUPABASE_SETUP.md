@@ -2,6 +2,18 @@
 
 Do not paste ad-hoc schema or permissive RLS policies into production.
 
+## Brand-new Supabase account
+
+For a new, empty Supabase project, use the simplified SQL Editor package:
+
+[`supabase/sql_editor_setup/README.md`](../supabase/sql_editor_setup/README.md)
+
+It provides clearly named files `01` through `14`, followed by the optional
+first-super-admin file `90` and read-only verification file `99`. Run them one
+at a time in numeric order.
+
+## Existing project upgrades
+
 The reviewed, data-preserving migrations are applied in filename order:
 
 `supabase/migrations/202607170001_stage1_security.sql`
@@ -26,7 +38,11 @@ The reviewed, data-preserving migrations are applied in filename order:
 
 `supabase/migrations/202607180011_account_engagement_pwa_foundation.sql`
 
+`supabase/migrations/202607180012_public_engagement_profiles.sql`
+
 `supabase/migrations/202607180012_upload_policy_acceptance.sql`
+
+`supabase/migrations/202607180013_contributor_received_ratings.sql`
 
 ## Auth redirects for web and native apps
 

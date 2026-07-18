@@ -1,5 +1,9 @@
 # JBC Athenaeum clean reinstall
 
+> Setting up a brand-new Supabase account? Do not use this destructive
+> reinstall procedure. Follow the simpler numbered SQL Editor guide in
+> [`../sql_editor_setup/README.md`](../sql_editor_setup/README.md).
+
 This procedure intentionally deletes every application object and row in the
 `public` schema. It preserves Supabase-managed Auth users and the `auth`,
 `storage`, `realtime`, `vault`, `extensions`, and migration-history schemas.

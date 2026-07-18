@@ -55,4 +55,14 @@ describe("PWA safety configuration", () => {
     expect(manager).toContain("useRegisterSW");
     expect(manager).toContain("updateServiceWorker");
   });
+
+  it("does not cache the SPA shell while keeping hashed assets immutable", () => {
+    const headers = readFileSync(resolve(root, "public/_headers"), "utf8");
+    expect(headers).toMatch(
+      /\/\*[\s\S]*Cache-Control: no-cache, no-store, must-revalidate, no-transform/,
+    );
+    expect(headers).toMatch(
+      /\/assets\/\*[\s\S]*! Cache-Control[\s\S]*Cache-Control: public, max-age=31536000, immutable/,
+    );
+  });
 });

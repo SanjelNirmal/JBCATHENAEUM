@@ -85,6 +85,7 @@ npx playwright install chromium
 
 Apply migrations in filename order and deploy Edge Functions only after reviewing the owner runbooks:
 
+- [New Supabase account — numbered SQL Editor setup](supabase/sql_editor_setup/README.md)
 - [Supabase setup](frontend/SUPABASE_SETUP.md)
 - [Phases 4–22 implementation and deployment](docs/PHASES_4_22_IMPLEMENTATION.md)
 - [Operations and monitoring](docs/OPERATIONS_MONITORING.md)
