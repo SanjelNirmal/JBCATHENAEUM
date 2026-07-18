@@ -45,12 +45,12 @@ export const webShareAdapter: ShareAdapter = {
 export const webNavigationAdapter: NavigationAdapter = {
   async openExternal(value) {
     const url = safeExternalUrl(value);
-    const opened = window.open(
-      url.toString(),
-      "_blank",
-      "noopener,noreferrer",
-    );
-    if (!opened) window.location.assign(url.toString());
+    const opened = window.open(url.toString(), "_blank");
+    if (opened) {
+      opened.opener = null;
+      return;
+    }
+    window.location.assign(url.toString());
   },
   reserveExternal(): ExternalNavigationReservation | null {
     const target = window.open("about:blank", "_blank");

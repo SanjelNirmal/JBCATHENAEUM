@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+import { navigationAdapter } from "../../platform";
 import ResourceDetailPage from "../ResourceDetailPage";
 
 vi.mock("../../app/AuthContext", () => ({
@@ -58,10 +59,6 @@ vi.mock("../../lib/supabase/resources", () => ({
   getPublicResourceAccessUrl: vi
     .fn()
     .mockReturnValue("data:application/pdf,"),
-  getTrackedResourceAccess: vi.fn().mockResolvedValue({
-    viewerUrl: "https://example.test/signed-document",
-    downloadCount: 5,
-  }),
   reportResource: vi.fn(),
 }));
 
@@ -95,13 +92,10 @@ describe("ResourceDetailPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("counts the open, offers optional support, and opens a new window", async () => {
-    const replace = vi.fn();
-    const target = {
-      location: { replace },
-      opener: window,
-    } as unknown as Window;
-    const windowOpen = vi.spyOn(window, "open").mockReturnValue(target);
+  it("counts the open and opens a new window directly", async () => {
+    const openExternal = vi
+      .spyOn(navigationAdapter, "openExternal")
+      .mockResolvedValue();
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -122,22 +116,12 @@ describe("ResourceDetailPage", () => {
       await screen.findByRole("button", { name: "Open in new window" }),
     );
     expect(
-      screen.getByRole("dialog", { name: "Buy Me a Coffee" }),
-    ).toBeInTheDocument();
-
-    await userEvent.click(
-      screen.getByRole("button", {
-        name: "Maybe later — open document",
-      }),
-    );
-    expect(
       screen.queryByRole("dialog", { name: "Buy Me a Coffee" }),
     ).not.toBeInTheDocument();
-    expect(windowOpen).toHaveBeenCalledWith("about:blank", "_blank");
-    expect(replace).toHaveBeenCalledWith(
-      "https://example.test/signed-document#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
+    expect(openExternal).toHaveBeenCalledWith(
+      "data:application/pdf,&open=1#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
     );
     expect(screen.getByText("5")).toBeInTheDocument();
-    windowOpen.mockRestore();
+    openExternal.mockRestore();
   });
 });

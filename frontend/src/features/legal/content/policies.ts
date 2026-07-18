@@ -954,7 +954,10 @@ const upload: PolicyDocument = {
           rows: [
             ["File type", uploadLimits.currentFileTypes],
             ["Maximum file size", uploadLimits.maxMegabytesLabel],
-            ["MIME and extension", "application/pdf and .pdf are required."],
+            [
+              "MIME and extension",
+              ".pdf is required; inconsistent browser MIME labels are normalized.",
+            ],
             [
               "Page count",
               `PDF must contain at least one page and no more than ${uploadLimits.maxPagesLabel}.`,
@@ -963,10 +966,7 @@ const upload: PolicyDocument = {
               "Encrypted PDFs",
               "Password-protected or encrypted PDFs are rejected.",
             ],
-            [
-              "Unsafe PDF features",
-              "Embedded files, active actions, launch actions, rich media, submit forms, and JavaScript-like PDF features are rejected.",
-            ],
+            ["Integrity check", "The file must be a readable PDF."],
             ["Upload session", uploadLimits.uploadSessionLabel],
           ],
         },
@@ -988,7 +988,7 @@ const upload: PolicyDocument = {
       blocks: [
         {
           type: "paragraph",
-          text: "The current workflow is: upload, temporary or quarantine Storage, automated validation, moderator review, changes requested, rejection or approval, and publication where authorized.",
+          text: "The current workflow is: upload, temporary or quarantine Storage, basic PDF integrity validation, moderator review, changes requested, rejection or approval, and publication where authorized.",
         },
         {
           type: "list",
@@ -1010,7 +1010,7 @@ const upload: PolicyDocument = {
           type: "list",
           items: [
             "The Platform may calculate checksums, inspect MIME types, parse PDF structure, read PDF metadata, detect page count, generate previews or thumbnails where implemented, store versions, rename files internally, use generated storage paths, and record upload activity.",
-            "The current validation detects several unsafe PDF features, but the public repository does not prove a full antivirus scanning service is active.",
+            "The integrity check confirms the PDF signature, completion marker, encryption state, and readable page structure. Content decisions are made during moderator review.",
           ],
         },
       ],

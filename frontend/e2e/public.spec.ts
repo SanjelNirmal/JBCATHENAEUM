@@ -94,7 +94,7 @@ test("supported viewport widths do not introduce horizontal page overflow", asyn
   }
 });
 
-test("resource detail exposes engagement and the optional support gate", async ({
+test("resource detail exposes engagement and opens documents directly", async ({
   page,
 }) => {
   const ids = {
@@ -209,25 +209,25 @@ test("resource detail exposes engagement and the optional support gate", async (
       body: JSON.stringify([{ average_rating: 4.5, rating_count: 2 }]),
     }),
   );
-  await page.route("**/functions/v1/resource-download**", (route) =>
-    route.fulfill({
+  let directOpenRequested = false;
+  await page.context().route("**/functions/v1/resource-download**", (route) => {
+    if (new URL(route.request().url()).searchParams.get("open") === "1")
+      directOpenRequested = true;
+    return route.fulfill({
       status: 200,
       contentType: "application/pdf",
       body: "%PDF",
-    }),
-  );
+    });
+  });
 
   await page.goto("/resources/project-i");
   await expect(page.getByRole("heading", { name: "Project I" })).toBeVisible();
   await expect(page.getByText("4.5 from 2 ratings")).toBeVisible();
   await expect(page.getByText(/Sign in to save or rate/)).toBeVisible();
+  const popupPromise = page.waitForEvent("popup");
   await page.getByRole("button", { name: "Open in new window" }).click();
-  await expect(
-    page.getByRole("dialog", { name: "Buy Me a Coffee" }),
-  ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Close Buy Me a Coffee dialog" })
-    .click();
+  await popupPromise;
+  expect(directOpenRequested).toBe(true);
   await expect(
     page.getByRole("dialog", { name: "Buy Me a Coffee" }),
   ).toBeHidden();

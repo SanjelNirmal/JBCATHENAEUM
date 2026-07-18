@@ -194,14 +194,9 @@ export function ContributeView({
       setFile(null);
       return;
     }
-    if (
-      selectedFile.type !== "application/pdf" ||
-      !selectedFile.name.toLowerCase().endsWith(".pdf")
-    ) {
+    if (!selectedFile.name.toLowerCase().endsWith(".pdf")) {
       setUploadState("error");
-      setMessage(
-        "Only files with a .pdf extension and application/pdf MIME type are accepted.",
-      );
+      setMessage("Only files with a .pdf extension are accepted.");
       return;
     }
     if (selectedFile.size <= 0 || selectedFile.size > MAX_PDF_BYTES) {
@@ -209,7 +204,14 @@ export function ContributeView({
       setMessage("PDF files must be non-empty and no larger than 25 MB.");
       return;
     }
-    setFile(selectedFile);
+    const normalizedFile =
+      selectedFile.type === "application/pdf"
+        ? selectedFile
+        : new File([selectedFile], selectedFile.name, {
+            type: "application/pdf",
+            lastModified: selectedFile.lastModified,
+          });
+    setFile(normalizedFile);
     setUploadState("idle");
   };
 
@@ -404,9 +406,9 @@ export function ContributeView({
           <div className="mb-10 flex items-start gap-4 rounded-2xl bg-slate-50 p-5">
             <Info className="mt-0.5 shrink-0 text-[#c49b63]" size={22} />
             <p className="text-sm leading-6 text-slate-600">
-              PDF only, maximum 25 MB. Encrypted files, malformed PDFs,
-              duplicate checksums, embedded files, and active PDF actions are
-              rejected server-side.
+              PDF only, maximum 25 MB. The server verifies that the upload is a
+              readable, non-encrypted PDF, then sends it to a human moderator
+              for review. Browser MIME-label differences are normalized.
             </p>
           </div>
 

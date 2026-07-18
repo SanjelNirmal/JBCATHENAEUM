@@ -47,7 +47,7 @@ export function createUploadSession(input: ResourceUploadInput, file: File) {
     acceptedPolicySlug: acceptedUploadPolicySlug,
     acceptedPolicyVersion: acceptedUploadPolicyVersion,
     fileName: file.name,
-    mimeType: file.type,
+    mimeType: "application/pdf",
     byteSize: file.size,
   });
 }

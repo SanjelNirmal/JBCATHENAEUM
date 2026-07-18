@@ -10,7 +10,6 @@ import {
 import { useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
-import { BuyMeACoffeeModal } from "../components/BuyMeACoffeeModal";
 import { Seo } from "../components/Seo";
 import { ResourceEngagementPanel } from "../features/engagement/ResourceEngagementPanel";
 import { PublicResourceRatings } from "../features/engagement/PublicResourceRatings";
@@ -20,13 +19,11 @@ import {
   fetchPublicContributorProfile,
   getLegacyPreviewUrl,
   getPublicResourceAccessUrl,
-  getTrackedResourceAccess,
   reportResource,
 } from "../lib/supabase/resources";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
 import {
   navigationAdapter,
-  platformRuntime,
   publicAppUrl,
   shareAdapter,
 } from "../platform";
@@ -49,8 +46,6 @@ export default function ResourceDetailPage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [reportMessage, setReportMessage] = useState("");
   const [shareMessage, setShareMessage] = useState("");
-  const [coffeeOpen, setCoffeeOpen] = useState(false);
-  const [pendingViewerUrl, setPendingViewerUrl] = useState("");
   const [pendingDownloadCount, setPendingDownloadCount] = useState<
     number | null
   >(null);
@@ -104,44 +99,17 @@ export default function ResourceDetailPage() {
     ? basePreviewUrl
     : `${basePreviewUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
   const resourceUrl = publicAppUrl(`/resources/${item.slug}`);
-  const prepareDocument = () => {
+  const openDocumentWindow = () => {
     const accessUrl = `${getPublicResourceAccessUrl(item.id)}&open=1`;
     const viewerUrl = isLegacy
       ? accessUrl
       : `${accessUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
-    if (platformRuntime.isNative()) {
-      void openDocumentWindow(viewerUrl);
-      return;
-    }
-    setPendingViewerUrl(viewerUrl);
-    setCoffeeOpen(true);
-  };
-  const cancelDocumentOpen = () => {
-    setCoffeeOpen(false);
-    setPendingViewerUrl("");
-  };
-  const openDocumentWindow = async (requestedUrl = pendingViewerUrl) => {
-    if (!requestedUrl) return;
-    const fallbackUrl = requestedUrl;
-    const documentWindow = navigationAdapter.reserveExternal();
-    setCoffeeOpen(false);
-    setPendingViewerUrl("");
-    let expectedCount = (pendingDownloadCount ?? item.downloadCount) + 1;
-    try {
-      const access = await getTrackedResourceAccess(item.id);
-      expectedCount = Math.max(expectedCount, access.downloadCount);
-      const targetUrl = isLegacy
-        ? access.viewerUrl
-        : `${access.viewerUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
-      if (documentWindow) documentWindow.navigate(targetUrl);
-      else await navigationAdapter.openExternal(targetUrl);
-    } catch {
-      if (documentWindow) documentWindow.navigate(fallbackUrl);
-      else await navigationAdapter.openExternal(fallbackUrl);
+    const expectedCount = (pendingDownloadCount ?? item.downloadCount) + 1;
+    void navigationAdapter.openExternal(viewerUrl).catch(() => {
       setReportMessage(
-        "The document opened, but signed-in download history could not be confirmed.",
+        "The document could not be opened. Refresh the preview and try again.",
       );
-    }
+    });
     setPendingDownloadCount(expectedCount);
     window.setTimeout(() => {
       void query.refetch().then((result) => {
@@ -231,7 +199,7 @@ export default function ResourceDetailPage() {
             <div className="mt-4 flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={prepareDocument}
+                onClick={openDocumentWindow}
                 className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
               >
                 <ExternalLink aria-hidden="true" size={17} />
@@ -394,13 +362,6 @@ export default function ResourceDetailPage() {
           </aside>
         </div>
       </main>
-      {coffeeOpen && (
-        <BuyMeACoffeeModal
-          onClose={cancelDocumentOpen}
-          onContinue={openDocumentWindow}
-          continueLabel="Maybe later — open document"
-        />
-      )}
     </>
   );
 }

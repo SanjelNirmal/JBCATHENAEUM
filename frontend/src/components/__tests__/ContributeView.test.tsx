@@ -131,6 +131,55 @@ describe("ContributeView", () => {
     expect(api.createUploadSession).not.toHaveBeenCalled();
   });
 
+  it("accepts a PDF when the browser reports a generic MIME type", async () => {
+    const user = userEvent.setup({ applyAccept: false });
+    api.fetchAcademicCatalog.mockResolvedValue(catalog);
+    api.fetchContributorSubmissions.mockResolvedValue([]);
+    api.loadContributionDraft.mockReturnValue(null);
+    api.createUploadSession.mockResolvedValue({
+      sessionId: "generic-mime-session",
+      signedUrl: "https://upload.invalid",
+    });
+    api.uploadPdfWithProgress.mockReturnValue({
+      promise: Promise.resolve(),
+      abort: vi.fn(),
+    });
+    api.finalizeResourceUpload.mockResolvedValue({
+      submissionId: "submission",
+      status: "submitted",
+    });
+
+    renderContributeView({
+      isAuthenticated: true,
+      emailVerified: true,
+      initialName: "Student",
+    });
+    await user.type(
+      await screen.findByLabelText("Resource title"),
+      "Economics notes",
+    );
+    await user.type(
+      screen.getByLabelText("Description"),
+      "A complete set of lecture notes.",
+    );
+    await user.upload(
+      screen.getByLabelText("PDF document"),
+      new File(["%PDF-1.7"], "phone-upload.pdf", {
+        type: "application/octet-stream",
+      }),
+    );
+    await user.click(screen.getByRole("checkbox", { name: /I confirm/ }));
+    await user.click(screen.getByRole("button", { name: "Upload PDF" }));
+
+    expect(api.createUploadSession).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        name: "phone-upload.pdf",
+        type: "application/pdf",
+      }),
+    );
+  });
+
   it("shows upload progress and a disabled mutation state", async () => {
     api.fetchAcademicCatalog.mockResolvedValue(catalog);
     api.fetchContributorSubmissions.mockResolvedValue([]);

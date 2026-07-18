@@ -7,16 +7,6 @@ import {
   PublicError,
 } from "../_shared/http.ts";
 
-const forbiddenPdfFeatures = [
-  "/JavaScript",
-  "/JS",
-  "/Launch",
-  "/EmbeddedFile",
-  "/OpenAction",
-  "/RichMedia",
-  "/SubmitForm",
-];
-
 function toHex(bytes: ArrayBuffer): string {
   return [...new Uint8Array(bytes)]
     .map((value) => value.toString(16).padStart(2, "0"))
@@ -40,17 +30,6 @@ async function validatePdf(bytes: Uint8Array) {
     throw new PublicError(
       "invalid_structure",
       "The PDF appears incomplete or corrupted.",
-    );
-  }
-
-  const sourceText = new TextDecoder().decode(bytes);
-  const detectedFeature = forbiddenPdfFeatures.find((feature) =>
-    sourceText.includes(feature),
-  );
-  if (detectedFeature) {
-    throw new PublicError(
-      "unsafe_pdf_feature",
-      "The PDF contains an unsupported active or embedded feature.",
     );
   }
 
@@ -160,10 +139,9 @@ Deno.serve(async (request) => {
         checksum_sha256: validation.checksum,
         detected_page_count: validation.pageCount,
         validation_result: {
-          validator: "edge-pdf-v1",
+          validator: "pdf-integrity-v2",
           signature: true,
           eof: true,
-          active_features: false,
           encrypted: false,
         },
       },
@@ -201,7 +179,10 @@ Deno.serve(async (request) => {
           target_status: "failed",
           supplied_failure_code:
             error instanceof PublicError ? error.code : "validation_failed",
-          validation_result: { validator: "edge-pdf-v1", accepted: false },
+          validation_result: {
+            validator: "pdf-integrity-v2",
+            accepted: false,
+          },
         });
       }
     }

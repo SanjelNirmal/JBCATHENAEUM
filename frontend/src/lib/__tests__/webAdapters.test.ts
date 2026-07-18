@@ -49,6 +49,21 @@ describe("web platform adapters", () => {
     );
   });
 
+  it("opens an external URL directly without retaining an opener", async () => {
+    const target = { opener: window } as unknown as Window;
+    const open = vi.spyOn(window, "open").mockReturnValue(target);
+
+    await webNavigationAdapter.openExternal(
+      "https://example.test/document.pdf",
+    );
+
+    expect(open).toHaveBeenCalledWith(
+      "https://example.test/document.pdf",
+      "_blank",
+    );
+    expect(target.opener).toBeNull();
+  });
+
   it("creates a stable anonymous device key without claiming push support", async () => {
     const first = await webDeviceAdapter.register("Study browser");
     const second = await webDeviceAdapter.register("Study browser");
