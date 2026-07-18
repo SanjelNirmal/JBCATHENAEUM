@@ -13,6 +13,8 @@ export interface ResourceUploadInput {
   title: string;
   description: string;
   academicYear: number;
+  acceptedUploadPolicySlug?: string;
+  acceptedUploadPolicyVersion?: string;
 }
 export interface UploadSessionResponse {
   sessionId: string;
@@ -35,8 +37,15 @@ async function invokeFunction<T>(
 }
 
 export function createUploadSession(input: ResourceUploadInput, file: File) {
+  const {
+    acceptedUploadPolicySlug,
+    acceptedUploadPolicyVersion,
+    ...resourceInput
+  } = input;
   return invokeFunction<UploadSessionResponse>("create-upload-session", {
-    ...input,
+    ...resourceInput,
+    acceptedPolicySlug: acceptedUploadPolicySlug,
+    acceptedPolicyVersion: acceptedUploadPolicyVersion,
     fileName: file.name,
     mimeType: file.type,
     byteSize: file.size,

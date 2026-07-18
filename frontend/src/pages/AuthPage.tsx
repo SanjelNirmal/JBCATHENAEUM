@@ -118,6 +118,19 @@ export default function AuthPage() {
                 ? "Sign in"
                 : "Create account"}
           </button>
+          {mode === "signup" && (
+            <p className="text-xs leading-5 text-slate-500">
+              By creating an account, you agree to the{" "}
+              <Link to="/terms" className="font-semibold underline">
+                Terms of Service
+              </Link>{" "}
+              and acknowledge the{" "}
+              <Link to="/privacy" className="font-semibold underline">
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          )}
         </form>
         <div className="mt-6 flex flex-wrap justify-between gap-3 text-sm">
           <button

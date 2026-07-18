@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   AcademicSubjectOption,
   cancelResourceUpload,
@@ -23,6 +24,7 @@ import {
   uploadPdfWithProgress,
 } from "../lib/api";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
+import { uploadPolicyAcceptance } from "../features/legal/config/legalConfig";
 
 const MAX_PDF_BYTES = 25 * 1024 * 1024;
 
@@ -64,6 +66,7 @@ export function ContributeView({
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
+  const [policyAccepted, setPolicyAccepted] = useState(false);
   const [submissions, setSubmissions] = useState<ContributorSubmission[]>([]);
   const [submissionsError, setSubmissionsError] = useState<string | null>(null);
   const [resubmitResourceId, setResubmitResourceId] = useState<string | null>(
@@ -226,6 +229,11 @@ export function ContributeView({
       setMessage("Select academic metadata and a PDF before submitting.");
       return;
     }
+    if (!policyAccepted) {
+      setUploadState("error");
+      setMessage("Confirm the upload declaration before submitting.");
+      return;
+    }
 
     let stage: "prepare" | "upload" | "finalize" = "prepare";
     try {
@@ -244,6 +252,8 @@ export function ContributeView({
           title,
           description,
           academicYear,
+          acceptedUploadPolicySlug: uploadPolicyAcceptance.slug,
+          acceptedUploadPolicyVersion: uploadPolicyAcceptance.version,
         };
         const issued = await createUploadSession(input, file);
         pending = { sessionId: issued.sessionId, signedUrl: issued.signedUrl };
@@ -272,6 +282,7 @@ export function ContributeView({
       setTitle("");
       setDescription("");
       setFile(null);
+      setPolicyAccepted(false);
       setResubmitResourceId(null);
       clearContributionDraft();
       setProgress(100);
@@ -353,15 +364,9 @@ export function ContributeView({
     <div className="mx-auto w-full max-w-5xl px-6 py-24 font-sans md:px-12">
       <div className="mb-14 text-center">
         <div className="mb-6 flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#8a642f] sm:text-xs">
-          <span
-            aria-hidden="true"
-            className="h-px w-8 bg-[#c49b63] sm:w-12"
-          />
+          <span aria-hidden="true" className="h-px w-8 bg-[#c49b63] sm:w-12" />
           <span>Contribute to the archive</span>
-          <span
-            aria-hidden="true"
-            className="h-px w-8 bg-[#c49b63] sm:w-12"
-          />
+          <span aria-hidden="true" className="h-px w-8 bg-[#c49b63] sm:w-12" />
         </div>
         <h1 className="mb-6 font-serif text-5xl font-black tracking-tighter text-[#002147] md:text-7xl">
           Share a Resource
@@ -570,6 +575,40 @@ export function ContributeView({
               />
             </label>
 
+            <label className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-slate-700">
+              <input
+                type="checkbox"
+                checked={policyAccepted}
+                onChange={(event) => setPolicyAccepted(event.target.checked)}
+                className="mt-1 size-4 shrink-0"
+              />
+              <span>
+                {uploadPolicyAcceptance.label} This confirms Upload Policy{" "}
+                version {uploadPolicyAcceptance.version}. Read the{" "}
+                <Link
+                  to="/policies/upload"
+                  className="font-bold text-[#002147] underline"
+                >
+                  Upload Policy
+                </Link>
+                ,{" "}
+                <Link
+                  to="/copyright"
+                  className="font-bold text-[#002147] underline"
+                >
+                  Copyright Policy
+                </Link>
+                , and{" "}
+                <Link
+                  to="/privacy"
+                  className="font-bold text-[#002147] underline"
+                >
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </label>
+
             {catalogError && (
               <p className="rounded-xl bg-red-50 p-4 text-sm text-red-700">
                 {catalogError}
@@ -601,7 +640,12 @@ export function ContributeView({
             <div className="flex flex-wrap justify-center gap-3 pt-3">
               <button
                 type="submit"
-                disabled={busy || Boolean(catalogError) || catalog.length === 0}
+                disabled={
+                  busy ||
+                  Boolean(catalogError) ||
+                  catalog.length === 0 ||
+                  !policyAccepted
+                }
                 className="flex items-center gap-3 rounded-xl bg-[#002147] px-8 py-4 text-xs font-black uppercase tracking-widest text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? (

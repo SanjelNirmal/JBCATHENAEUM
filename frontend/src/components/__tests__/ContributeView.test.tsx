@@ -1,5 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ComponentProps } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { ContributeView } from "../ContributeView";
 
@@ -39,6 +41,14 @@ const catalog = [
   },
 ];
 
+function renderContributeView(props: ComponentProps<typeof ContributeView>) {
+  return render(
+    <MemoryRouter>
+      <ContributeView {...props} />
+    </MemoryRouter>,
+  );
+}
+
 describe("ContributeView", () => {
   it("shows every program and term returned by the academic catalog", async () => {
     const bcaFirst = {
@@ -73,9 +83,11 @@ describe("ContributeView", () => {
     api.fetchContributorSubmissions.mockResolvedValue([]);
     api.loadContributionDraft.mockReturnValue(null);
 
-    render(
-      <ContributeView isAuthenticated emailVerified initialName="Student" />,
-    );
+    renderContributeView({
+      isAuthenticated: true,
+      emailVerified: true,
+      initialName: "Student",
+    });
 
     const program = await screen.findByLabelText("Program");
     expect(within(program).getAllByRole("option")).toHaveLength(2);
@@ -103,9 +115,11 @@ describe("ContributeView", () => {
     api.fetchAcademicCatalog.mockResolvedValue(catalog);
     api.fetchContributorSubmissions.mockResolvedValue([]);
     api.loadContributionDraft.mockReturnValue(null);
-    render(
-      <ContributeView isAuthenticated emailVerified initialName="Student" />,
-    );
+    renderContributeView({
+      isAuthenticated: true,
+      emailVerified: true,
+      initialName: "Student",
+    });
     const input = await screen.findByLabelText("PDF document");
     await user.upload(
       input,
@@ -129,9 +143,11 @@ describe("ContributeView", () => {
       progress(55);
       return { promise: new Promise(() => undefined), abort: vi.fn() };
     });
-    render(
-      <ContributeView isAuthenticated emailVerified initialName="Student" />,
-    );
+    renderContributeView({
+      isAuthenticated: true,
+      emailVerified: true,
+      initialName: "Student",
+    });
     await userEvent.type(
       await screen.findByLabelText("Resource title"),
       "Economics notes",
@@ -144,8 +160,32 @@ describe("ContributeView", () => {
       screen.getByLabelText("PDF document"),
       new File(["%PDF-1.7"], "notes.pdf", { type: "application/pdf" }),
     );
+    await userEvent.click(screen.getByRole("checkbox", { name: /I confirm/ }));
     await userEvent.click(screen.getByRole("button", { name: "Upload PDF" }));
     expect(await screen.findByText("55%")).toBeInTheDocument();
+    expect(api.createUploadSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        acceptedUploadPolicySlug: "upload",
+        acceptedUploadPolicyVersion: "1.0",
+      }),
+      expect.any(File),
+    );
     expect(screen.getByRole("button", { name: /Upload PDF/ })).toBeDisabled();
+  });
+
+  it("keeps upload disabled until the declaration is accepted", async () => {
+    api.fetchAcademicCatalog.mockResolvedValue(catalog);
+    api.fetchContributorSubmissions.mockResolvedValue([]);
+    api.loadContributionDraft.mockReturnValue(null);
+    renderContributeView({
+      isAuthenticated: true,
+      emailVerified: true,
+      initialName: "Student",
+    });
+
+    expect(await screen.findByLabelText("Resource title")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Upload PDF" })).toBeDisabled();
+    await userEvent.click(screen.getByRole("checkbox", { name: /I confirm/ }));
+    expect(screen.getByRole("button", { name: "Upload PDF" })).toBeEnabled();
   });
 });

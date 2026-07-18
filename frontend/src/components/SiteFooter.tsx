@@ -66,19 +66,22 @@ export function SiteFooter() {
             <h2 className="font-bold text-white">Policies</h2>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <Link to="/privacy">Privacy</Link>
+                <Link to="/policies">Policies</Link>
               </li>
               <li>
-                <Link to="/terms">Terms</Link>
+                <Link to="/privacy">Privacy Policy</Link>
               </li>
               <li>
-                <Link to="/copyright">Copyright</Link>
+                <Link to="/terms">Terms of Service</Link>
               </li>
               <li>
-                <Link to="/policies/upload">Upload policy</Link>
+                <Link to="/copyright">Copyright Policy</Link>
               </li>
               <li>
-                <Link to="/policies/retention">Data retention</Link>
+                <Link to="/policies/upload">Upload Policy</Link>
+              </li>
+              <li>
+                <Link to="/policies/retention">Data Retention Policy</Link>
               </li>
             </ul>
           </div>

@@ -159,6 +159,13 @@ export const router = createBrowserRouter([
           "Loading administration",
         ),
       },
+      {
+        path: "policies",
+        element: lazyElement(
+          () => import("../features/legal/pages/PoliciesIndexPage"),
+          "Loading policies",
+        ),
+      },
       ...[
         "privacy",
         "terms",

@@ -208,6 +208,24 @@ export interface Database {
         is_current: boolean;
         created_at: string;
       }>;
+      resource_upload_sessions: Table<{
+        id: string;
+        resource_id: string;
+        version_id: string;
+        user_id: string;
+        original_filename: string;
+        expected_byte_size: number;
+        upload_policy_slug: string | null;
+        upload_policy_version: string | null;
+        upload_policy_accepted_at: string | null;
+        status: string;
+        expires_at: string;
+        completed_at: string | null;
+        promoted_at: string | null;
+        failure_code: string | null;
+        created_at: string;
+        updated_at: string;
+      }>;
       resource_submissions: Table<{
         id: string;
         resource_id: string;
@@ -218,6 +236,9 @@ export interface Database {
         submitted_at: string;
         decided_at: string | null;
         resubmission_of: string | null;
+        upload_policy_slug: string | null;
+        upload_policy_version: string | null;
+        upload_policy_accepted_at: string | null;
         created_at: string;
         updated_at: string;
       }>;

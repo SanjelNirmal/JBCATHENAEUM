@@ -68,3 +68,51 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+@media print {
+  @page {
+    margin: 18mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  body > div > header,
+  body > div > footer,
+  .policy-print-hidden {
+    display: none !important;
+  }
+
+  .site-policy-shell {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .site-policy-shell article {
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .site-policy-shell section {
+    break-inside: avoid;
+  }
+
+  .site-policy-shell table {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .site-policy-shell th,
+  .site-policy-shell td {
+    border-color: #444444 !important;
+    color: #000000 !important;
+  }
+
+  .site-policy-shell th {
+    background: #eeeeee !important;
+  }
+}

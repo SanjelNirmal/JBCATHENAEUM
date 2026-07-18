@@ -12,11 +12,12 @@ import { LATEST_DATABASE_MIGRATION, publicEnvironment } from "../../lib/env";
 import { supabase } from "../../lib/supabase";
 
 type CheckState = "checking" | "healthy" | "warning" | "unavailable";
+type MetadataState = CheckState | "not_configured";
 
 interface RuntimeStatus {
   database: CheckState;
   migration: CheckState;
-  storage: CheckState;
+  storage: MetadataState;
   databaseDetail: string;
   migrationDetail: string;
   storageDetail: string;
@@ -41,6 +42,12 @@ function StatusIcon({ state }: { state: CheckState }) {
   return <CircleHelp className="animate-pulse text-slate-400" size={20} />;
 }
 
+function MetadataIcon({ state }: { state: MetadataState }) {
+  if (state === "not_configured")
+    return <CircleHelp className="text-slate-400" size={20} />;
+  return <StatusIcon state={state} />;
+}
+
 function StatusRow({
   icon,
   title,
@@ -49,7 +56,7 @@ function StatusRow({
 }: {
   icon: ReactNode;
   title: string;
-  state: CheckState;
+  state: MetadataState;
   detail: string;
 }) {
   return (
@@ -58,7 +65,7 @@ function StatusRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-3">
           <h3 className="font-semibold text-slate-800">{title}</h3>
-          <StatusIcon state={state} />
+          <MetadataIcon state={state} />
         </div>
         <p className="mt-1 text-sm leading-5 text-slate-500">{detail}</p>
       </div>
@@ -69,6 +76,8 @@ function StatusRow({
 export function SystemStatusPanel() {
   const [status, setStatus] = useState(initialStatus);
   const { appVersion, deployedAt, storageBucket } = publicEnvironment.config;
+  const hasDeploymentMetadata =
+    appVersion !== "unversioned" && deployedAt !== "not supplied";
 
   useEffect(() => {
     let cancelled = false;
@@ -91,9 +100,9 @@ export function SystemStatusPanel() {
         }),
       ]);
 
-      let storageState: CheckState = "warning";
+      let storageState: MetadataState = "not_configured";
       let storageDetail =
-        "No read-only storage health bucket is configured for this deployment.";
+        "Storage health check is not configured. Private upload and download flows are checked through their Edge Functions.";
       if (storageBucket) {
         const storageResult = await supabase.storage
           .from(storageBucket)
@@ -162,8 +171,12 @@ export function SystemStatusPanel() {
         <StatusRow
           icon={<CheckCircle2 size={20} />}
           title="Deployment metadata"
-          state={appVersion === "unversioned" ? "warning" : "healthy"}
-          detail={`Version: ${appVersion}. Deployed at: ${deployedAt}.`}
+          state={hasDeploymentMetadata ? "healthy" : "not_configured"}
+          detail={
+            hasDeploymentMetadata
+              ? `Version: ${appVersion}. Deployed at: ${deployedAt}.`
+              : "Release version and deployment timestamp are not configured for this build."
+          }
         />
       </div>
     </section>
