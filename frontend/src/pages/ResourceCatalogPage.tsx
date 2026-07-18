@@ -113,12 +113,16 @@ export default function ResourceCatalogPage() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="sm:col-span-2 lg:col-span-4">
             <span className="sr-only">Search</span>
-            <div className="flex items-center rounded-xl border border-slate-300 px-3">
+            <div className="flex items-center rounded-xl border border-slate-300 px-3 focus-within:outline-[3px] focus-within:outline-offset-[3px] focus-within:outline-[#b7791f]">
               <Search size={18} className="text-slate-400" />
               <input
+                type="search"
+                name="q"
+                autoComplete="off"
+                enterKeyHint="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="min-h-11 min-w-0 flex-1 px-2 outline-none"
+                className="site-search-input min-h-11 min-w-0 flex-1 px-2"
                 placeholder="Title, subject, program, contributor or year"
               />
             </div>

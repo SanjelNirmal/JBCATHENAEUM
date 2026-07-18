@@ -26,6 +26,10 @@ body {
   outline-offset: 3px;
 }
 
+.site-search-input:focus-visible {
+  outline: none;
+}
+
 button:not(:disabled),
 [href],
 input,

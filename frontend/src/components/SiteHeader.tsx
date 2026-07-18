@@ -87,7 +87,7 @@ export function SiteHeader() {
           <form
             onSubmit={submitSearch}
             role="search"
-            className="ml-auto hidden max-w-xs flex-1 items-center rounded-xl border border-slate-300 bg-slate-50 px-3 min-[720px]:flex"
+            className="ml-auto hidden max-w-xs flex-1 items-center rounded-xl border border-slate-300 bg-slate-50 px-3 focus-within:outline-[3px] focus-within:outline-offset-[3px] focus-within:outline-[#b7791f] min-[720px]:flex"
           >
             <Search size={17} className="text-slate-500" aria-hidden="true" />
             <label htmlFor="site-search" className="sr-only">
@@ -95,9 +95,13 @@ export function SiteHeader() {
             </label>
             <input
               id="site-search"
+              type="search"
+              name="q"
+              autoComplete="off"
+              enterKeyHint="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm outline-none"
+              className="site-search-input min-w-0 flex-1 bg-transparent px-2 py-2 text-sm"
               placeholder="Search resources"
             />
           </form>
@@ -191,16 +195,20 @@ export function SiteHeader() {
                 <form
                   onSubmit={submitSearch}
                   role="search"
-                  className="mt-6 flex rounded-xl border border-slate-300 p-2"
+                  className="mt-6 flex rounded-xl border border-slate-300 p-2 focus-within:outline-[3px] focus-within:outline-offset-[3px] focus-within:outline-[#b7791f]"
                 >
                   <label htmlFor="mobile-site-search" className="sr-only">
                     Search resources
                   </label>
                   <input
                     id="mobile-site-search"
+                    type="search"
+                    name="q"
+                    autoComplete="off"
+                    enterKeyHint="search"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    className="min-w-0 flex-1 px-2 outline-none"
+                    className="site-search-input min-w-0 flex-1 px-2"
                     placeholder="Search resources"
                   />
                   <button
