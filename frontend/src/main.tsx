@@ -9,8 +9,19 @@ import { publicEnvironment } from "./lib/env.ts";
 import { queryClient } from "./lib/supabase/queryClient.ts";
 import "./index.css";
 import { initializeClientMonitoring } from "./lib/monitoring.ts";
+import { CHUNK_RECOVERY_PARAM } from "./components/RouteErrorBoundary.tsx";
 
 initializeClientMonitoring();
+
+const startupUrl = new URL(window.location.href);
+if (startupUrl.searchParams.has(CHUNK_RECOVERY_PARAM)) {
+  startupUrl.searchParams.delete(CHUNK_RECOVERY_PARAM);
+  window.history.replaceState(
+    window.history.state,
+    "",
+    `${startupUrl.pathname}${startupUrl.search}${startupUrl.hash}`,
+  );
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
@@ -26,11 +26,16 @@ describe("RouteErrorBoundary", () => {
     vi.useRealTimers();
   });
 
-  it("reloads once automatically for stale deployed chunks", () => {
-    const reload = vi.fn();
+  it("reloads once automatically with a cache-busting URL", async () => {
+    const replace = vi.fn();
     Object.defineProperty(window, "location", {
       configurable: true,
-      value: { ...window.location, reload },
+      value: {
+        ...window.location,
+        href: "https://example.test/resources",
+        pathname: "/resources",
+        replace,
+      },
     });
     routeErrorMocks.error = new Error(
       "Failed to fetch dynamically imported module",
@@ -42,15 +47,21 @@ describe("RouteErrorBoundary", () => {
       </MemoryRouter>,
     );
 
-    expect(reload).toHaveBeenCalled();
+    await waitFor(() => expect(replace).toHaveBeenCalled());
+    expect(String(replace.mock.calls[0]?.[0])).toContain("__jbc_refresh=");
   });
 
   it("shows a reload action when automatic chunk recovery already ran", async () => {
     vi.setSystemTime(new Date("2026-07-17T12:00:00Z"));
-    const reload = vi.fn();
+    const replace = vi.fn();
     Object.defineProperty(window, "location", {
       configurable: true,
-      value: { ...window.location, reload },
+      value: {
+        ...window.location,
+        href: "https://example.test/resources",
+        pathname: "/resources",
+        replace,
+      },
     });
     window.sessionStorage.setItem("jbc:last-chunk-reload", String(Date.now()));
     routeErrorMocks.error = new Error(
@@ -66,8 +77,10 @@ describe("RouteErrorBoundary", () => {
     expect(
       screen.getByRole("heading", { name: "Reload this page" }),
     ).toBeVisible();
-    expect(reload).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole("button", { name: "Reload page" }));
-    expect(reload).toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Reload latest version" }),
+    );
+    await waitFor(() => expect(replace).toHaveBeenCalled());
   });
 });

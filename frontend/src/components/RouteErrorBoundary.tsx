@@ -1,6 +1,6 @@
 import { isRouteErrorResponse, Link, useRouteError } from "react-router-dom";
 import { Seo } from "./Seo";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { recordClientError } from "../lib/monitoring";
 
 function isChunkLoadError(error: unknown): boolean {
@@ -16,9 +16,40 @@ function isChunkLoadError(error: unknown): boolean {
 
 const CHUNK_RELOAD_KEY = "jbc:last-chunk-reload";
 const CHUNK_RELOAD_COOLDOWN_MS = 30_000;
+export const CHUNK_RECOVERY_PARAM = "__jbc_refresh";
+
+async function reloadWithFreshAssets() {
+  try {
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(
+        registrations.map((registration) => registration.unregister()),
+      );
+    }
+    if ("caches" in window) {
+      const cacheNames = await window.caches.keys();
+      await Promise.all(
+        cacheNames
+          .filter(
+            (name) =>
+              name.startsWith("workbox-precache") || name.startsWith("jbc-"),
+          )
+          .map((name) => window.caches.delete(name)),
+      );
+    }
+  } catch {
+    // Recovery still continues with a cache-busting navigation when browser
+    // privacy settings prevent service-worker or Cache Storage access.
+  }
+
+  const next = new URL(window.location.href);
+  next.searchParams.set(CHUNK_RECOVERY_PARAM, String(Date.now()));
+  window.location.replace(next.toString());
+}
 
 export function RouteErrorBoundary() {
   const error = useRouteError();
+  const [recovering, setRecovering] = useState(false);
   useEffect(() => recordClientError("route_error", error), [error]);
   const notFound = isRouteErrorResponse(error) && error.status === 404;
   const chunkLoadError = isChunkLoadError(error);
@@ -30,7 +61,8 @@ export function RouteErrorBoundary() {
     const now = Date.now();
     if (now - lastReload < CHUNK_RELOAD_COOLDOWN_MS) return;
     window.sessionStorage.setItem(CHUNK_RELOAD_KEY, String(now));
-    window.location.reload();
+    setRecovering(true);
+    void reloadWithFreshAssets();
   }, [chunkLoadError]);
   const title = notFound
     ? "Page not found"
@@ -43,7 +75,9 @@ export function RouteErrorBoundary() {
       ? "Reload this page"
       : "This page could not be loaded";
   const message = chunkLoadError
-    ? "The site was updated while this browser tab was open. Reload to fetch the latest files."
+    ? recovering
+      ? "Clearing the previous app version and loading the latest files…"
+      : "The browser still has files from an older site version. Reload to clear them and fetch the latest version."
     : "Check the address or return to the resource catalog.";
   return (
     <main
@@ -66,10 +100,14 @@ export function RouteErrorBoundary() {
       {chunkLoadError ? (
         <button
           type="button"
-          onClick={() => window.location.reload()}
+          disabled={recovering}
+          onClick={() => {
+            setRecovering(true);
+            void reloadWithFreshAssets();
+          }}
           className="mt-8 inline-flex min-h-11 items-center rounded-xl bg-[#002147] px-6 py-3 font-bold text-white"
         >
-          Reload page
+          {recovering ? "Loading latest version…" : "Reload latest version"}
         </button>
       ) : (
         <Link
