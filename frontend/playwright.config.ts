@@ -32,6 +32,11 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
     { name: "mobile-chromium", use: { ...devices["Pixel 5"] } },
+    { name: "iphone-se", use: { ...devices["iPhone SE"] } },
+    { name: "iphone-13", use: { ...devices["iPhone 13"] } },
+    { name: "iphone-15-pro", use: { ...devices["iPhone 15 Pro"] } },
   ],
 });

@@ -30,6 +30,22 @@ body {
   outline: none;
 }
 
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-inline {
+  padding-left: max(0.5rem, env(safe-area-inset-left));
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+}
+
+.safe-area-dialog {
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+}
+
 button:not(:disabled),
 [href],
 input,

@@ -1,4 +1,4 @@
-// Typed schema snapshot for migrations through 202607180010. Compare it with
+// Typed schema snapshot for migrations through 202607180011. Compare it with
 // `supabase gen types typescript --linked` after every linked deployment.
 export type Json =
   | string
@@ -28,6 +28,8 @@ export type SubmissionStatus =
   | "rejected"
   | "withdrawn";
 export type ReportStatus = "open" | "investigating" | "resolved" | "dismissed";
+export type ResourceVisibility =
+  "public" | "authenticated" | "restricted" | "private";
 
 type Table<Row extends Record<string, unknown>> = {
   Row: Row;
@@ -176,6 +178,11 @@ export interface Database {
         title: string;
         slug: string;
         description: string | null;
+        abstract: string | null;
+        visibility: ResourceVisibility;
+        thumbnail_path: string | null;
+        seo_title: string | null;
+        seo_description: string | null;
         academic_year: number | null;
         resource_type: string;
         status: ResourceStatus;
@@ -225,6 +232,29 @@ export interface Database {
         requested_changes: string | null;
         created_at: string;
       }>;
+      resource_bookmarks: Table<{
+        id: string;
+        user_id: string;
+        resource_id: string;
+        created_at: string;
+      }>;
+      resource_ratings: Table<{
+        id: string;
+        user_id: string;
+        resource_id: string;
+        rating: number;
+        review_text: string | null;
+        moderation_status: "visible" | "pending" | "hidden";
+        created_at: string;
+        updated_at: string;
+      }>;
+      resource_download_events: Table<{
+        id: number;
+        resource_id: string;
+        user_id: string | null;
+        version_id: string | null;
+        downloaded_at: string;
+      }>;
       review_comments: Table<{
         id: string;
         submission_id: string;
@@ -244,6 +274,31 @@ export interface Database {
         entity_id: string | null;
         read_at: string | null;
         created_at: string;
+      }>;
+      notification_preferences: Table<{
+        user_id: string;
+        in_app_enabled: boolean;
+        email_enabled: boolean;
+        push_enabled: boolean;
+        submission_updates: boolean;
+        resource_updates: boolean;
+        moderation_updates: boolean;
+        system_announcements: boolean;
+        created_at: string;
+        updated_at: string;
+      }>;
+      user_devices: Table<{
+        id: string;
+        user_id: string;
+        device_key: string;
+        platform: "web" | "android" | "ios";
+        push_token: string | null;
+        device_name: string | null;
+        app_version: string | null;
+        notifications_enabled: boolean;
+        last_active_at: string;
+        created_at: string;
+        updated_at: string;
       }>;
       resource_reports: Table<{
         id: string;
@@ -304,6 +359,34 @@ export interface Database {
       public_platform_stats: {
         Args: Record<PropertyKey, never>;
         Returns: Record<string, number>;
+      };
+      get_resource_rating_summary: {
+        Args: { target_resource_id: string };
+        Returns: Array<{ average_rating: number; rating_count: number }>;
+      };
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      list_my_download_history: {
+        Args: { page_number: number; page_size: number };
+        Returns: Array<{
+          event_id: number;
+          resource_id: string;
+          resource_title: string;
+          resource_slug: string;
+          version_number: number | null;
+          downloaded_at: string;
+          total_count: number;
+        }>;
+      };
+      record_resource_download: {
+        Args: {
+          target_resource_id: string;
+          event_user_id: string | null;
+          target_version_id: string | null;
+        };
+        Returns: undefined;
       };
       admin_dashboard_metrics: {
         Args: Record<PropertyKey, never>;

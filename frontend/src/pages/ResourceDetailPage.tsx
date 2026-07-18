@@ -12,14 +12,17 @@ import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
 import { BuyMeACoffeeModal } from "../components/BuyMeACoffeeModal";
 import { Seo } from "../components/Seo";
+import { ResourceEngagementPanel } from "../features/engagement/ResourceEngagementPanel";
 import { useCurrentAuth } from "../app/AuthContext";
 import {
   fetchResource,
   getLegacyPreviewUrl,
   getPublicResourceAccessUrl,
+  getTrackedResourceAccess,
   reportResource,
 } from "../lib/supabase/resources";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
+import { webNavigationAdapter, webShareAdapter } from "../platform";
 
 export default function ResourceDetailPage() {
   const { resourceId = "" } = useParams();
@@ -100,11 +103,29 @@ export default function ResourceDetailPage() {
     setCoffeeOpen(false);
     setPendingViewerUrl("");
   };
-  const openDocumentWindow = () => {
+  const openDocumentWindow = async () => {
     if (!pendingViewerUrl) return;
-    const expectedCount = (pendingDownloadCount ?? item.downloadCount) + 1;
+    const fallbackUrl = pendingViewerUrl;
+    const documentWindow = webNavigationAdapter.reserveExternal();
+    setCoffeeOpen(false);
+    setPendingViewerUrl("");
+    let expectedCount = (pendingDownloadCount ?? item.downloadCount) + 1;
+    try {
+      const access = await getTrackedResourceAccess(item.id);
+      expectedCount = Math.max(expectedCount, access.downloadCount);
+      const targetUrl = isLegacy
+        ? access.viewerUrl
+        : `${access.viewerUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
+      if (documentWindow) documentWindow.navigate(targetUrl);
+      else await webNavigationAdapter.openExternal(targetUrl);
+    } catch {
+      if (documentWindow) documentWindow.navigate(fallbackUrl);
+      else await webNavigationAdapter.openExternal(fallbackUrl);
+      setReportMessage(
+        "The document opened, but signed-in download history could not be confirmed.",
+      );
+    }
     setPendingDownloadCount(expectedCount);
-    window.open(pendingViewerUrl, "_blank", "noopener,noreferrer");
     window.setTimeout(() => {
       void query.refetch().then((result) => {
         if ((result.data?.downloadCount ?? 0) >= expectedCount) {
@@ -112,8 +133,6 @@ export default function ResourceDetailPage() {
         }
       });
     }, 1800);
-    setCoffeeOpen(false);
-    setPendingViewerUrl("");
   };
   const shareResource = async () => {
     setShareMessage("");
@@ -123,12 +142,8 @@ export default function ResourceDetailPage() {
         text: item.description || `Academic resource for ${item.subjectName}.`,
         url: resourceUrl,
       };
-      if (navigator.share && navigator.canShare?.(shareData)) {
-        await navigator.share(shareData);
-        return;
-      }
-      await navigator.clipboard.writeText(resourceUrl);
-      setShareMessage("Resource link copied.");
+      const outcome = await webShareAdapter.share(shareData);
+      if (outcome === "copied") setShareMessage("Resource link copied.");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       setShareMessage("The share link could not be copied.");
@@ -335,6 +350,7 @@ export default function ResourceDetailPage() {
                 ).toLocaleString()}
               />
             </dl>
+            <ResourceEngagementPanel resourceId={item.id} />
             <div className="mt-6 flex gap-2 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
               <FileWarning className="shrink-0" size={19} />
               <p>

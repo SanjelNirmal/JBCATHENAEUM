@@ -1,4 +1,8 @@
-import { anonymousClient, serviceClient } from "../_shared/supabase.ts";
+import {
+  anonymousClient,
+  authenticatedUser,
+  serviceClient,
+} from "../_shared/supabase.ts";
 import {
   corsHeaders,
   errorResponse,
@@ -21,8 +25,19 @@ Deno.serve(async (request) => {
     if (!resourceId)
       throw new PublicError("invalid_resource", "Resource is required.");
 
-    const publicSupabase = anonymousClient();
-    const { data: resource, error: resourceError } = await publicSupabase
+    let resourceClient = anonymousClient();
+    let eventUserId: string | null = null;
+    if (request.headers.get("authorization")) {
+      try {
+        const authenticated = await authenticatedUser(request);
+        resourceClient = authenticated.client;
+        eventUserId = authenticated.user.id;
+      } catch {
+        // Public resources remain accessible when an optional stale session is
+        // present. Invalid credentials are never trusted for history records.
+      }
+    }
+    const { data: resource, error: resourceError } = await resourceClient
       .from("resources")
       .select("id,current_version_id,file_url")
       .eq("id", resourceId)
@@ -58,9 +73,18 @@ Deno.serve(async (request) => {
         );
       }
       if (recordOpen) {
-        await service.rpc("increment_resource_download", {
-          target_resource_id: resourceId,
-        });
+        const { error: recordError } = await service.rpc(
+          "record_resource_download",
+          {
+            target_resource_id: resourceId,
+            event_user_id: eventUserId,
+            target_version_id: null,
+          },
+        );
+        if (recordError)
+          console.error("download_history_write_failed", {
+            code: recordError.code,
+          });
       }
       if (!wantsJson) {
         return new Response(null, {
@@ -121,9 +145,18 @@ Deno.serve(async (request) => {
       throw signedError ?? new Error("Signed URL was not created");
 
     if (download || recordOpen) {
-      await service.rpc("increment_resource_download", {
-        target_resource_id: resourceId,
-      });
+      const { error: recordError } = await service.rpc(
+        "record_resource_download",
+        {
+          target_resource_id: resourceId,
+          event_user_id: eventUserId,
+          target_version_id: resource.current_version_id,
+        },
+      );
+      if (recordError)
+        console.error("download_history_write_failed", {
+          code: recordError.code,
+        });
     }
     if (wantsJson) {
       const { data: countedResource } = await service

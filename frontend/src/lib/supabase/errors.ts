@@ -6,6 +6,7 @@ const codeMessages: Record<string, string> = {
   "23505": "This item already exists.",
   "23514": "This action is not valid for the current state.",
   P0002: "The requested item could not be found.",
+  authentication_required: "Please sign in to continue.",
   invalid_credentials: "The email or password is incorrect.",
   email_not_confirmed: "Verify your email address before signing in.",
   email_address_not_authorized:
@@ -22,8 +23,7 @@ const codeMessages: Record<string, string> = {
   weak_password:
     "Use a stronger password that meets all password requirements.",
   same_password: "Choose a password different from your current password.",
-  "avatar url must start with https://":
-    "Avatar URL must start with https://.",
+  "avatar url must start with https://": "Avatar URL must start with https://.",
   mfa_required: "Multi-factor authentication is required for this action.",
   account_suspended:
     "This account is suspended. Contact a campus administrator for assistance.",
@@ -53,6 +53,8 @@ export function toSafeErrorMessage(
     return codeMessages.invalid_credentials;
   if (message.includes("email not confirmed"))
     return codeMessages.email_not_confirmed;
+  if (message.includes("authentication_required"))
+    return codeMessages.authentication_required;
   if (message.includes("avatar url must start with https://"))
     return codeMessages["avatar url must start with https://"];
   if (message.includes("multi-factor") || message.includes("aal2"))

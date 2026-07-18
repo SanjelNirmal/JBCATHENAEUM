@@ -17,11 +17,13 @@ import {
   useState,
   type ComponentType,
 } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { canReviewResources } from "../lib/roles";
 import { signOut } from "../lib/supabase/auth";
 import { useCurrentAuth } from "../app/AuthContext";
 import { useDialogFocus } from "../lib/useDialogFocus";
+import { fetchUnreadNotificationCount } from "../lib/supabase/notifications";
 
 const links = [
   { to: "/resources", label: "Resources", icon: BookOpen },
@@ -35,6 +37,12 @@ export function SiteHeader() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const unreadNotifications = useQuery({
+    queryKey: ["notifications", "unread-count", auth.user?.id],
+    queryFn: fetchUnreadNotificationCount,
+    enabled: Boolean(auth.user),
+    refetchInterval: 60_000,
+  });
   const menuButton = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setOpen(false), []);
@@ -60,7 +68,7 @@ export function SiteHeader() {
   };
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <header className="safe-area-top sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 min-[960px]:min-h-20 lg:px-8">
           <Link
             to="/"
@@ -116,11 +124,16 @@ export function SiteHeader() {
               </Link>
               <Link
                 to="/notifications"
-                aria-label="Notifications"
+                aria-label={`Notifications${(unreadNotifications.data ?? 0) > 0 ? `, ${unreadNotifications.data} unread` : ""}`}
                 title="Notifications"
-                className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-300"
+                className="relative inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-300"
               >
                 <Bell size={17} />
+                {(unreadNotifications.data ?? 0) > 0 && (
+                  <span className="absolute -right-2 -top-2 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-700 px-1 text-[10px] font-black text-white">
+                    {Math.min(unreadNotifications.data ?? 0, 99)}
+                  </span>
+                )}
               </Link>
               {canReviewResources(auth.profile.role) && (
                 <Link
@@ -170,7 +183,7 @@ export function SiteHeader() {
               aria-modal="true"
               aria-label="Navigation"
               onMouseDown={(event) => event.stopPropagation()}
-              className="ml-auto flex h-dvh w-full max-w-sm flex-col overflow-y-auto bg-white shadow-2xl"
+              className="safe-area-top ml-auto flex h-dvh w-full max-w-sm flex-col overflow-y-auto bg-white shadow-2xl"
             >
               <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
                 <div>
@@ -255,6 +268,11 @@ export function SiteHeader() {
                     >
                       <Bell size={20} />
                       Notifications
+                      {(unreadNotifications.data ?? 0) > 0 && (
+                        <span className="ml-auto rounded-full bg-red-700 px-2 py-0.5 text-xs text-white">
+                          {Math.min(unreadNotifications.data ?? 0, 99)} unread
+                        </span>
+                      )}
                     </NavLink>
                   )}
                   {auth.profile && canReviewResources(auth.profile.role) && (
@@ -303,7 +321,7 @@ function MobileBottomNav({ openMenu }: { openMenu: () => void }) {
   return (
     <nav
       aria-label="Mobile quick navigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur min-[960px]:hidden"
+      className="safe-area-inline fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur min-[960px]:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
         {links.map((item) => (

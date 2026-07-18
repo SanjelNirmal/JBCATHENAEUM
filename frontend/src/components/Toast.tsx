@@ -46,7 +46,7 @@ export function Toast({ message, type, onClose, duration = 5000 }: ToastProps) {
       initial={{ opacity: 0, y: 50, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      className={`fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg ${currentStyle.bg} ${currentStyle.border} ${currentStyle.text} min-w-[300px] max-w-md`}
+      className={`fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-[max(1.5rem,env(safe-area-inset-right))] z-[100] flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg ${currentStyle.bg} ${currentStyle.border} ${currentStyle.text} min-w-[300px] max-w-md`}
     >
       <div className="shrink-0">{currentStyle.icon}</div>
       <p className="text-sm font-medium flex-grow">{message}</p>

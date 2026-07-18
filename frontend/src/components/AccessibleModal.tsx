@@ -22,7 +22,7 @@ export function AccessibleModal({
   useDialogFocus(true, surface, onClose);
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4"
+      className="safe-area-dialog fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4"
       role="presentation"
       onMouseDown={() => {
         if (closeOnBackdrop) onClose();
