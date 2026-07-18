@@ -73,11 +73,12 @@ describe("ResourceDetailPage", () => {
       screen.queryByRole("link", { name: /Open full document/ }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Open full screen" }),
+      screen.getByRole("button", { name: "Open in new window" }),
     ).toBeInTheDocument();
   });
 
-  it("counts the open, offers optional support, and continues full screen", async () => {
+  it("counts the open, offers optional support, and opens a new window", async () => {
+    const windowOpen = vi.spyOn(window, "open").mockReturnValue(null);
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -95,7 +96,7 @@ describe("ResourceDetailPage", () => {
     );
 
     await userEvent.click(
-      await screen.findByRole("button", { name: "Open full screen" }),
+      await screen.findByRole("button", { name: "Open in new window" }),
     );
     expect(openResourceForViewing).toHaveBeenCalledTimes(1);
     expect(openResourceForViewing).toHaveBeenCalledWith(
@@ -106,22 +107,19 @@ describe("ResourceDetailPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("5")).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Maybe later" }));
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "Maybe later — open document",
+      }),
+    );
     expect(
       screen.queryByRole("dialog", { name: "Buy Me a Coffee" }),
     ).not.toBeInTheDocument();
-    expect(
-      await screen.findByTitle("Full-screen view of Project I"),
-    ).toHaveAttribute(
-      "src",
+    expect(windowOpen).toHaveBeenCalledWith(
       "about:blank?document=1#toolbar=0&navpanes=0&scrollbar=1&view=FitH",
+      "_blank",
+      "noopener,noreferrer",
     );
-
-    await userEvent.click(
-      screen.getByRole("button", { name: "Exit full screen" }),
-    );
-    expect(
-      screen.queryByTitle("Full-screen view of Project I"),
-    ).not.toBeInTheDocument();
+    windowOpen.mockRestore();
   });
 });

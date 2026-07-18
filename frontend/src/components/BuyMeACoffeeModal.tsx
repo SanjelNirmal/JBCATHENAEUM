@@ -3,7 +3,15 @@ import { useState } from "react";
 import { optionalSupportConfig } from "../config/payment";
 import { AccessibleModal } from "./AccessibleModal";
 
-export function BuyMeACoffeeModal({ onClose }: { onClose: () => void }) {
+export function BuyMeACoffeeModal({
+  onClose,
+  onContinue,
+  continueLabel = "Maybe later",
+}: {
+  onClose: () => void;
+  onContinue?: () => void;
+  continueLabel?: string;
+}) {
   const [copyStatus, setCopyStatus] = useState("");
   const [qrAvailable, setQrAvailable] = useState(true);
 
@@ -153,10 +161,10 @@ export function BuyMeACoffeeModal({ onClose }: { onClose: () => void }) {
             </p>
             <button
               type="button"
-              onClick={onClose}
+              onClick={onContinue ?? onClose}
               className="mt-4 min-h-11 w-full rounded-lg bg-[#002147] px-5 font-bold text-white"
             >
-              Maybe later
+              {continueLabel}
             </button>
           </div>
         </div>

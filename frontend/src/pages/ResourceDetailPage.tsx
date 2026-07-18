@@ -4,7 +4,6 @@ import {
   ExternalLink,
   FileWarning,
   Flag,
-  Maximize2,
   RefreshCw,
   Share2,
 } from "lucide-react";
@@ -12,7 +11,6 @@ import { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
 import { BuyMeACoffeeModal } from "../components/BuyMeACoffeeModal";
-import { FullScreenDocumentViewer } from "../components/FullScreenDocumentViewer";
 import { Seo } from "../components/Seo";
 import { useCurrentAuth } from "../app/AuthContext";
 import {
@@ -39,7 +37,6 @@ export default function ResourceDetailPage() {
   const [openBusy, setOpenBusy] = useState(false);
   const [coffeeOpen, setCoffeeOpen] = useState(false);
   const [pendingViewerUrl, setPendingViewerUrl] = useState("");
-  const [fullScreenUrl, setFullScreenUrl] = useState("");
   const [openedDownloadCount, setOpenedDownloadCount] = useState<number | null>(
     null,
   );
@@ -94,7 +91,7 @@ export default function ResourceDetailPage() {
     ? basePreviewUrl
     : `${basePreviewUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
   const resourceUrl = `${window.location.origin}/resources/${item.slug}`;
-  const openFullScreen = async () => {
+  const prepareDocument = async () => {
     if (openRequestActive.current) return;
     openRequestActive.current = true;
     setOpenBusy(true);
@@ -114,9 +111,15 @@ export default function ResourceDetailPage() {
       setOpenBusy(false);
     }
   };
-  const continueToDocument = () => {
+  const cancelDocumentOpen = () => {
     setCoffeeOpen(false);
-    if (pendingViewerUrl) setFullScreenUrl(pendingViewerUrl);
+    setPendingViewerUrl("");
+  };
+  const openDocumentWindow = () => {
+    if (!pendingViewerUrl) return;
+    window.open(pendingViewerUrl, "_blank", "noopener,noreferrer");
+    setCoffeeOpen(false);
+    setPendingViewerUrl("");
   };
   const shareResource = async () => {
     setShareMessage("");
@@ -201,13 +204,13 @@ export default function ResourceDetailPage() {
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <button
-                type="button"
-                onClick={() => void openFullScreen()}
+              type="button"
+              onClick={() => void prepareDocument()}
                 disabled={openBusy}
                 className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white disabled:cursor-wait disabled:opacity-60"
               >
-                <Maximize2 aria-hidden="true" size={17} />
-                {openBusy ? "Preparing document…" : "Open full screen"}
+              <ExternalLink aria-hidden="true" size={17} />
+              {openBusy ? "Preparing document…" : "Open in new window"}
               </button>
               <button
                 type="button"
@@ -358,15 +361,11 @@ export default function ResourceDetailPage() {
           </aside>
         </div>
       </main>
-      {coffeeOpen && <BuyMeACoffeeModal onClose={continueToDocument} />}
-      {fullScreenUrl && (
-        <FullScreenDocumentViewer
-          title={item.title}
-          url={fullScreenUrl}
-          onClose={() => {
-            setFullScreenUrl("");
-            setPendingViewerUrl("");
-          }}
+      {coffeeOpen && (
+        <BuyMeACoffeeModal
+          onClose={cancelDocumentOpen}
+          onContinue={openDocumentWindow}
+          continueLabel="Maybe later — open document"
         />
       )}
     </>
