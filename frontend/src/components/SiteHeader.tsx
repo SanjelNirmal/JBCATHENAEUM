@@ -29,7 +29,7 @@ import logo from "../assets/logo.png";
 const links = [
   { to: "/resources", label: "Resources", icon: BookOpen },
   { to: "/faculties", label: "Academics", icon: GraduationCap },
-
+  { to: "/contribute", label: "Contribute", icon: UploadCloud },
 ];
 
 export function SiteHeader() {
