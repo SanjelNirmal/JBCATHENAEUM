@@ -187,8 +187,25 @@ export function SiteFooter() {
 
         <div className="border-t border-white/10 px-5 py-4 text-sm text-slate-400">
           <div className="mx-auto flex max-w-7xl flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:text-left lg:px-8">
-            <p>© 2026 JBC Athenaeum.</p>
-            <p>Created by Nirmal Sanjel.</p>
+            <p>© 2026 JBC Athenaeum. All rights reserved.</p>
+
+            <p className="leading-6">
+              Version 1.0.0
+              <span className="mx-2 text-[#c49b63]">•</span>
+              Last updated July 2026
+              <span className="mx-2 text-[#c49b63]">•</span>
+              Made in Nepal
+              <span className="mx-2 text-[#c49b63]">•</span>
+              Designed &amp; Maintained by{" "}
+              <a
+                href="https://www.nirmalsanjel.com.np"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#d8b37a] transition hover:text-white"
+              >
+                Nirmal Sanjel
+              </a>
+            </p>
           </div>
         </div>
       </footer>
