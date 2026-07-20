@@ -29,7 +29,7 @@ import logo from "../assets/logo.png";
 const links = [
   { to: "/resources", label: "Resources", icon: BookOpen },
   { to: "/faculties", label: "Academics", icon: GraduationCap },
-  { to: "/contribute", label: "Contribute", icon: UploadCloud },
+
 ];
 
 export function SiteHeader() {
@@ -106,8 +106,9 @@ export function SiteHeader() {
           <form
             onSubmit={submitSearch}
             role="search"
-            className="ml-auto hidden max-w-xs flex-1 items-center rounded-xl border border-slate-300 bg-slate-50 px-3 focus-within:outline-[3px] focus-within:outline-offset-[3px] focus-within:outline-[#b7791f] min-[720px]:flex"
-          >
+            className="ml-auto hidden flex-1 max-w-xs lg:max-w-md xl:max-w-lg items-center rounded-xl border border-slate-300 bg-slate-50 px-3 focus-within:outline-[3px] focus-within:outline-offset-[3px] focus-within:outline-[#b7791f] min-[720px]:flex"
+            >
+              
             <Search size={17} className="text-slate-500" aria-hidden="true" />
             <label htmlFor="site-search" className="sr-only">
               Search resources
