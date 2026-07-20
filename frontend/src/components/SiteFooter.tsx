@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { subscribeToNewsletter } from "../lib/supabase/newsletter";
 import { BuyMeACoffeeModal } from "./BuyMeACoffeeModal";
+import logo from "../assets/logo.png";
 
 const platformLinks = [
   ["Resources", "/resources"],
@@ -74,9 +75,19 @@ export function SiteFooter() {
         <div className="mx-auto grid max-w-7xl gap-x-10 gap-y-8 px-5 py-8 sm:grid-cols-2 sm:px-6 sm:py-10 lg:grid-cols-[1.35fr_0.8fr_1fr_1.05fr] lg:px-8">
           <section aria-label="Platform summary">
             <div>
-              <h2 className="font-serif text-2xl font-bold leading-tight text-white">
-                JBC Athenaeum
-              </h2>
+                <div className="flex items-center gap-3">
+                    <img
+                      src={logo}
+                      alt="JBC Athenaeum logo"
+                      className="h-10 w-10 shrink-0 object-contain sm:h-12 sm:w-12"
+                      width={48}
+                      height={48}
+                    />
+
+                    <h2 className="font-serif text-2xl font-bold leading-tight text-white">
+                      JBC <span className="text-[#c49b63]">Athenaeum</span>
+                    </h2>
+                  </div>
               <p className="mt-3 max-w-md text-sm leading-6 text-slate-300">
                 A moderated academic archive for TU BCA, BICTE, and campus
                 learning resources.

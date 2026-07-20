@@ -24,6 +24,7 @@ import { signOut } from "../lib/supabase/auth";
 import { useCurrentAuth } from "../app/AuthContext";
 import { useDialogFocus } from "../lib/useDialogFocus";
 import { fetchUnreadNotificationCount } from "../lib/supabase/notifications";
+import logo from "../assets/logo.png";
 
 const links = [
   { to: "/resources", label: "Resources", icon: BookOpen },
@@ -71,11 +72,21 @@ export function SiteHeader() {
       <header className="safe-area-top sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex min-h-14 max-w-7xl items-center gap-3 px-4 sm:min-h-16 sm:px-6 min-[960px]:min-h-20 lg:px-8">
           <Link
-            to="/"
-            className="min-w-0 shrink whitespace-nowrap font-serif text-[15px] font-black uppercase leading-tight text-[#002147] focus-visible:outline-2 focus-visible:outline-offset-4 sm:text-lg"
-          >
-            JBC <span className="text-[#85591f]">Athenaeum</span>
-          </Link>
+              to="/"
+              className="flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-md focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
+              <img
+                src={logo}
+                alt="JBC Athenaeum logo"
+                className="block h-9 w-9 shrink-0 object-contain sm:h-10 sm:w-10 min-[960px]:h-12 min-[960px]:w-12"
+                width={48}
+                height={48}
+              />
+
+              <span className="font-serif text-[15px] font-black uppercase leading-tight text-[#002147] sm:text-lg">
+                JBC <span className="text-[#85591f]">Athenaeum</span>
+              </span>
+            </Link>
           <nav
             aria-label="Primary"
             className="ml-6 hidden items-center gap-6 text-sm font-semibold min-[960px]:flex"
