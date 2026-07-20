@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "465371268133",
+    "project_id": "jbc-athenaeum",
+    "storage_bucket": "jbc-athenaeum.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465371268133:android:0fa8a21d9e3da48271ebcc",
+        "android_client_info": {
+          "package_name": "np.com.nirmalsanjel.jbcathenaeum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcYDpgu9DtrwCl0XggG3X6E0OYxjGWhjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

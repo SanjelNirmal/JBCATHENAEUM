@@ -5,4 +5,5 @@
     <color name="colorAccent">#B7791F</color>
     <color name="surface">#F8FAFC</color>
     <color name="splash_background">#F8FAFC</color>
+    <color name="notificationAccent">#C49B63</color>
 </resources>

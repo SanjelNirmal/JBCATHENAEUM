@@ -56,7 +56,7 @@ export function NativeAppManager() {
 
     const handleInternalNavigation = (event: Event) => {
       const route = (event as CustomEvent<unknown>).detail;
-      if (typeof route === "string" && route.startsWith("/resources/")) {
+      if (typeof route === "string" && route.startsWith("/") && !route.startsWith("//")) {
         navigate(route);
       }
     };

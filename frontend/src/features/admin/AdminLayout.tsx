@@ -4,6 +4,7 @@ import {
   ClipboardCheck,
   FileText,
   Mail,
+  BellRing,
   Menu,
   ScrollText,
   Settings,
@@ -23,6 +24,7 @@ const links = [
   ["/admin/academic-structure", "Academic structure", BookOpen],
   ["/admin/reports", "Reports", ShieldAlert],
   ["/admin/newsletter", "Newsletter", Mail],
+  ["/admin/notifications", "Push notifications", BellRing],
   ["/admin/audit-logs", "Audit logs", ScrollText],
   ["/admin/settings", "Settings", Settings],
 ] as const;

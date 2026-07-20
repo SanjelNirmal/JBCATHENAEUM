@@ -17,4 +17,4 @@ export const supabase = createClient<Database>(safeUrl, safeKey, {
   },
 });
 
-export const LATEST_DATABASE_MIGRATION = "202607180016_bca_old_new_curricula";
+export const LATEST_DATABASE_MIGRATION = "202607200017_push_notifications";

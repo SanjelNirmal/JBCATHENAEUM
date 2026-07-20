@@ -113,6 +113,9 @@ export async function signUp(
 }
 
 export async function signOut() {
+  await import("../notifications/pushNotifications")
+    .then(({ disablePushNotifications }) => disablePushNotifications())
+    .catch(() => undefined);
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }

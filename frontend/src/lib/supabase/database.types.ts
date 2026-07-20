@@ -1,4 +1,4 @@
-// Typed schema snapshot for migrations through 202607180016. Compare it with
+// Typed schema snapshot for migrations through 202607200017. Compare it with
 // `supabase gen types typescript --linked` after every linked deployment.
 export type Json =
   | string
@@ -330,6 +330,16 @@ export interface Database {
         resource_updates: boolean;
         moderation_updates: boolean;
         system_announcements: boolean;
+        new_resources: boolean;
+        past_questions: boolean;
+        account_security: boolean;
+        program_id: string | null;
+        term_id: string | null;
+        subject_ids: string[];
+        quiet_hours_enabled: boolean;
+        quiet_hours_start: string | null;
+        quiet_hours_end: string | null;
+        timezone: string | null;
         created_at: string;
         updated_at: string;
       }>;
@@ -343,6 +353,37 @@ export interface Database {
         app_version: string | null;
         notifications_enabled: boolean;
         last_active_at: string;
+        created_at: string;
+        updated_at: string;
+      }>;
+      push_subscriptions: Table<{
+        id: string;
+        user_id: string;
+        token: string;
+        platform: "web" | "android" | "ios";
+        device_name: string | null;
+        browser_name: string | null;
+        app_version: string | null;
+        program_id: string | null;
+        term_id: string | null;
+        subject_id: string | null;
+        enabled: boolean;
+        last_seen_at: string;
+        created_at: string;
+        updated_at: string;
+      }>;
+      push_notification_campaigns: Table<{
+        id: string;
+        title: string;
+        body: string;
+        category: string;
+        target_url: string | null;
+        resource_id: string | null;
+        created_by: string | null;
+        audience: Json;
+        status: string;
+        scheduled_for: string | null;
+        sent_at: string | null;
         created_at: string;
         updated_at: string;
       }>;

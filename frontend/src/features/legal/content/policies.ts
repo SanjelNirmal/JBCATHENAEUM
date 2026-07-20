@@ -151,6 +151,8 @@ const privacy: PolicyDocument = {
           type: "list",
           items: [
             "Personalized account activity includes authenticated uploads, bookmarks, ratings, notifications, device records, and signed-in download history.",
+            "If push notifications are enabled, the Platform processes a Firebase Cloud Messaging registration token, platform, limited device or browser label, app version, last-seen timestamp, delivery result, and notification preferences to deliver requested alerts and maintain delivery security. Firebase acts as a notification delivery service provider.",
+            "Push can be disabled in account preferences or browser/system settings, and a device subscription can be deleted. Disabled and stale tokens are retained only as needed for suppression, troubleshooting, security, and documented retention, then removed. Account deletion cascades linked push subscriptions and preferences.",
             "Anonymous or aggregated analytics may include public platform counts, download totals, storage totals, and non-identifying usage metrics.",
             "Security and abuse-prevention records may include audit events, account status changes, role changes, failed validation records, report cooldown signals, and sanitized client errors.",
           ],
