@@ -867,15 +867,17 @@ alt="Free academic resources"
 <picture>
   <source
     media="(prefers-color-scheme: dark)"
-    srcset="https://capsule-render.vercel.app/api?type=rect&height=90&section=footer&color=0:020617,35:0F172A,70:1E3A8A,100:0E7490"
+    srcset="https://capsule-render.vercel.app/api?type=rect&height=90&section=footer&color=0f172a"
   />
+
   <source
     media="(prefers-color-scheme: light)"
-    srcset="https://capsule-render.vercel.app/api?type=rect&height=90&section=footer&color=0:DBEAFE,35:BFDBFE,70:93C5FD,100:67E8F9"
+    srcset="https://capsule-render.vercel.app/api?type=rect&height=90&section=footer&color=dbeafe"
   />
+
   <img
     width="100%"
-    src="https://capsule-render.vercel.app/api?type=rect&height=90&section=footer&color=0:020617,35:0F172A,70:1E3A8A,100:0E7490"
+    src="https://capsule-render.vercel.app/api?type=rect&height=90&section=footer&color=0f172a"
     alt="JBC Athenaeum footer"
   />
 </picture>
