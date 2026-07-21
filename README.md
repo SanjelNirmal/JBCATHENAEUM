@@ -7,15 +7,17 @@
 <picture>
   <source
     media="(prefers-color-scheme: dark)"
-    srcset="https://capsule-render.vercel.app/api?type=rect&height=250&color=0:020617,35:0F172A,70:1E3A8A,100:0E7490&text=JBC%20Athenaeum&fontSize=58&fontColor=F8FAFC&fontAlignY=38&desc=Academic%20Resources%20for%20Jana%20Bhawana%20Campus&descSize=19&descAlignY=61&animation=fadeIn"
+    srcset="https://capsule-render.vercel.app/api?type=rect&height=200&color=0f172a&text=JBC%20Athenaeum&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Academic%20Resources%20for%20Jana%20Bhawana%20Campus&descSize=18&descAlignY=62&animation=fadeIn"
   />
+
   <source
     media="(prefers-color-scheme: light)"
-    srcset="https://capsule-render.vercel.app/api?type=rect&height=250&color=0:DBEAFE,35:BFDBFE,70:93C5FD,100:67E8F9&text=JBC%20Athenaeum&fontSize=58&fontColor=0F172A&fontAlignY=38&desc=Academic%20Resources%20for%20Jana%20Bhawana%20Campus&descSize=19&descAlignY=61&animation=fadeIn"
+    srcset="https://capsule-render.vercel.app/api?type=rect&height=200&color=dbeafe&text=JBC%20Athenaeum&fontSize=52&fontColor=0f172a&fontAlignY=38&desc=Academic%20Resources%20for%20Jana%20Bhawana%20Campus&descSize=18&descAlignY=62&animation=fadeIn"
   />
+
   <img
     width="100%"
-    src="https://capsule-render.vercel.app/api?type=rect&height=250&color=0:020617,35:0F172A,70:1E3A8A,100:0E7490&text=JBC%20Athenaeum&fontSize=58&fontColor=F8FAFC&fontAlignY=38&desc=Academic%20Resources%20for%20Jana%20Bhawana%20Campus&descSize=19&descAlignY=61&animation=fadeIn"
+    src="https://capsule-render.vercel.app/api?type=rect&height=200&color=0f172a&text=JBC%20Athenaeum&fontSize=52&fontColor=ffffff&fontAlignY=38&desc=Academic%20Resources%20for%20Jana%20Bhawana%20Campus&descSize=18&descAlignY=62&animation=fadeIn"
     alt="JBC Athenaeum project banner"
   />
 </picture>
