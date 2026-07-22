@@ -6,10 +6,11 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => {
   const nativeBuild = mode === "native";
-  // A fresh entry request per build prevents an old Cloudflare fallback
-  // response from shadowing the real application entry when identical source
-  // is rebuilt. The underlying hashed asset remains available to Workbox.
-  const entryBuildId = Date.now().toString(36);
+  // A fresh filename suffix per build prevents an old Cloudflare HTML fallback
+  // from shadowing any generated asset when identical source is rebuilt.
+  // Versioning filenames (instead of URL queries) also preserves one canonical
+  // ES-module identity for React across the entry and lazy-loaded chunks.
+  const assetBuildId = Date.now().toString(36);
 
   const environment = loadEnv(
     mode,
@@ -44,26 +45,11 @@ export default defineConfig(({ mode }) => {
     },
   };
 
-  const entryCacheBuster: Plugin = {
-    name: "jbc-entry-cache-buster",
-    enforce: "post",
-
-    transformIndexHtml(html) {
-      if (nativeBuild) return html;
-
-      return html.replace(
-        /(<script\b[^>]*\bsrc="\/assets\/[^"]+\.js)"/,
-        `$1?__jbc_build=${entryBuildId}"`,
-      );
-    },
-  };
-
   return {
     plugins: [
       react(),
       tailwindcss(),
       firebaseWorkerConfig,
-      entryCacheBuster,
 
       VitePWA({
         // Native WebView bundles do not need a service worker.
@@ -90,10 +76,6 @@ export default defineConfig(({ mode }) => {
 
           // Remove caches belonging to old deployments.
           cleanupOutdatedCaches: true,
-
-          // The HTML entry uses this per-build cache key. Ignoring it lets the
-          // active worker satisfy later offline loads from the precache.
-          ignoreURLParametersMatching: [/^__jbc_build$/],
 
           globPatterns: [
             "**/*.{js,css,html,png,jpg,jpeg,svg,ico,mp3,woff,woff2}",
@@ -185,6 +167,16 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "."),
+      },
+    },
+
+    build: {
+      rollupOptions: {
+        output: {
+          entryFileNames: `assets/[name]-[hash]-${assetBuildId}.js`,
+          chunkFileNames: `assets/[name]-[hash]-${assetBuildId}.js`,
+          assetFileNames: `assets/[name]-[hash]-${assetBuildId}[extname]`,
+        },
       },
     },
 
