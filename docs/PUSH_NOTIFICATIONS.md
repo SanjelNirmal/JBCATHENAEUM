@@ -12,12 +12,12 @@ flowchart LR
   E -->|OAuth 2 / FCM HTTP v1| G[Firebase Cloud Messaging]
   G --> W[Workbox web worker]
   G --> N[Capacitor Android / iOS]
-  E --> D[(campaign + delivery audit)]
+  E --> D[(per-user history + per-device delivery audit)]
 ```
 
 React never sends to FCM. An authenticated, active `admin` or `super_admin` calls the Edge Function. The function uses a service account only from Supabase secrets, selects enabled and recently seen subscriptions whose account preference allows the category, and sends with a bounded concurrency of eight. Delivery logs reference subscription IDs but never copy tokens.
 
-The project already had `user_devices` and an in-app `notifications` table. Push uses the dedicated `push_subscriptions` table because an FCM token has different lifecycle and secrecy requirements. Existing in-app records and device-management behavior remain unchanged.
+The private `notifications` table is the notification-center history. A campaign creates one row per eligible user, while `notification_deliveries` records one result per enabled subscription. Push uses the dedicated `push_subscriptions` table because an FCM token has different lifecycle and secrecy requirements.
 
 ## Web and PWA setup
 
@@ -29,7 +29,11 @@ VITE_FIREBASE_VAPID_KEY=REPLACE_WITH_FIREBASE_WEB_PUSH_PUBLIC_KEY
 
 The other `VITE_FIREBASE_*` values are client identifiers, not service-account secrets. Vite emits them once to `/firebase-config.js`; source modules read the same environment. Never put `FIREBASE_CLIENT_EMAIL` or `FIREBASE_PRIVATE_KEY` in any Vite variable.
 
-Vite/Workbox owns the only root-scoped service worker. It imports `/firebase-messaging-sw.js`; do not separately register that file. Firebase notification payloads are allowed to display automatically. The companion worker custom-displays data-only payloads and therefore skips payloads that already contain `notification`, preventing a duplicate. Click destinations are reduced to same-origin paths and default to `/resources`.
+Vite/Workbox owns the only root-scoped service worker. It imports `/firebase-messaging-sw.js`; do not separately register that file. Web subscriptions receive data-only FCM messages, and this one worker calls `showNotification()`. A notification ID and tag prevent duplicate rendering. Click destinations are reduced to same-origin paths and default to `/resources`.
+
+When the page is visible, Firebase `onMessage()` feeds the global in-app popup queue instead of creating an operating-system notification. Up to three accessible cards are visible, with additional messages queued. Foreground sound uses `/sounds/notification.mp3`, only after a user gesture and only when the user preference, category, visibility, and quiet-hours checks allow it. The service worker never plays this file.
+
+Web code requests `silent: false`, and native payloads use the platform default sound. A website cannot force background sound: Chrome, Android, macOS, Windows, Focus mode, browser settings, channel settings, and device mute state remain authoritative.
 
 Permission is requested only by the Enable button on the authenticated preferences page. Denied permission must be changed in browser settings; the application does not repeatedly prompt. Web push requires HTTPS (localhost is the development exception). Chromium desktop/Android, Firefox, and modern Safari have differing support. iOS web push requires iOS/iPadOS 16.4 or later and an installed Home Screen web app.
 
@@ -64,7 +68,7 @@ In Apple Developer, create an APNs authentication key. In Firebase Console → P
 
 ## Database and Edge Functions
 
-Apply `supabase/migrations/202607200017_push_notifications.sql` after the preceding migrations. It adds strict owner-only RLS for subscriptions/preferences, admin-only campaign access, service-role-only jobs/deliveries, status constraints, foreign keys, and publication idempotency.
+Apply `supabase/migrations/202607200017_push_notifications.sql`, then `supabase/migrations/202607220018_notification_experience.sql`. The second migration adds foreground preferences, per-user campaign history, internal routes, owner-only history access, and unique campaign/user plus campaign/subscription delivery constraints.
 
 Create a dedicated Google service account with only the Firebase Cloud Messaging API Admin role (`roles/firebasecloudmessaging.admin`) for project `jbc-athenaeum`. Create and download a key only in an appropriate secure operator environment, copy its client email/private key into the secret commands, then securely remove the downloaded JSON. Do not add it to this repository.
 
@@ -72,6 +76,7 @@ Create a dedicated Google service account with only the Firebase Cloud Messaging
 supabase secrets set FIREBASE_PROJECT_ID="jbc-athenaeum"
 supabase secrets set FIREBASE_CLIENT_EMAIL="REPLACE_WITH_SERVICE_ACCOUNT_CLIENT_EMAIL"
 supabase secrets set FIREBASE_PRIVATE_KEY="REPLACE_WITH_SERVICE_ACCOUNT_PRIVATE_KEY"
+supabase db push
 supabase functions deploy send-push-notification
 supabase functions deploy publish-resource
 ```
@@ -90,6 +95,8 @@ Firebase Console can send to a single copied token for diagnosis, but do not pas
 4. iOS signed physical device in foreground/background/terminated states.
 5. Logout/login, several devices per user, disable/re-enable, token re-registration.
 6. Invalid-token cleanup, disabled preferences, publication idempotency, and duplicate foreground suppression.
+7. Foreground sound after interaction, sound disabled, quiet hours, muted categories, and rejected audio playback.
+8. One user with multiple devices: one history item and one delivery row per device.
 
 Local web testing can validate permission and foreground callbacks, but FCM delivery requires a valid VAPID key, Firebase registration, HTTPS/localhost, deployed schema/functions, and server secrets. Native receipt cannot be proven by a simulator-only or unsigned build.
 

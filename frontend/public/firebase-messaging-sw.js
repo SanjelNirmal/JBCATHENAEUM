@@ -46,7 +46,7 @@ if (
    * - the service worker is started by an incoming push.
    */
   messaging.onBackgroundMessage(
-    (payload) => {
+    async (payload) => {
       const data =
         payload.data || {};
 
@@ -55,10 +55,31 @@ if (
           data.url,
         );
 
-      const tag =
-        data.tag ||
-        data.notificationId ||
-        `jbc-${Date.now()}`;
+      const notificationId =
+        typeof data.notificationId === "string"
+          ? data.notificationId.slice(0, 160)
+          : "";
+
+      const tagCandidate =
+        typeof data.tag === "string"
+          ? data.tag.trim().slice(0, 160)
+          : notificationId;
+
+      const tag = /^[a-zA-Z0-9:_-]+$/.test(tagCandidate)
+        ? tagCandidate
+        : undefined;
+
+      if (notificationId) {
+        const displayed = await self.registration.getNotifications();
+        if (
+          displayed.some(
+            (notification) =>
+              notification.data?.notificationId === notificationId,
+          )
+        ) {
+          return;
+        }
+      }
 
       const timestamp =
         Number(
@@ -83,8 +104,7 @@ if (
            * A tag allows related notifications to replace one another.
            * renotify requests another alert when replacement occurs.
            */
-          tag,
-          renotify: true,
+          ...(tag ? { tag, renotify: true } : {}),
 
           /*
            * Request a normal operating-system notification.
@@ -123,8 +143,7 @@ if (
               "",
 
             notificationId:
-              data.notificationId ||
-              "",
+              notificationId,
 
             category:
               data.category ||
@@ -150,6 +169,14 @@ if (
 function safeDestination(
   value,
 ) {
+  if (
+    typeof value !== "string" ||
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    /[\r\n]/.test(value)
+  ) {
+    return "/resources";
+  }
   try {
     const url = new URL(
       value || "/resources",
@@ -238,23 +265,4 @@ self.addEventListener(
  * Close notifications automatically when a notification-close event occurs.
  * This listener is optional but useful for future analytics.
  */
-self.addEventListener(
-  "notificationclose",
-  (event) => {
-    const notificationId =
-      event.notification
-        .data
-        ?.notificationId;
-
-    if (
-      notificationId
-    ) {
-      console.debug(
-        "Push notification dismissed",
-        {
-          notificationId,
-        },
-      );
-    }
-  },
-);
+self.addEventListener("notificationclose", () => undefined);

@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => {
           cleanupOutdatedCaches: true,
 
           globPatterns: [
-            "**/*.{js,css,html,png,jpg,jpeg,svg,ico,woff,woff2}",
+            "**/*.{js,css,html,png,jpg,jpeg,svg,ico,mp3,woff,woff2}",
           ],
 
           globIgnores: [
@@ -192,41 +192,5 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (!id.includes("node_modules")) {
-              return undefined;
-            }
-
-            if (id.includes("@supabase")) {
-              return "supabase";
-            }
-
-            if (id.includes("@tanstack")) {
-              return "query";
-            }
-
-            if (id.includes("react-router")) {
-              return "router";
-            }
-
-            if (id.includes("lucide-react")) {
-              return "icons";
-            }
-
-            if (
-              id.includes("react") ||
-              id.includes("scheduler")
-            ) {
-              return "react";
-            }
-
-            return "vendor";
-          },
-        },
-      },
-    },
   };
 });

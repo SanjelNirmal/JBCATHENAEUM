@@ -1,4 +1,4 @@
-export const LATEST_DATABASE_MIGRATION = "202607200017_push_notifications";
+export const LATEST_DATABASE_MIGRATION = "202607220018_notification_experience";
 
 type PublicEnvironmentSource = Record<string, string | boolean | undefined>;
 

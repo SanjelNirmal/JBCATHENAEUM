@@ -3,6 +3,8 @@ import { requireCurrentUserId } from "./currentUser";
 
 export interface NotificationPreferences {
   inAppEnabled: boolean;
+  foregroundPopupEnabled: boolean;
+  notificationSoundEnabled: boolean;
   emailEnabled: boolean;
   pushEnabled: boolean;
   submissionUpdates: boolean;
@@ -23,6 +25,8 @@ export interface NotificationPreferences {
 
 export const defaultNotificationPreferences: NotificationPreferences = {
   inAppEnabled: true,
+  foregroundPopupEnabled: true,
+  notificationSoundEnabled: true,
   emailEnabled: true,
   pushEnabled: false,
   submissionUpdates: true,
@@ -43,6 +47,8 @@ export const defaultNotificationPreferences: NotificationPreferences = {
 
 function mapPreferences(row: {
   in_app_enabled: boolean;
+  foreground_popup_enabled: boolean;
+  notification_sound_enabled: boolean;
   email_enabled: boolean;
   push_enabled: boolean;
   submission_updates: boolean;
@@ -62,6 +68,8 @@ function mapPreferences(row: {
 }): NotificationPreferences {
   return {
     inAppEnabled: row.in_app_enabled,
+    foregroundPopupEnabled: row.foreground_popup_enabled,
+    notificationSoundEnabled: row.notification_sound_enabled,
     emailEnabled: row.email_enabled,
     pushEnabled: row.push_enabled,
     submissionUpdates: row.submission_updates,
@@ -86,7 +94,7 @@ export async function fetchNotificationPreferences(): Promise<NotificationPrefer
   const { data, error } = await supabase
     .from("notification_preferences")
     .select(
-      "in_app_enabled,email_enabled,push_enabled,submission_updates,resource_updates,moderation_updates,system_announcements,new_resources,past_questions,account_security,program_id,term_id,subject_ids,quiet_hours_enabled,quiet_hours_start,quiet_hours_end,timezone",
+      "in_app_enabled,foreground_popup_enabled,notification_sound_enabled,email_enabled,push_enabled,submission_updates,resource_updates,moderation_updates,system_announcements,new_resources,past_questions,account_security,program_id,term_id,subject_ids,quiet_hours_enabled,quiet_hours_start,quiet_hours_end,timezone",
     )
     .eq("user_id", userId)
     .maybeSingle();
@@ -105,6 +113,8 @@ export async function saveNotificationPreferences(
       {
         user_id: userId,
         in_app_enabled: input.inAppEnabled,
+        foreground_popup_enabled: input.foregroundPopupEnabled,
+        notification_sound_enabled: input.notificationSoundEnabled,
         email_enabled: input.emailEnabled,
         push_enabled: input.pushEnabled,
         submission_updates: input.submissionUpdates,
@@ -125,7 +135,7 @@ export async function saveNotificationPreferences(
       { onConflict: "user_id" },
     )
     .select(
-      "in_app_enabled,email_enabled,push_enabled,submission_updates,resource_updates,moderation_updates,system_announcements,new_resources,past_questions,account_security,program_id,term_id,subject_ids,quiet_hours_enabled,quiet_hours_start,quiet_hours_end,timezone",
+      "in_app_enabled,foreground_popup_enabled,notification_sound_enabled,email_enabled,push_enabled,submission_updates,resource_updates,moderation_updates,system_announcements,new_resources,past_questions,account_security,program_id,term_id,subject_ids,quiet_hours_enabled,quiet_hours_start,quiet_hours_end,timezone",
     )
     .single();
   if (error) throw error;

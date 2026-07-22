@@ -15,10 +15,20 @@ import { toSafeErrorMessage } from "../lib/supabase/errors";
 import { NotificationSettings } from "../components/notifications/NotificationSettings";
 
 const preferenceRows: Array<{
-  key: "inAppEnabled" | "emailEnabled" | "pushEnabled" | "submissionUpdates" | "resourceUpdates" | "moderationUpdates" | "systemAnnouncements" | "newResources" | "pastQuestions" | "accountSecurity";
+  key: "inAppEnabled" | "foregroundPopupEnabled" | "notificationSoundEnabled" | "emailEnabled" | "pushEnabled" | "submissionUpdates" | "resourceUpdates" | "moderationUpdates" | "systemAnnouncements" | "newResources" | "pastQuestions" | "accountSecurity";
   label: string;
   description: string;
 }> = [
+  {
+    key: "foregroundPopupEnabled",
+    label: "Foreground popup",
+    description: "Show a floating notification card while JBC Athenaeum is open.",
+  },
+  {
+    key: "notificationSoundEnabled",
+    label: "Foreground notification sound",
+    description: "Play a subtle website sound after you have interacted with the page.",
+  },
   {
     key: "inAppEnabled",
     label: "In-app notifications",
@@ -34,7 +44,7 @@ const preferenceRows: Array<{
     key: "pushEnabled",
     label: "Push notifications",
     description:
-      "Prepare this account for future mobile push delivery. Push delivery is not active yet.",
+      "Allow operating-system notifications on enabled devices.",
   },
   {
     key: "submissionUpdates",
@@ -53,7 +63,7 @@ const preferenceRows: Array<{
   },
   {
     key: "systemAnnouncements",
-    label: "System announcements",
+    label: "Administrative announcements",
     description:
       "Service and campus archive announcements. Security-critical notices may still be delivered.",
   },
@@ -166,6 +176,7 @@ export default function AccountPreferencesPage() {
             <div className="mt-4"><p className="text-sm font-semibold">Subjects</p><div className="mt-2 grid max-h-52 gap-2 overflow-auto rounded-lg border border-slate-200 p-3 sm:grid-cols-2">{catalog.filter((item) => (!form.programId || item.programId === form.programId) && (!form.termId || item.termId === form.termId)).map((item) => <label key={item.subjectId} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.subjectIds.includes(item.subjectId)} onChange={(event) => setForm((current) => ({ ...current, subjectIds: event.target.checked ? [...new Set([...current.subjectIds, item.subjectId])] : current.subjectIds.filter((id) => id !== item.subjectId) }))} />{item.subjectCode ? `${item.subjectCode} — ` : ""}{item.subjectName}</label>)}</div></div>
           </fieldset>
           <fieldset className="mt-6 border-t border-slate-200 pt-6"><legend className="font-bold text-[#002147]">Quiet hours</legend><label className="mt-4 flex items-center gap-3 text-sm font-semibold"><input type="checkbox" checked={form.quietHoursEnabled} onChange={(event) => setForm((current) => ({ ...current, quietHoursEnabled: event.target.checked }))} />Pause ordinary alerts during quiet hours</label>{form.quietHoursEnabled && <div className="mt-4 grid gap-4 sm:grid-cols-2"><label className="text-sm">Start<input type="time" value={form.quietHoursStart || "22:00"} onChange={(event) => setForm((current) => ({ ...current, quietHoursStart: event.target.value }))} className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3" /></label><label className="text-sm">End<input type="time" value={form.quietHoursEnd || "07:00"} onChange={(event) => setForm((current) => ({ ...current, quietHoursEnd: event.target.value }))} className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3" /></label></div>}</fieldset>
+          <label className="mt-5 block text-sm font-semibold text-[#002147]">Timezone<input value={form.timezone || ""} onChange={(event) => setForm((current) => ({ ...current, timezone: event.target.value || null }))} placeholder="Asia/Kathmandu" className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3" /></label>
           {message && (
             <p
               role="status"

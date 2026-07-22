@@ -28,7 +28,7 @@ describe("PWA safety configuration", () => {
 
   it("keeps Supabase, signed URLs, and PDFs out of runtime caches", () => {
     const config = readFileSync(resolve(root, "vite.config.ts"), "utf8");
-    expect(config).toContain('globIgnores: ["**/*.pdf", "payment/**"]');
+    expect(config).toMatch(/globIgnores:\s*\[[\s\S]*"\*\*\/\*\.pdf"[\s\S]*"payment\/\*\*"/);
     for (const endpoint of [
       "\\/auth\\/v1\\/",
       "\\/rest\\/v1\\/",
@@ -47,7 +47,7 @@ describe("PWA safety configuration", () => {
       readFileSync(resolve(root, "public/offline.html"), "utf8"),
     ).toMatch(/offline/i);
     const config = readFileSync(resolve(root, "vite.config.ts"), "utf8");
-    expect(config).toContain('registerType: "prompt"');
+    expect(config).toContain('registerType: "autoUpdate"');
     const manager = readFileSync(
       resolve(root, "src/components/PwaManager.tsx"),
       "utf8",
@@ -64,5 +64,31 @@ describe("PWA safety configuration", () => {
     expect(headers).toMatch(
       /\/assets\/\*[\s\S]*! Cache-Control[\s\S]*Cache-Control: public, max-age=31536000, immutable/,
     );
+  });
+
+  it("uses one Workbox worker for duplicate-safe background notifications", () => {
+    const config = readFileSync(resolve(root, "vite.config.ts"), "utf8");
+    const worker = readFileSync(
+      resolve(root, "public/firebase-messaging-sw.js"),
+      "utf8",
+    );
+    expect(config).toContain('importScripts: ["firebase-messaging-sw.js"]');
+    expect(worker).toMatch(/self\.registration\s*\.showNotification/);
+    expect(worker).toContain("self.registration.getNotifications");
+    expect(worker).toContain("notification.data?.notificationId === notificationId");
+    expect(worker).toContain("silent: false");
+    expect(worker).toContain("vibrate: [");
+  });
+
+  it("focuses or opens a same-origin route when an OS notification is clicked", () => {
+    const worker = readFileSync(
+      resolve(root, "public/firebase-messaging-sw.js"),
+      "utf8",
+    );
+    expect(worker).toContain('value.startsWith("/")');
+    expect(worker).toContain('value.startsWith("//")');
+    expect(worker).toMatch(/await client\.focus\(\)/);
+    expect(worker).toMatch(/await client\.navigate\s*\(/);
+    expect(worker).toContain(".openWindow(");
   });
 });

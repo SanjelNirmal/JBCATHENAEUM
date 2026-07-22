@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Check } from "lucide-react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useCurrentAuth } from "../app/AuthContext";
 import { EmptyState, ErrorState, LoadingState } from "../components/AsyncState";
 import { Seo } from "../components/Seo";
@@ -11,10 +11,12 @@ import {
 } from "../lib/supabase/notifications";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
 import { useState } from "react";
+import { safeNotificationRoute } from "../lib/notifications/safety";
 
 export default function NotificationsPage() {
   const auth = useCurrentAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const client = useQueryClient();
   const [message, setMessage] = useState("");
   const [markingAll, setMarkingAll] = useState(false);
@@ -57,6 +59,10 @@ export default function NotificationsPage() {
     } finally {
       setMarkingAll(false);
     }
+  };
+  const openNotification = async (id: string, targetUrl: string, readAt: string | null) => {
+    if (!readAt) await markRead(id);
+    navigate(safeNotificationRoute(targetUrl));
   };
 
   return (
@@ -116,15 +122,11 @@ export default function NotificationsPage() {
                 className={`rounded-xl border p-5 ${item.readAt ? "border-slate-200 bg-white" : "border-blue-200 bg-blue-50"}`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
+                  <button type="button" onClick={() => void openNotification(item.id, item.targetUrl, item.readAt)} className="min-w-0 flex-1 rounded-lg text-left focus-visible:outline-2">
                     <h2 className="font-bold text-[#002147]">{item.title}</h2>
-                    <p className="mt-2 text-sm text-slate-700">
-                      {item.message}
-                    </p>
-                    <p className="mt-2 text-xs text-slate-500">
-                      {new Date(item.createdAt).toLocaleString()}
-                    </p>
-                  </div>
+                    <p className="mt-2 text-sm text-slate-700">{item.message}</p>
+                    <p className="mt-2 text-xs text-slate-500">{new Date(item.createdAt).toLocaleString()}</p>
+                  </button>
                   {!item.readAt && (
                     <button
                       onClick={() => void markRead(item.id)}

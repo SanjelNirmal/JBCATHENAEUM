@@ -34,3 +34,17 @@ export async function lastPushRegistration(): Promise<string | null> {
   if (error) throw error;
   return data?.last_seen_at ?? null;
 }
+
+export async function currentPushDevice(): Promise<{ id: string; enabled: boolean } | null> {
+  const token = localStorage.getItem("jbc:last-fcm-token");
+  if (!token) return null;
+  const userId = await requireCurrentUserId();
+  const { data, error } = await supabase
+    .from("push_subscriptions")
+    .select("id,enabled")
+    .eq("user_id", userId)
+    .eq("token", token)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? { id: data.id, enabled: data.enabled } : null;
+}

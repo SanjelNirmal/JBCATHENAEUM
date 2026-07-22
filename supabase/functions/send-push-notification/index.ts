@@ -9,6 +9,11 @@ import {
   jsonResponse,
   PublicError,
 } from "../_shared/http.ts";
+import { buildFcmMessage } from "../_shared/pushPayloads.ts";
+import {
+  deliveryAllowed,
+  isInvalidFcmTokenError,
+} from "../_shared/notificationPolicy.ts";
 
 const Input = z.object({
   title: z.string().trim().min(1).max(120).optional(),
@@ -52,6 +57,8 @@ const Input = z.object({
     }),
 
   testOnly: z.boolean().default(false),
+
+  testSubscriptionId: z.string().uuid().optional(),
 
   dryRun: z.boolean().default(false),
 
@@ -305,8 +312,18 @@ function safeRoute(
       "Target URL must be an internal application route.",
     );
   }
-
-  return value;
+  try {
+    const base = "https://jbc.nirmalsanjel.com.np";
+    const parsed = new URL(value, base);
+    if (parsed.origin !== base) throw new Error("external_route");
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    throw new PublicError(
+      "invalid_target_url",
+      "Target URL must be an internal application route.",
+      400,
+    );
+  }
 }
 
 function errorDetails(
@@ -393,77 +410,6 @@ async function runBounded<T>(
   );
 }
 
-function isQuiet(
-  preference: Record<
-    string,
-    unknown
-  >,
-): boolean {
-  if (
-    !preference.quiet_hours_enabled ||
-    typeof preference.quiet_hours_start !==
-      "string" ||
-    typeof preference.quiet_hours_end !==
-      "string"
-  ) {
-    return false;
-  }
-
-  try {
-    const timezone =
-      typeof preference.timezone ===
-      "string"
-        ? preference.timezone
-        : "UTC";
-
-    const parts =
-      new Intl.DateTimeFormat(
-        "en-GB",
-        {
-          timeZone: timezone,
-          hour: "2-digit",
-          minute: "2-digit",
-          hourCycle: "h23",
-        },
-      ).formatToParts(new Date());
-
-    const hour =
-      parts.find(
-        (part) =>
-          part.type === "hour",
-      )?.value ?? "00";
-
-    const minute =
-      parts.find(
-        (part) =>
-          part.type === "minute",
-      )?.value ?? "00";
-
-    const current =
-      `${hour}:${minute}`;
-
-    const start =
-      preference.quiet_hours_start.slice(
-        0,
-        5,
-      );
-
-    const end =
-      preference.quiet_hours_end.slice(
-        0,
-        5,
-      );
-
-    return start <= end
-      ? current >= start &&
-          current < end
-      : current >= start ||
-          current < end;
-  } catch {
-    return false;
-  }
-}
-
 Deno.serve(
   async (
     request: Request,
@@ -536,6 +482,22 @@ Deno.serve(
           "forbidden",
           "Administrator role is required.",
           403,
+        );
+      }
+
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60_000).toISOString();
+      const { count: recentCampaigns, error: rateLimitError } = await service
+        .from("push_notification_campaigns")
+        .select("id", { count: "exact", head: true })
+        .eq("created_by", user.id)
+        .gte("created_at", fiveMinutesAgo);
+
+      if (rateLimitError) throw rateLimitError;
+      if ((recentCampaigns ?? 0) >= 10) {
+        throw new PublicError(
+          "rate_limited",
+          "Too many notification requests. Please wait before trying again.",
+          429,
         );
       }
 
@@ -751,6 +713,12 @@ Deno.serve(
           );
       }
 
+      if (input.testOnly && input.testSubscriptionId) {
+        subscriptionsQuery = subscriptionsQuery
+          .eq("id", input.testSubscriptionId)
+          .eq("user_id", user.id);
+      }
+
       const {
         data:
           subscriptionRows,
@@ -841,11 +809,7 @@ Deno.serve(
                   >
                 | undefined;
 
-            if (
-              !preference ||
-              preference.push_enabled !==
-                true
-            ) {
+            if (!preference) {
               return false;
             }
 
@@ -885,35 +849,7 @@ Deno.serve(
               return false;
             }
 
-            const categoryAllowed =
-              input.category ===
-              "administrative_announcement"
-                ? preference.system_announcements
-                : input.category ===
-                    "past_question"
-                  ? preference.past_questions
-                  : input.category ===
-                      "account_security"
-                    ? preference.account_security
-                    : input.category ===
-                        "new_resource"
-                      ? preference.new_resources
-                      : preference.resource_updates;
-
-            if (
-              categoryAllowed !==
-              true
-            ) {
-              return false;
-            }
-
-            return (
-              input.category ===
-                "account_security" ||
-              !isQuiet(
-                preference,
-              )
-            );
+            return deliveryAllowed(input.category!, preference);
           },
         );
 
@@ -963,6 +899,35 @@ Deno.serve(
               "cancelled",
           },
         );
+      }
+
+      const eligibleUserIds = [
+        ...new Set(eligible.map((row) => row.user_id)),
+      ];
+      const historyByUser = new Map<string, string>();
+
+      if (eligibleUserIds.length) {
+        const { data: historyRows, error: historyError } = await service
+          .from("notifications")
+          .upsert(
+            eligibleUserIds.map((userId) => ({
+              user_id: userId,
+              campaign_id: campaign.id,
+              notification_type: input.category!,
+              category: input.category!,
+              title: input.title!,
+              message: input.body!,
+              target_url: targetUrl,
+              resource_id: input.resourceId ?? null,
+              entity_type: input.resourceId ? "resource" : "push_campaign",
+              entity_id: input.resourceId ?? campaign.id,
+            })),
+            { onConflict: "campaign_id,user_id" },
+          )
+          .select("id,user_id");
+
+        if (historyError) throw historyError;
+        for (const row of historyRows ?? []) historyByUser.set(row.user_id, row.id);
       }
 
       const projectId =
@@ -1034,126 +999,36 @@ Deno.serve(
         async (
           subscription,
         ) => {
-          const data = {
-            title:
-              input.title!,
-            body:
-              input.body!,
-            url:
-              targetUrl,
-            resourceId:
-              input.resourceId ??
-              "",
-            notificationId:
-              campaign.id,
-            category:
+          const notificationId = historyByUser.get(subscription.user_id);
+          if (!notificationId) {
+            deliveries.push({
+              subscription_id: subscription.id,
+              user_id: subscription.user_id,
+              status: "failed",
+              provider_message_id: null,
+              error_code: "history_missing",
+              error_message: "Notification history could not be created.",
+            });
+            return;
+          }
+
+          /* Web is deliberately data-only. The single Workbox worker owns
+           * showNotification(), preventing Firebase and Workbox from rendering
+           * the same web notification twice. */
+          const message = buildFcmMessage({
+            token: subscription.token,
+            platform: subscription.platform,
+            title: input.title!,
+            body: input.body!,
+            url: targetUrl,
+            notificationId,
+            resourceId: input.resourceId ?? "",
+            category: input.category!,
+            timestamp: String(Date.now()),
+            important: ["account_security", "administrative_announcement"].includes(
               input.category!,
-            timestamp:
-              String(
-                Date.now(),
-              ),
-            tag:
-              input.resourceId
-                ? `resource-${input.resourceId}`
-                : `campaign-${campaign.id}`,
-            icon:
-              "/icons/icon-192.png",
-            badge:
-              "/icons/badge-96.png",
-            requireInteraction:
-              "false",
-          };
-
-          /*
-           * Web receives a data-only message.
-           * The Workbox service worker displays the
-           * notification using showNotification().
-           *
-           * Android and iOS receive native notification
-           * payloads with platform-specific settings.
-           */
-          const message =
-            subscription.platform ===
-            "web"
-              ? {
-                  token:
-                    subscription.token,
-
-                  data,
-
-                  webpush: {
-                    headers: {
-                      Urgency:
-                        "high",
-                      TTL:
-                        "86400",
-                    },
-                  },
-                }
-              : subscription.platform ===
-                  "android"
-                ? {
-                    token:
-                      subscription.token,
-
-                    notification:
-                      {
-                        title:
-                          input.title!,
-                        body:
-                          input.body!,
-                      },
-
-                    data,
-
-                    android: {
-                      priority:
-                        "high",
-
-                      notification:
-                        {
-                          channel_id:
-                            "academic_updates",
-                          click_action:
-                            "FCM_PLUGIN_ACTIVITY",
-                          sound:
-                            "default",
-                          default_vibrate_timings:
-                            true,
-                        },
-                    },
-                  }
-                : {
-                    token:
-                      subscription.token,
-
-                    notification:
-                      {
-                        title:
-                          input.title!,
-                        body:
-                          input.body!,
-                      },
-
-                    data,
-
-                    apns: {
-                      headers: {
-                        "apns-priority":
-                          "10",
-                      },
-
-                      payload: {
-                        aps: {
-                          sound:
-                            "default",
-                          badge: 1,
-                          "mutable-content":
-                            1,
-                        },
-                      },
-                    },
-                  };
+            ),
+          });
 
           const sendRequest =
             () =>
@@ -1237,17 +1112,10 @@ Deno.serve(
               result,
             );
 
-          const invalidToken =
-            [
-              "UNREGISTERED",
-              "INVALID_ARGUMENT",
-              "NOT_FOUND",
-            ].includes(
-              detail.code,
-            ) ||
-            /registration token|unregistered/i.test(
-              detail.message,
-            );
+          const invalidToken = isInvalidFcmTokenError(
+            detail.code,
+            detail.message,
+          );
 
           deliveries.push({
             subscription_id:
@@ -1315,7 +1183,7 @@ Deno.serve(
           .from(
             "notification_deliveries",
           )
-          .insert(
+          .upsert(
             deliveries.map(
               (row) => ({
                 campaign_id:
@@ -1323,6 +1191,7 @@ Deno.serve(
                 ...row,
               }),
             ),
+            { onConflict: "campaign_id,subscription_id" },
           );
 
         if (
@@ -1416,6 +1285,23 @@ Deno.serve(
         }
       }
 
+      const { error: auditError } = await service.from("audit_events").insert({
+        actor_id: user.id,
+        action: "push_notification_sent",
+        entity_type: "push_notification_campaign",
+        entity_id: campaign.id,
+        metadata: {
+          category: input.category,
+          audienceType: audience.type,
+          testOnly: input.testOnly,
+          sent,
+          failed,
+          skipped,
+          historyUsers: eligibleUserIds.length,
+        },
+      });
+      if (auditError) throw auditError;
+
       return jsonResponse(
         request,
         {
@@ -1454,19 +1340,6 @@ Deno.serve(
         details,
       );
 
-      const message =
-        error instanceof Error
-          ? error.message
-          : typeof error ===
-                "object" &&
-              error !== null &&
-              "message" in
-                error &&
-              typeof error.message ===
-                "string"
-            ? error.message
-            : "Unknown push notification failure.";
-
       const status =
         error instanceof
         PublicError
@@ -1482,10 +1355,10 @@ Deno.serve(
               ? error.code
               : "push_notification_failed",
 
-          message,
-
-          // Remove after production debugging is complete.
-          details,
+          message:
+            error instanceof PublicError
+              ? error.message
+              : "Push notification delivery could not be completed.",
         },
         status,
       );

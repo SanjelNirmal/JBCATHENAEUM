@@ -17,13 +17,12 @@ import {
   useState,
   type ComponentType,
 } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { canReviewResources } from "../lib/roles";
 import { signOut } from "../lib/supabase/auth";
 import { useCurrentAuth } from "../app/AuthContext";
 import { useDialogFocus } from "../lib/useDialogFocus";
-import { fetchUnreadNotificationCount } from "../lib/supabase/notifications";
+import { NotificationCenter } from "./notifications/NotificationCenter";
 import logo from "../assets/logo.png";
 
 const links = [
@@ -38,12 +37,6 @@ export function SiteHeader() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const unreadNotifications = useQuery({
-    queryKey: ["notifications", "unread-count", auth.user?.id],
-    queryFn: fetchUnreadNotificationCount,
-    enabled: Boolean(auth.user),
-    refetchInterval: 60_000,
-  });
   const menuButton = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setOpen(false), []);
@@ -125,6 +118,11 @@ export function SiteHeader() {
               placeholder="Search resources"
             />
           </form>
+          {auth.profile && (
+            <div className="ml-auto min-[720px]:ml-0">
+              <NotificationCenter />
+            </div>
+          )}
           {auth.profile ? (
             <div className="hidden items-center gap-3 min-[960px]:flex">
               <Link
@@ -133,19 +131,6 @@ export function SiteHeader() {
               >
                 <UserCircle size={17} />
                 Profile
-              </Link>
-              <Link
-                to="/notifications"
-                aria-label={`Notifications${(unreadNotifications.data ?? 0) > 0 ? `, ${unreadNotifications.data} unread` : ""}`}
-                title="Notifications"
-                className="relative inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-300"
-              >
-                <Bell size={17} />
-                {(unreadNotifications.data ?? 0) > 0 && (
-                  <span className="absolute -right-2 -top-2 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-700 px-1 text-[10px] font-black text-white">
-                    {Math.min(unreadNotifications.data ?? 0, 99)}
-                  </span>
-                )}
               </Link>
               {canReviewResources(auth.profile.role) && (
                 <Link
@@ -280,11 +265,6 @@ export function SiteHeader() {
                     >
                       <Bell size={20} />
                       Notifications
-                      {(unreadNotifications.data ?? 0) > 0 && (
-                        <span className="ml-auto rounded-full bg-red-700 px-2 py-0.5 text-xs text-white">
-                          {Math.min(unreadNotifications.data ?? 0, 99)} unread
-                        </span>
-                      )}
                     </NavLink>
                   )}
                   {auth.profile && canReviewResources(auth.profile.role) && (

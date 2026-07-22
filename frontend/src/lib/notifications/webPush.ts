@@ -72,8 +72,6 @@ export async function refreshWebPushToken(): Promise<string> {
       serviceWorkerRegistration,
     });
   } catch (error) {
-    console.error("FCM token registration failed", error);
-
     throw new Error(
       error instanceof Error
         ? `fcm_registration_failed: ${error.message}`
@@ -133,10 +131,7 @@ export async function disableWebPushNotifications():
   const messaging = await getFirebaseMessaging();
 
   if (messaging) {
-    await deleteToken(messaging).catch((error) => {
-      console.warn("Firebase token deletion failed", error);
-      return false;
-    });
+    await deleteToken(messaging).catch(() => false);
   }
 
   localStorage.removeItem("jbc:last-fcm-token");

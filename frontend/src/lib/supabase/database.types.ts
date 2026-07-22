@@ -1,4 +1,4 @@
-// Typed schema snapshot for migrations through 202607200017. Compare it with
+// Typed schema snapshot for migrations through 202607220018. Compare it with
 // `supabase gen types typescript --linked` after every linked deployment.
 export type Json =
   | string
@@ -313,9 +313,13 @@ export interface Database {
       notifications: Table<{
         id: string;
         user_id: string;
+        campaign_id: string | null;
         notification_type: string;
+        category: string;
         title: string;
         message: string;
+        target_url: string;
+        resource_id: string | null;
         entity_type: string | null;
         entity_id: string | null;
         read_at: string | null;
@@ -324,6 +328,8 @@ export interface Database {
       notification_preferences: Table<{
         user_id: string;
         in_app_enabled: boolean;
+        foreground_popup_enabled: boolean;
+        notification_sound_enabled: boolean;
         email_enabled: boolean;
         push_enabled: boolean;
         submission_updates: boolean;
