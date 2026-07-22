@@ -10,6 +10,7 @@
     "dev:frontend": "npm run dev --workspace frontend",
     "dev:backend": "npm run dev --workspace backend",
     "build": "npm run build --workspace frontend && rm -rf dist && cp -r frontend/dist dist",
+    "verify:deployment": "node frontend/scripts/verify-deployment-assets.mjs",
     "lint": "npm run lint --workspace frontend && npm run lint --workspace backend",
     "start": "npm run start --workspace backend",
     "test": "npm run test --workspace frontend && npm run test --workspace backend"

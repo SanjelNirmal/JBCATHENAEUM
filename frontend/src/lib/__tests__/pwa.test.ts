@@ -66,6 +66,16 @@ describe("PWA safety configuration", () => {
     );
   });
 
+  it("never rewrites missing JavaScript assets to the SPA HTML shell", () => {
+    const redirects = readFileSync(resolve(root, "public/_redirects"), "utf8");
+    expect(redirects).not.toMatch(/^\/\*\s+\/index\.html\s+200/m);
+    expect(redirects).toContain("/resources/* /index.html 200");
+    expect(redirects).toContain("/admin/* /index.html 200");
+    expect(readFileSync(resolve(root, "public/404.html"), "utf8")).toContain(
+      "Page not found",
+    );
+  });
+
   it("uses one Workbox worker for duplicate-safe background notifications", () => {
     const config = readFileSync(resolve(root, "vite.config.ts"), "utf8");
     const worker = readFileSync(

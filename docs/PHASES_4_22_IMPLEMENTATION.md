@@ -153,6 +153,20 @@ Do not apply this to production until a restorable backup and an isolated previe
 
    Do not add the service-role key or custom Edge Function secrets to Cloudflare. Deploy to a preview first and verify `_headers`, `_redirects`, `robots.txt`, and `sitemap.xml` are present.
 
+   After every preview and production deployment, verify that every JavaScript
+   and CSS chunk referenced by the deployed bundle exists and has the correct
+   MIME type:
+
+   ```sh
+   npm run verify:deployment -- https://jbc.nirmalsanjel.com.np
+   ```
+
+   A failed check means the Pages deployment is incomplete and must not be
+   promoted. Purge the Cloudflare cache after replacing an incomplete
+   deployment so an earlier HTML fallback cannot remain cached at an asset URL.
+   Keep the generated top-level `404.html`: Cloudflare Pages uses its presence
+   to avoid treating missing JavaScript files as client-side application routes.
+
 10. Run the preview acceptance suite with distinct student, moderator, admin, and super-admin accounts:
 
     ```sh

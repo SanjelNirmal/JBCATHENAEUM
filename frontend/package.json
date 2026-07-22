@@ -8,6 +8,7 @@
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
     "prebuild": "npm run generate:sitemap",
     "build": "vite build",
+    "postbuild": "node scripts/verify-dist-assets.mjs dist",
     "prebuild:native": "npm run generate:sitemap",
     "build:native": "vite build --mode native",
     "preview": "vite preview",
