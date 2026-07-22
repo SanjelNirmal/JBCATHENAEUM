@@ -35,7 +35,7 @@ async function dispatchSubmissionPush(
   });
 }
 
-async function dispatchSuperAdminSubmissionPush(
+async function dispatchReviewTeamSubmissionPush(
   submitterId: string,
   submissionId: string,
   resourceId: string,
@@ -44,11 +44,11 @@ async function dispatchSuperAdminSubmissionPush(
   const { data: roleRows, error: rolesError } = await service
     .from("user_roles")
     .select("user_id")
-    .eq("role", "super_admin")
+    .in("role", ["admin", "super_admin"])
     .neq("user_id", submitterId);
 
   if (rolesError) {
-    console.error("super_admin_submission_roles_failed", {
+    console.error("review_team_submission_roles_failed", {
       code: rolesError.code,
     });
     return;
@@ -64,26 +64,26 @@ async function dispatchSuperAdminSubmissionPush(
     .eq("account_status", "active");
 
   if (profilesError) {
-    console.error("super_admin_submission_profiles_failed", {
+    console.error("review_team_submission_profiles_failed", {
       code: profilesError.code,
     });
     return;
   }
 
-  const superAdminIds = (activeProfiles ?? []).map((profile) => profile.id);
-  if (!superAdminIds.length) return;
+  const reviewerIds = (activeProfiles ?? []).map((profile) => profile.id);
+  if (!reviewerIds.length) return;
 
   await queueAndDispatchPushJob({
     resourceId,
-    idempotencyKey: `super-admin-resource-submitted:${submissionId}`,
-    logContext: "super_admin_submission_push",
+    idempotencyKey: `review-team-resource-submitted:${submissionId}`,
+    logContext: "review_team_submission_push",
     payload: {
-      title: "New file submitted",
-      body: "A new PDF is waiting for administrator review.",
+      title: "New PDF awaiting review",
+      body: "A contributor submitted a PDF for manual review.",
       category: "moderation_update",
       targetUrl: "/admin/reviews",
       resourceId,
-      audience: { type: "users", userIds: superAdminIds },
+      audience: { type: "users", userIds: reviewerIds },
       initiatedBy: submitterId,
     },
   });
@@ -178,7 +178,7 @@ Deno.serve(async (request) => {
     if (submission?.resource_id) {
       await Promise.all([
         dispatchSubmissionPush(user.id, submissionId, submission.resource_id),
-        dispatchSuperAdminSubmissionPush(
+        dispatchReviewTeamSubmissionPush(
           user.id,
           submissionId,
           submission.resource_id,
