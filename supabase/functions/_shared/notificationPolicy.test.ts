@@ -7,6 +7,8 @@ import {
 
 const preference = {
   push_enabled: true,
+  submission_updates: true,
+  moderation_updates: true,
   resource_updates: true,
   system_announcements: true,
   new_resources: true,
@@ -25,6 +27,18 @@ Deno.test("quiet hours are enforced across midnight", () => {
 
 Deno.test("account security bypasses quiet hours", () => {
   assertEquals(deliveryAllowed("account_security", preference, new Date("2026-07-22T23:00:00Z")), true);
+});
+
+Deno.test("submission workflow notifications respect submission preferences", () => {
+  assertEquals(deliveryAllowed("submission_update", preference, new Date("2026-07-22T12:00:00Z")), true);
+  assertEquals(
+    deliveryAllowed(
+      "submission_update",
+      { ...preference, submission_updates: false },
+      new Date("2026-07-22T12:00:00Z"),
+    ),
+    false,
+  );
 });
 
 Deno.test("invalid registration tokens are recognized", () => {

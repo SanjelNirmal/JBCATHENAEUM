@@ -63,6 +63,8 @@ const Input = z.object({
   dryRun: z.boolean().default(false),
 
   jobId: z.string().uuid().optional(),
+
+  reuseExistingNotification: z.boolean().default(false),
 });
 
 type Subscription = {
@@ -906,11 +908,50 @@ Deno.serve(
       ];
       const historyByUser = new Map<string, string>();
 
-      if (eligibleUserIds.length) {
+      if (
+        input.reuseExistingNotification &&
+        audience.type === "users" &&
+        audience.userIds?.length === 1
+      ) {
+        const historyUserId = audience.userIds[0];
+        const { data: existingHistory, error: existingHistoryError } = await service
+          .from("notifications")
+          .eq("user_id", historyUserId)
+          .eq("campaign_id", null)
+          .eq("title", input.title)
+          .eq("resource_id", input.resourceId ?? null)
+          .gte("created_at", new Date(Date.now() - 10 * 60_000).toISOString())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .select("id,user_id")
+          .maybeSingle();
+
+        if (existingHistoryError) throw existingHistoryError;
+        if (existingHistory) {
+          const { error: linkHistoryError } = await service
+            .from("notifications")
+            .update({
+              campaign_id: campaign.id,
+              category: input.category,
+              target_url: targetUrl,
+              resource_id: input.resourceId ?? null,
+              title: input.title,
+              message: input.body,
+            })
+            .eq("id", existingHistory.id);
+          if (linkHistoryError) throw linkHistoryError;
+          historyByUser.set(existingHistory.user_id, existingHistory.id);
+        }
+      }
+
+      if (eligibleUserIds.length && historyByUser.size !== eligibleUserIds.length) {
+        const unresolvedUserIds = eligibleUserIds.filter(
+          (userId) => !historyByUser.has(userId),
+        );
         const { data: historyRows, error: historyError } = await service
           .from("notifications")
           .upsert(
-            eligibleUserIds.map((userId) => ({
+            unresolvedUserIds.map((userId) => ({
               user_id: userId,
               campaign_id: campaign.id,
               notification_type: input.category!,

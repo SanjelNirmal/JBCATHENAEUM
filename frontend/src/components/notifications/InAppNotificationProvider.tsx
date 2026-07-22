@@ -65,6 +65,10 @@ function quietHoursActive(preferences: NotificationPreferences): boolean {
 }
 
 function categoryMuted(category: string, preferences: NotificationPreferences): boolean {
+  if (["submission_update", "resource_submitted", "resource_review", "resource_published"].includes(category)) {
+    return !preferences.submissionUpdates;
+  }
+  if (category === "moderation_update") return !preferences.moderationUpdates;
   if (category === "account_security") return !preferences.accountSecurity;
   if (category === "past_question") return !preferences.pastQuestions;
   if (category === "new_resource") return !preferences.newResources;

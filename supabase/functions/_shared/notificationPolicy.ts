@@ -33,6 +33,10 @@ export function categoryEnabled(
   category: string,
   preference: NotificationPreferenceRecord,
 ): boolean {
+  if (["submission_update", "resource_submitted", "resource_review", "resource_published"].includes(category)) {
+    return preference.submission_updates === true;
+  }
+  if (["moderation_update"].includes(category)) return preference.moderation_updates === true;
   if (category === "administrative_announcement") return preference.system_announcements === true;
   if (category === "past_question") return preference.past_questions === true;
   if (category === "account_security") return preference.account_security === true;

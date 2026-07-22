@@ -1,6 +1,7 @@
 import {
   authenticatedUser,
   requireAal2,
+  serviceClient,
 } from "../_shared/supabase.ts";
 import {
   errorResponse,
@@ -10,6 +11,63 @@ import {
 } from "../_shared/http.ts";
 
 const outcomes = new Set(["approved", "changes_requested", "rejected"]);
+
+async function dispatchReviewPush(
+  request: Request,
+  submissionId: string,
+  outcome: string,
+): Promise<void> {
+  const service = serviceClient();
+  const { data: submission } = await service
+    .from("resource_submissions")
+    .select("submitter_id,resource_id")
+    .eq("id", submissionId)
+    .maybeSingle();
+  if (!submission?.submitter_id || !submission.resource_id) return;
+
+  const body = outcome === "approved"
+    ? "Your resource was approved and is awaiting publication."
+    : outcome === "changes_requested"
+    ? "Changes were requested for your resource."
+    : "Your resource submission was rejected.";
+
+  const payload = {
+    title: "Resource review updated",
+    body,
+    category: "submission_update",
+    targetUrl: "/my-submissions",
+    resourceId: submission.resource_id,
+    audience: { type: "users", userIds: [submission.submitter_id] },
+    reuseExistingNotification: true,
+  };
+  const { data: job, error: jobError } = await service
+    .from("push_notification_jobs")
+    .upsert(
+      {
+        resource_id: submission.resource_id,
+        idempotency_key: `resource-review:${submissionId}:${outcome}`,
+        payload,
+        status: "queued",
+      },
+      { onConflict: "idempotency_key", ignoreDuplicates: true },
+    )
+    .select("id")
+    .maybeSingle();
+  if (!jobError && job?.id) {
+    const authorization = request.headers.get("authorization") ?? "";
+    const response = await fetch(
+      `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`,
+      {
+        method: "POST",
+        headers: { authorization, "content-type": "application/json" },
+        body: JSON.stringify({ jobId: job.id }),
+      },
+    ).catch(() => null);
+    if (!response?.ok) {
+      console.error("resource_review_push_dispatch_deferred", { jobId: job.id });
+    }
+  }
+}
 
 Deno.serve(async (request) => {
   const options = handleOptions(request);
@@ -49,6 +107,7 @@ Deno.serve(async (request) => {
       },
     );
     if (reviewError) throw reviewError;
+    await dispatchReviewPush(request, submissionId, outcome);
 
     // A clean, reviewer-rejected version stays in private quarantine so
     // authorized staff can audit it later. Automated validation failures are

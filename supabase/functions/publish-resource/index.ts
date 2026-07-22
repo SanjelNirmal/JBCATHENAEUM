@@ -38,7 +38,7 @@ Deno.serve(async (request) => {
 
     const { data: resource, error: resourceError } = await service
       .from("resources")
-      .select("id,campus_id,program_id,term_id,subject_id,status,current_version_id,title,slug")
+      .select("id,campus_id,program_id,term_id,subject_id,status,current_version_id,owner_id,title,slug")
       .eq("id", resourceId)
       .single();
     if (resourceError || !resource)
@@ -142,6 +142,36 @@ Deno.serve(async (request) => {
         failure_code: removeError ? "quarantine_cleanup_pending" : null,
       })
       .eq("version_id", version.id);
+
+    if (resource.owner_id) {
+      const { data: ownerJob, error: ownerJobError } = await service
+        .from("push_notification_jobs")
+        .upsert({
+          resource_id: resource.id,
+          idempotency_key: `resource-owner-published:${resource.id}:${version.id}`,
+          payload: {
+            title: "Resource published",
+            body: "Your approved resource is now available in the public archive.",
+            category: "submission_update",
+            targetUrl: "/my-submissions",
+            resourceId: resource.id,
+            audience: { type: "users", userIds: [resource.owner_id] },
+            reuseExistingNotification: true,
+          },
+          status: "queued",
+        }, { onConflict: "idempotency_key", ignoreDuplicates: true })
+        .select("id")
+        .maybeSingle();
+      if (!ownerJobError && ownerJob?.id) {
+        const authorization = request.headers.get("authorization") ?? "";
+        const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`, {
+          method: "POST",
+          headers: { authorization, "content-type": "application/json" },
+          body: JSON.stringify({ jobId: ownerJob.id }),
+        }).catch(() => null);
+        if (!response?.ok) console.error("owner_publication_push_dispatch_deferred", { jobId: ownerJob.id });
+      }
+    }
 
     // Publication creates one idempotent job. The sender remains a trusted
     // Edge Function and a repeated publish request cannot duplicate delivery.

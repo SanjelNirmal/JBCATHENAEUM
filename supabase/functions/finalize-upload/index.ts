@@ -12,6 +12,50 @@ function toHex(bytes: ArrayBuffer): string {
     .join("");
 }
 
+async function dispatchSubmissionPush(
+  request: Request,
+  userId: string,
+  resourceId: string,
+): Promise<void> {
+  const service = serviceClient();
+  const payload = {
+    title: "Submission received",
+    body: "Your PDF was received and entered the manual administrator review queue.",
+    category: "submission_update",
+    targetUrl: "/my-submissions",
+    resourceId,
+    audience: { type: "users", userIds: [userId] },
+    reuseExistingNotification: true,
+  };
+  const { data: job, error: jobError } = await service
+    .from("push_notification_jobs")
+    .upsert(
+      {
+        resource_id: resourceId,
+        idempotency_key: `resource-submitted:${resourceId}:${userId}`,
+        payload,
+        status: "queued",
+      },
+      { onConflict: "idempotency_key", ignoreDuplicates: true },
+    )
+    .select("id")
+    .maybeSingle();
+  if (!jobError && job?.id) {
+    const authorization = request.headers.get("authorization") ?? "";
+    const response = await fetch(
+      `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`,
+      {
+        method: "POST",
+        headers: { authorization, "content-type": "application/json" },
+        body: JSON.stringify({ jobId: job.id }),
+      },
+    ).catch(() => null);
+    if (!response?.ok) {
+      console.error("submission_push_dispatch_deferred", { jobId: job.id });
+    }
+  }
+}
+
 Deno.serve(async (request) => {
   const options = handleOptions(request);
   if (options) return options;
@@ -92,6 +136,14 @@ Deno.serve(async (request) => {
     );
     if (completeError) {
       throw completeError;
+    }
+    const { data: submission } = await service
+      .from("resource_submissions")
+      .select("resource_id")
+      .eq("id", submissionId)
+      .maybeSingle();
+    if (submission?.resource_id) {
+      await dispatchSubmissionPush(request, user.id, submission.resource_id);
     }
     return jsonResponse(request, { submissionId, status: "submitted" });
   } catch (error) {
