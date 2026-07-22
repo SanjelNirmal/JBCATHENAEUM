@@ -4,11 +4,7 @@ import {
   requireAal2,
   serviceClient,
 } from "../_shared/supabase.ts";
-import {
-  handleOptions,
-  jsonResponse,
-  PublicError,
-} from "../_shared/http.ts";
+import { handleOptions, jsonResponse, PublicError } from "../_shared/http.ts";
 import { buildFcmMessage } from "../_shared/pushPayloads.ts";
 import {
   deliveryAllowed,
@@ -32,13 +28,7 @@ const Input = z.object({
   audience: z
     .object({
       type: z
-        .enum([
-          "everyone",
-          "program",
-          "term",
-          "subject",
-          "users",
-        ])
+        .enum(["everyone", "program", "term", "subject", "users"])
         .default("everyone"),
 
       programId: z.string().uuid().optional(),
@@ -47,10 +37,7 @@ const Input = z.object({
 
       subjectId: z.string().uuid().optional(),
 
-      userIds: z
-        .array(z.string().uuid())
-        .max(100)
-        .optional(),
+      userIds: z.array(z.string().uuid()).max(100).optional(),
     })
     .default({
       type: "everyone",
@@ -65,6 +52,8 @@ const Input = z.object({
   jobId: z.string().uuid().optional(),
 
   reuseExistingNotification: z.boolean().default(false),
+
+  initiatedBy: z.string().uuid().optional(),
 });
 
 type Subscription = {
@@ -93,13 +82,35 @@ function required(name: string): string {
   return value;
 }
 
-function base64url(
-  value: Uint8Array | string,
-): string {
+function isServiceRoleRequest(request: Request): boolean {
+  const token = request.headers
+    .get("authorization")
+    ?.match(/^Bearer\s+(.+)$/i)?.[1];
+  const expected = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!token || !expected || token.length !== expected.length) return false;
+
+  let difference = 0;
+  for (let index = 0; index < token.length; index += 1) {
+    difference |= token.charCodeAt(index) ^ expected.charCodeAt(index);
+  }
+  return difference === 0;
+}
+
+function isJobOnlyRequest(value: unknown): value is { jobId: string } {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === 1 &&
+    "jobId" in value &&
+    typeof value.jobId === "string" &&
+    z.string().uuid().safeParse(value.jobId).success,
+  );
+}
+
+function base64url(value: Uint8Array | string): string {
   const bytes =
-    typeof value === "string"
-      ? new TextEncoder().encode(value)
-      : value;
+    typeof value === "string" ? new TextEncoder().encode(value) : value;
 
   let binary = "";
 
@@ -115,67 +126,36 @@ function base64url(
 
 function pemBytes(pem: string): Uint8Array {
   const normalized = pem
-    .replace(
-      /-----BEGIN PRIVATE KEY-----/g,
-      "",
-    )
-    .replace(
-      /-----END PRIVATE KEY-----/g,
-      "",
-    )
+    .replace(/-----BEGIN PRIVATE KEY-----/g, "")
+    .replace(/-----END PRIVATE KEY-----/g, "")
     .replace(/\s/g, "");
 
   if (!normalized) {
-    throw new Error(
-      "FIREBASE_PRIVATE_KEY contains no key data",
-    );
+    throw new Error("FIREBASE_PRIVATE_KEY contains no key data");
   }
 
   try {
     const binary = atob(normalized);
 
-    return Uint8Array.from(
-      binary,
-      (character) =>
-        character.charCodeAt(0),
-    );
+    return Uint8Array.from(binary, (character) => character.charCodeAt(0));
   } catch {
-    throw new Error(
-      "FIREBASE_PRIVATE_KEY is not valid Base64 PEM data",
-    );
+    throw new Error("FIREBASE_PRIVATE_KEY is not valid Base64 PEM data");
   }
 }
 
-async function googleAccessToken():
-  Promise<string> {
+async function googleAccessToken(): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
 
-  const clientEmail = required(
-    "FIREBASE_CLIENT_EMAIL",
-  );
+  const clientEmail = required("FIREBASE_CLIENT_EMAIL");
 
-  const privateKey = required(
-    "FIREBASE_PRIVATE_KEY",
-  ).replace(/\\n/g, "\n");
+  const privateKey = required("FIREBASE_PRIVATE_KEY").replace(/\\n/g, "\n");
 
-  if (
-    !privateKey.includes(
-      "-----BEGIN PRIVATE KEY-----",
-    )
-  ) {
-    throw new Error(
-      "FIREBASE_PRIVATE_KEY is missing BEGIN PRIVATE KEY",
-    );
+  if (!privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
+    throw new Error("FIREBASE_PRIVATE_KEY is missing BEGIN PRIVATE KEY");
   }
 
-  if (
-    !privateKey.includes(
-      "-----END PRIVATE KEY-----",
-    )
-  ) {
-    throw new Error(
-      "FIREBASE_PRIVATE_KEY is missing END PRIVATE KEY",
-    );
+  if (!privateKey.includes("-----END PRIVATE KEY-----")) {
+    throw new Error("FIREBASE_PRIVATE_KEY is missing END PRIVATE KEY");
   }
 
   const header = base64url(
@@ -188,10 +168,8 @@ async function googleAccessToken():
   const claims = base64url(
     JSON.stringify({
       iss: clientEmail,
-      scope:
-        "https://www.googleapis.com/auth/firebase.messaging",
-      aud:
-        "https://oauth2.googleapis.com/token",
+      scope: "https://www.googleapis.com/auth/firebase.messaging",
+      aud: "https://oauth2.googleapis.com/token",
       iat: now,
       exp: now + 3600,
     }),
@@ -211,76 +189,48 @@ async function googleAccessToken():
       ["sign"],
     );
   } catch (error) {
-    console.error(
-      "Firebase private-key import failed",
-      {
-        message:
-          error instanceof Error
-            ? error.message
-            : String(error),
-      },
-    );
+    console.error("Firebase private-key import failed", {
+      message: error instanceof Error ? error.message : String(error),
+    });
 
-    throw new Error(
-      "FIREBASE_PRIVATE_KEY could not be imported",
-    );
+    throw new Error("FIREBASE_PRIVATE_KEY could not be imported");
   }
 
-  const unsignedToken =
-    `${header}.${claims}`;
+  const unsignedToken = `${header}.${claims}`;
 
-  const signature =
-    await crypto.subtle.sign(
-      "RSASSA-PKCS1-v1_5",
-      key,
-      new TextEncoder().encode(
-        unsignedToken,
-      ),
-    );
-
-  const assertion =
-    `${unsignedToken}.${base64url(
-      new Uint8Array(signature),
-    )}`;
-
-  const response = await fetch(
-    "https://oauth2.googleapis.com/token",
-    {
-      method: "POST",
-
-      headers: {
-        "content-type":
-          "application/x-www-form-urlencoded",
-      },
-
-      body: new URLSearchParams({
-        grant_type:
-          "urn:ietf:params:oauth:grant-type:jwt-bearer",
-        assertion,
-      }),
-    },
+  const signature = await crypto.subtle.sign(
+    "RSASSA-PKCS1-v1_5",
+    key,
+    new TextEncoder().encode(unsignedToken),
   );
 
-  const result = await response
-    .json()
-    .catch(() => ({}));
+  const assertion = `${unsignedToken}.${base64url(new Uint8Array(signature))}`;
+
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+    },
+
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion,
+    }),
+  });
+
+  const result = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    console.error(
-      "Firebase OAuth request failed",
-      {
-        status: response.status,
-        error:
-          typeof result === "object" &&
-          result !== null
-            ? result
-            : "Unknown OAuth error",
-      },
-    );
+    console.error("Firebase OAuth request failed", {
+      status: response.status,
+      error:
+        typeof result === "object" && result !== null
+          ? result
+          : "Unknown OAuth error",
+    });
 
-    throw new Error(
-      "firebase_oauth_failed",
-    );
+    throw new Error("firebase_oauth_failed");
   }
 
   if (
@@ -289,17 +239,13 @@ async function googleAccessToken():
     !("access_token" in result) ||
     typeof result.access_token !== "string"
   ) {
-    throw new Error(
-      "firebase_oauth_token_missing",
-    );
+    throw new Error("firebase_oauth_token_missing");
   }
 
   return result.access_token;
 }
 
-function safeRoute(
-  value: string | undefined,
-): string {
+function safeRoute(value: string | undefined): string {
   if (!value) {
     return "/resources";
   }
@@ -328,16 +274,11 @@ function safeRoute(
   }
 }
 
-function errorDetails(
-  value: unknown,
-): {
+function errorDetails(value: unknown): {
   code: string;
   message: string;
 } {
-  if (
-    !value ||
-    typeof value !== "object"
-  ) {
+  if (!value || typeof value !== "object") {
     return {
       code: "unknown",
       message: "Delivery failed.",
@@ -345,30 +286,20 @@ function errorDetails(
   }
 
   const nestedError =
-    "error" in value &&
-    value.error &&
-    typeof value.error === "object"
+    "error" in value && value.error && typeof value.error === "object"
       ? value.error
       : value;
 
   const code =
-    "status" in nestedError &&
-    typeof nestedError.status === "string"
+    "status" in nestedError && typeof nestedError.status === "string"
       ? nestedError.status
-      : "code" in nestedError &&
-          typeof nestedError.code ===
-            "string"
+      : "code" in nestedError && typeof nestedError.code === "string"
         ? nestedError.code
         : "unknown";
 
   const message =
-    "message" in nestedError &&
-    typeof nestedError.message ===
-      "string"
-      ? nestedError.message.slice(
-          0,
-          240,
-        )
+    "message" in nestedError && typeof nestedError.message === "string"
+      ? nestedError.message.slice(0, 240)
       : "Delivery failed.";
 
   return {
@@ -384,10 +315,7 @@ async function runBounded<T>(
 ): Promise<void> {
   let index = 0;
 
-  const workerCount = Math.min(
-    limit,
-    items.length,
-  );
+  const workerCount = Math.min(limit, items.length);
 
   await Promise.all(
     Array.from(
@@ -400,8 +328,7 @@ async function runBounded<T>(
 
           index += 1;
 
-          const item =
-            items[currentIndex];
+          const item = items[currentIndex];
 
           if (item !== undefined) {
             await task(item);
@@ -412,73 +339,59 @@ async function runBounded<T>(
   );
 }
 
-Deno.serve(
-  async (
-    request: Request,
-  ): Promise<Response> => {
-    const optionsResponse =
-      handleOptions(request);
+Deno.serve(async (request: Request): Promise<Response> => {
+  const optionsResponse = handleOptions(request);
 
-    if (optionsResponse) {
-      return optionsResponse;
-    }
+  if (optionsResponse) {
+    return optionsResponse;
+  }
 
-    if (request.method !== "POST") {
-      return jsonResponse(
-        request,
-        {
-          error:
-            "method_not_allowed",
-        },
-        405,
-      );
-    }
+  if (request.method !== "POST") {
+    return jsonResponse(
+      request,
+      {
+        error: "method_not_allowed",
+      },
+      405,
+    );
+  }
 
-    try {
-      console.log(
-        "send-push-notification: request started",
-      );
+  try {
+    console.log("send-push-notification: request started");
 
-      const { user, client } =
-        await authenticatedUser(
-          request,
+    const service = serviceClient();
+
+    const requestJson = await request.json();
+
+    const internalJobRequest = isServiceRoleRequest(request);
+    let actorId: string | null = null;
+
+    if (internalJobRequest) {
+      if (!isJobOnlyRequest(requestJson)) {
+        throw new PublicError(
+          "forbidden",
+          "Trusted internal requests may process queued jobs only.",
+          403,
         );
+      }
+    } else {
+      const { user, client } = await authenticatedUser(request);
+      actorId = user.id;
 
-      console.log(
-        "send-push-notification: authenticated",
-        {
-          userId: user.id,
-        },
-      );
+      console.log("send-push-notification: authenticated", {
+        userId: user.id,
+      });
 
-      await requireAal2(
-        client,
-        request,
-      );
+      await requireAal2(client, request);
+      console.log("send-push-notification: AAL2 verified");
 
-      console.log(
-        "send-push-notification: AAL2 verified",
-      );
-
-      const service =
-        serviceClient();
-
-      const {
-        data: roles,
-        error: roleError,
-      } = await service
+      const { data: roles, error: roleError } = await service
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .in("role", [
-          "admin",
-          "super_admin",
-        ]);
+        .in("role", ["admin", "super_admin"]);
 
-      if (roleError) {
-        throw roleError;
-      }
-
+      if (roleError) throw roleError;
       if (!roles?.length) {
         throw new PublicError(
           "forbidden",
@@ -502,422 +415,295 @@ Deno.serve(
           429,
         );
       }
+    }
 
-      const requestJson =
-        await request.json();
+    const parsed = Input.safeParse(requestJson);
 
-      const parsed =
-        Input.safeParse(
-          requestJson,
-        );
-
-      if (!parsed.success) {
-        console.error(
-          "Notification request validation failed",
-          parsed.error.flatten(),
-        );
-
-        throw new PublicError(
-          "invalid_request",
-          "Notification request is invalid.",
-          400,
-        );
-      }
-
-      let input = parsed.data;
-
-      let job: {
-        id: string;
-        payload: Record<
-          string,
-          unknown
-        >;
-      } | null = null;
-
-      if (input.jobId) {
-        const result =
-          await service
-            .from(
-              "push_notification_jobs",
-            )
-            .select(
-              "id,payload,status",
-            )
-            .eq(
-              "id",
-              input.jobId,
-            )
-            .eq(
-              "status",
-              "queued",
-            )
-            .lte(
-              "available_at",
-              new Date().toISOString(),
-            )
-            .maybeSingle();
-
-        if (result.error) {
-          throw result.error;
-        }
-
-        if (!result.data) {
-          throw new PublicError(
-            "job_unavailable",
-            "Notification job is not ready.",
-            409,
-          );
-        }
-
-        job = result.data;
-
-        const jobInput =
-          Input.safeParse(
-            job.payload,
-          );
-
-        if (!jobInput.success) {
-          throw new PublicError(
-            "invalid_job",
-            "Notification job payload is invalid.",
-            409,
-          );
-        }
-
-        input = jobInput.data;
-
-        const {
-          error:
-            jobUpdateError,
-        } = await service
-          .from(
-            "push_notification_jobs",
-          )
-          .update({
-            status: "processing",
-            attempts: 1,
-          })
-          .eq("id", job.id)
-          .eq(
-            "status",
-            "queued",
-          );
-
-        if (jobUpdateError) {
-          throw jobUpdateError;
-        }
-      }
-
-      if (
-        !input.title ||
-        !input.body ||
-        !input.category
-      ) {
-        throw new PublicError(
-          "invalid_request",
-          "Title, body, and category are required.",
-          400,
-        );
-      }
-
-      const targetUrl =
-        safeRoute(
-          input.targetUrl,
-        );
-
-      const audience =
-        input.testOnly
-          ? {
-              type:
-                "users" as const,
-              userIds: [
-                user.id,
-              ],
-            }
-          : input.audience;
-
-      console.log(
-        "send-push-notification: creating campaign",
-        {
-          audienceType:
-            audience.type,
-          testOnly:
-            input.testOnly,
-          dryRun:
-            input.dryRun,
-        },
+    if (!parsed.success) {
+      console.error(
+        "Notification request validation failed",
+        parsed.error.flatten(),
       );
 
-      const {
-        data: campaign,
-        error: campaignError,
-      } = await service
-        .from(
-          "push_notification_campaigns",
-        )
-        .insert({
-          title:
-            input.title,
-          body:
-            input.body,
-          category:
-            input.category,
-          target_url:
-            targetUrl,
-          resource_id:
-            input.resourceId ??
-            null,
-          created_by:
-            user.id,
-          audience,
-          status:
-            "sending",
+      throw new PublicError(
+        "invalid_request",
+        "Notification request is invalid.",
+        400,
+      );
+    }
+
+    let input = parsed.data;
+
+    let job: {
+      id: string;
+      payload: Record<string, unknown>;
+    } | null = null;
+
+    if (input.jobId) {
+      const result = await service
+        .from("push_notification_jobs")
+        .select("id,payload,status")
+        .eq("id", input.jobId)
+        .eq("status", "queued")
+        .lte("available_at", new Date().toISOString())
+        .maybeSingle();
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      if (!result.data) {
+        throw new PublicError(
+          "job_unavailable",
+          "Notification job is not ready.",
+          409,
+        );
+      }
+
+      job = result.data;
+
+      const jobInput = Input.safeParse(job.payload);
+
+      if (!jobInput.success) {
+        throw new PublicError(
+          "invalid_job",
+          "Notification job payload is invalid.",
+          409,
+        );
+      }
+
+      input = jobInput.data;
+
+      if (internalJobRequest) {
+        actorId = input.initiatedBy ?? null;
+      }
+
+      const { data: claimedJob, error: jobUpdateError } = await service
+        .from("push_notification_jobs")
+        .update({
+          status: "processing",
+          attempts: 1,
         })
+        .eq("id", job.id)
+        .eq("status", "queued")
         .select("id")
-        .single();
+        .maybeSingle();
 
-      if (campaignError) {
-        throw campaignError;
+      if (jobUpdateError) {
+        throw jobUpdateError;
       }
-
-      let subscriptionsQuery =
-        service
-          .from(
-            "push_subscriptions",
-          )
-          .select(
-            "id,user_id,token,platform",
-          )
-          .eq(
-            "enabled",
-            true,
-          )
-          .gte(
-            "last_seen_at",
-            new Date(
-              Date.now() -
-                180 *
-                  86_400_000,
-            ).toISOString(),
-          )
-          .limit(5000);
-
-      if (
-        audience.type ===
-          "users" &&
-        audience.userIds
-          ?.length
-      ) {
-        subscriptionsQuery =
-          subscriptionsQuery.in(
-            "user_id",
-            audience.userIds,
-          );
-      }
-
-      if (input.testOnly && input.testSubscriptionId) {
-        subscriptionsQuery = subscriptionsQuery
-          .eq("id", input.testSubscriptionId)
-          .eq("user_id", user.id);
-      }
-
-      const {
-        data:
-          subscriptionRows,
-        error:
-          subscriptionsError,
-      } =
-        await subscriptionsQuery;
-
-      if (
-        subscriptionsError
-      ) {
-        throw subscriptionsError;
-      }
-
-      const subscriptions =
-        (subscriptionRows ??
-          []) as Subscription[];
-
-      const userIds = [
-        ...new Set(
-          subscriptions.map(
-            (row) =>
-              row.user_id,
-          ),
-        ),
-      ];
-
-      const preferenceResult =
-        userIds.length
-          ? await service
-              .from(
-                "notification_preferences",
-              )
-              .select(
-                [
-                  "user_id",
-                  "push_enabled",
-                  "resource_updates",
-                  "system_announcements",
-                  "new_resources",
-                  "past_questions",
-                  "account_security",
-                  "program_id",
-                  "term_id",
-                  "subject_ids",
-                  "quiet_hours_enabled",
-                  "quiet_hours_start",
-                  "quiet_hours_end",
-                  "timezone",
-                ].join(","),
-              )
-              .in(
-                "user_id",
-                userIds,
-              )
-          : {
-              data: [],
-              error: null,
-            };
-
-      if (
-        preferenceResult.error
-      ) {
-        throw preferenceResult.error;
-      }
-
-      const preferences =
-        new Map(
-          (
-            preferenceResult.data ??
-            []
-          ).map((row) => [
-            row.user_id,
-            row,
-          ]),
+      if (!claimedJob) {
+        throw new PublicError(
+          "job_unavailable",
+          "Notification job is already being processed.",
+          409,
         );
+      }
+    }
 
-      const eligible =
-        subscriptions.filter(
-          (row) => {
-            const preference =
-              preferences.get(
-                row.user_id,
-              ) as
-                | Record<
-                    string,
-                    unknown
-                  >
-                | undefined;
-
-            if (!preference) {
-              return false;
-            }
-
-            if (
-              audience.type ===
-                "program" &&
-              preference.program_id &&
-              preference.program_id !==
-                audience.programId
-            ) {
-              return false;
-            }
-
-            if (
-              audience.type ===
-                "term" &&
-              preference.term_id &&
-              preference.term_id !==
-                audience.termId
-            ) {
-              return false;
-            }
-
-            if (
-              audience.type ===
-                "subject" &&
-              Array.isArray(
-                preference.subject_ids,
-              ) &&
-              preference
-                .subject_ids
-                .length > 0 &&
-              !preference.subject_ids.includes(
-                audience.subjectId,
-              )
-            ) {
-              return false;
-            }
-
-            return deliveryAllowed(input.category!, preference);
-          },
-        );
-
-      console.log(
-        "send-push-notification: recipients resolved",
-        {
-          subscriptions:
-            subscriptions.length,
-          eligible:
-            eligible.length,
-        },
+    if (internalJobRequest && !job) {
+      throw new PublicError(
+        "forbidden",
+        "Trusted internal requests may process queued jobs only.",
+        403,
       );
+    }
 
-      if (input.dryRun) {
-        const {
-          error: cancelError,
-        } = await service
-          .from(
-            "push_notification_campaigns",
-          )
-          .update({
-            status:
-              "cancelled",
-          })
-          .eq(
-            "id",
-            campaign.id,
-          );
+    if (!input.title || !input.body || !input.category) {
+      throw new PublicError(
+        "invalid_request",
+        "Title, body, and category are required.",
+        400,
+      );
+    }
 
-        if (cancelError) {
-          throw cancelError;
+    const targetUrl = safeRoute(input.targetUrl);
+
+    if (input.testOnly && !actorId) {
+      throw new PublicError(
+        "invalid_request",
+        "A test notification requires an authenticated user.",
+        400,
+      );
+    }
+
+    const audience = input.testOnly
+      ? {
+          type: "users" as const,
+          userIds: [actorId!],
         }
+      : input.audience;
 
-        return jsonResponse(
-          request,
-          {
-            campaignId:
-              campaign.id,
-            recipients:
-              eligible.length,
-            sent: 0,
-            failed: 0,
-            skipped:
-              subscriptions.length -
-              eligible.length,
-            status:
-              "cancelled",
-          },
-        );
+    console.log("send-push-notification: creating campaign", {
+      audienceType: audience.type,
+      testOnly: input.testOnly,
+      dryRun: input.dryRun,
+    });
+
+    const { data: campaign, error: campaignError } = await service
+      .from("push_notification_campaigns")
+      .insert({
+        title: input.title,
+        body: input.body,
+        category: input.category,
+        target_url: targetUrl,
+        resource_id: input.resourceId ?? null,
+        created_by: actorId,
+        audience,
+        status: "sending",
+      })
+      .select("id")
+      .single();
+
+    if (campaignError) {
+      throw campaignError;
+    }
+
+    let subscriptionsQuery = service
+      .from("push_subscriptions")
+      .select("id,user_id,token,platform")
+      .eq("enabled", true)
+      .gte(
+        "last_seen_at",
+        new Date(Date.now() - 180 * 86_400_000).toISOString(),
+      )
+      .limit(5000);
+
+    if (audience.type === "users" && audience.userIds?.length) {
+      subscriptionsQuery = subscriptionsQuery.in("user_id", audience.userIds);
+    }
+
+    if (input.testOnly && input.testSubscriptionId) {
+      subscriptionsQuery = subscriptionsQuery
+        .eq("id", input.testSubscriptionId)
+        .eq("user_id", actorId!);
+    }
+
+    const { data: subscriptionRows, error: subscriptionsError } =
+      await subscriptionsQuery;
+
+    if (subscriptionsError) {
+      throw subscriptionsError;
+    }
+
+    const subscriptions = (subscriptionRows ?? []) as Subscription[];
+
+    const userIds = [...new Set(subscriptions.map((row) => row.user_id))];
+
+    const preferenceResult = userIds.length
+      ? await service
+          .from("notification_preferences")
+          .select(
+            [
+              "user_id",
+              "push_enabled",
+              "resource_updates",
+              "submission_updates",
+              "moderation_updates",
+              "system_announcements",
+              "new_resources",
+              "past_questions",
+              "account_security",
+              "program_id",
+              "term_id",
+              "subject_ids",
+              "quiet_hours_enabled",
+              "quiet_hours_start",
+              "quiet_hours_end",
+              "timezone",
+            ].join(","),
+          )
+          .in("user_id", userIds)
+      : {
+          data: [],
+          error: null,
+        };
+
+    if (preferenceResult.error) {
+      throw preferenceResult.error;
+    }
+
+    const preferences = new Map(
+      (preferenceResult.data ?? []).map((row) => [row.user_id, row]),
+    );
+
+    const eligible = subscriptions.filter((row) => {
+      const preference = preferences.get(row.user_id) as
+        Record<string, unknown> | undefined;
+
+      if (!preference) {
+        return false;
       }
 
-      const eligibleUserIds = [
-        ...new Set(eligible.map((row) => row.user_id)),
-      ];
-      const historyByUser = new Map<string, string>();
+      if (
+        audience.type === "program" &&
+        preference.program_id &&
+        preference.program_id !== audience.programId
+      ) {
+        return false;
+      }
 
       if (
-        input.reuseExistingNotification &&
-        audience.type === "users" &&
-        audience.userIds?.length === 1
+        audience.type === "term" &&
+        preference.term_id &&
+        preference.term_id !== audience.termId
       ) {
-        const historyUserId = audience.userIds[0];
-        const { data: existingHistory, error: existingHistoryError } = await service
+        return false;
+      }
+
+      if (
+        audience.type === "subject" &&
+        Array.isArray(preference.subject_ids) &&
+        preference.subject_ids.length > 0 &&
+        !preference.subject_ids.includes(audience.subjectId)
+      ) {
+        return false;
+      }
+
+      return deliveryAllowed(input.category!, preference);
+    });
+
+    console.log("send-push-notification: recipients resolved", {
+      subscriptions: subscriptions.length,
+      eligible: eligible.length,
+    });
+
+    if (input.dryRun) {
+      const { error: cancelError } = await service
+        .from("push_notification_campaigns")
+        .update({
+          status: "cancelled",
+        })
+        .eq("id", campaign.id);
+
+      if (cancelError) {
+        throw cancelError;
+      }
+
+      return jsonResponse(request, {
+        campaignId: campaign.id,
+        recipients: eligible.length,
+        sent: 0,
+        failed: 0,
+        skipped: subscriptions.length - eligible.length,
+        status: "cancelled",
+      });
+    }
+
+    const eligibleUserIds = [...new Set(eligible.map((row) => row.user_id))];
+    const historyByUser = new Map<string, string>();
+
+    if (
+      input.reuseExistingNotification &&
+      audience.type === "users" &&
+      audience.userIds?.length === 1
+    ) {
+      const historyUserId = audience.userIds[0];
+      const { data: existingHistory, error: existingHistoryError } =
+        await service
           .from("notifications")
           .eq("user_id", historyUserId)
-          .eq("campaign_id", null)
+          .is("campaign_id", null)
           .eq("title", input.title)
           .eq("resource_id", input.resourceId ?? null)
           .gte("created_at", new Date(Date.now() - 10 * 60_000).toISOString())
@@ -926,483 +712,296 @@ Deno.serve(
           .select("id,user_id")
           .maybeSingle();
 
-        if (existingHistoryError) throw existingHistoryError;
-        if (existingHistory) {
-          const { error: linkHistoryError } = await service
-            .from("notifications")
-            .update({
-              campaign_id: campaign.id,
-              category: input.category,
-              target_url: targetUrl,
-              resource_id: input.resourceId ?? null,
-              title: input.title,
-              message: input.body,
-            })
-            .eq("id", existingHistory.id);
-          if (linkHistoryError) throw linkHistoryError;
-          historyByUser.set(existingHistory.user_id, existingHistory.id);
-        }
-      }
-
-      if (eligibleUserIds.length && historyByUser.size !== eligibleUserIds.length) {
-        const unresolvedUserIds = eligibleUserIds.filter(
-          (userId) => !historyByUser.has(userId),
-        );
-        const { data: historyRows, error: historyError } = await service
+      if (existingHistoryError) throw existingHistoryError;
+      if (existingHistory) {
+        const { error: linkHistoryError } = await service
           .from("notifications")
-          .upsert(
-            unresolvedUserIds.map((userId) => ({
-              user_id: userId,
-              campaign_id: campaign.id,
-              notification_type: input.category!,
-              category: input.category!,
-              title: input.title!,
-              message: input.body!,
-              target_url: targetUrl,
-              resource_id: input.resourceId ?? null,
-              entity_type: input.resourceId ? "resource" : "push_campaign",
-              entity_id: input.resourceId ?? campaign.id,
-            })),
-            { onConflict: "campaign_id,user_id" },
-          )
-          .select("id,user_id");
-
-        if (historyError) throw historyError;
-        for (const row of historyRows ?? []) historyByUser.set(row.user_id, row.id);
-      }
-
-      const projectId =
-        required(
-          "FIREBASE_PROJECT_ID",
-        );
-
-      console.log(
-        "Firebase configuration check",
-        {
-          hasProjectId:
-            Boolean(
-              projectId,
-            ),
-          hasClientEmail:
-            Boolean(
-              Deno.env.get(
-                "FIREBASE_CLIENT_EMAIL",
-              ),
-            ),
-          hasPrivateKey:
-            Boolean(
-              Deno.env.get(
-                "FIREBASE_PRIVATE_KEY",
-              ),
-            ),
-        },
-      );
-
-      const accessToken =
-        eligible.length
-          ? await googleAccessToken()
-          : "";
-
-      const eligibleIds =
-        new Set(
-          eligible.map(
-            (row) => row.id,
-          ),
-        );
-
-      const deliveries:
-        Delivery[] =
-        subscriptions
-          .filter(
-            (row) =>
-              !eligibleIds.has(
-                row.id,
-              ),
-          )
-          .map((row) => ({
-            subscription_id:
-              row.id,
-            user_id:
-              row.user_id,
-            status:
-              "skipped",
-            provider_message_id:
-              null,
-            error_code:
-              "preference_filtered",
-            error_message:
-              null,
-          }));
-
-      await runBounded(
-        eligible,
-        8,
-        async (
-          subscription,
-        ) => {
-          const notificationId = historyByUser.get(subscription.user_id);
-          if (!notificationId) {
-            deliveries.push({
-              subscription_id: subscription.id,
-              user_id: subscription.user_id,
-              status: "failed",
-              provider_message_id: null,
-              error_code: "history_missing",
-              error_message: "Notification history could not be created.",
-            });
-            return;
-          }
-
-          /* Web is deliberately data-only. The single Workbox worker owns
-           * showNotification(), preventing Firebase and Workbox from rendering
-           * the same web notification twice. */
-          const message = buildFcmMessage({
-            token: subscription.token,
-            platform: subscription.platform,
-            title: input.title!,
-            body: input.body!,
-            url: targetUrl,
-            notificationId,
-            resourceId: input.resourceId ?? "",
-            category: input.category!,
-            timestamp: String(Date.now()),
-            important: ["account_security", "administrative_announcement"].includes(
-              input.category!,
-            ),
-          });
-
-          const sendRequest =
-            () =>
-              fetch(
-                `https://fcm.googleapis.com/v1/projects/${encodeURIComponent(
-                  projectId,
-                )}/messages:send`,
-                {
-                  method:
-                    "POST",
-
-                  headers: {
-                    authorization:
-                      `Bearer ${accessToken}`,
-                    "content-type":
-                      "application/json",
-                  },
-
-                  body:
-                    JSON.stringify({
-                      message,
-                    }),
-                },
-              );
-
-          let response =
-            await sendRequest();
-
-          if (
-            response.status ===
-              429 ||
-            response.status >=
-              500
-          ) {
-            await new Promise(
-              (resolve) =>
-                setTimeout(
-                  resolve,
-                  300,
-                ),
-            );
-
-            response =
-              await sendRequest();
-          }
-
-          const result =
-            await response
-              .json()
-              .catch(
-                () => ({}),
-              );
-
-          if (response.ok) {
-            deliveries.push({
-              subscription_id:
-                subscription.id,
-              user_id:
-                subscription.user_id,
-              status:
-                "sent",
-              provider_message_id:
-                typeof result.name ===
-                "string"
-                  ? result.name.slice(
-                      0,
-                      500,
-                    )
-                  : null,
-              error_code:
-                null,
-              error_message:
-                null,
-            });
-
-            return;
-          }
-
-          const detail =
-            errorDetails(
-              result,
-            );
-
-          const invalidToken = isInvalidFcmTokenError(
-            detail.code,
-            detail.message,
-          );
-
-          deliveries.push({
-            subscription_id:
-              subscription.id,
-            user_id:
-              subscription.user_id,
-            status:
-              invalidToken
-                ? "invalid_token"
-                : "failed",
-            provider_message_id:
-              null,
-            error_code:
-              detail.code.slice(
-                0,
-                120,
-              ),
-            error_message:
-              detail.message,
-          });
-
-          if (
-            invalidToken
-          ) {
-            const {
-              error:
-                disableError,
-            } = await service
-              .from(
-                "push_subscriptions",
-              )
-              .update({
-                enabled:
-                  false,
-              })
-              .eq(
-                "id",
-                subscription.id,
-              );
-
-            if (
-              disableError
-            ) {
-              console.error(
-                "Could not disable invalid subscription",
-                {
-                  subscriptionId:
-                    subscription.id,
-                  message:
-                    disableError.message,
-                },
-              );
-            }
-          }
-        },
-      );
-
-      if (
-        deliveries.length
-      ) {
-        const {
-          error:
-            deliveryInsertError,
-        } = await service
-          .from(
-            "notification_deliveries",
-          )
-          .upsert(
-            deliveries.map(
-              (row) => ({
-                campaign_id:
-                  campaign.id,
-                ...row,
-              }),
-            ),
-            { onConflict: "campaign_id,subscription_id" },
-          );
-
-        if (
-          deliveryInsertError
-        ) {
-          throw deliveryInsertError;
-        }
-      }
-
-      const sent =
-        deliveries.filter(
-          (row) =>
-            row.status ===
-            "sent",
-        ).length;
-
-      const failed =
-        deliveries.filter(
-          (row) =>
-            row.status ===
-              "failed" ||
-            row.status ===
-              "invalid_token",
-        ).length;
-
-      const skipped =
-        deliveries.filter(
-          (row) =>
-            row.status ===
-            "skipped",
-        ).length;
-
-      const status =
-        failed === 0
-          ? "sent"
-          : sent > 0
-            ? "partially_failed"
-            : "failed";
-
-      const {
-        error:
-          campaignUpdateError,
-      } = await service
-        .from(
-          "push_notification_campaigns",
-        )
-        .update({
-          status,
-          sent_at:
-            new Date().toISOString(),
-        })
-        .eq(
-          "id",
-          campaign.id,
-        );
-
-      if (
-        campaignUpdateError
-      ) {
-        throw campaignUpdateError;
-      }
-
-      if (job) {
-        const {
-          error:
-            jobCompleteError,
-        } = await service
-          .from(
-            "push_notification_jobs",
-          )
           .update({
-            status:
-              failed > 0 &&
-              sent === 0
-                ? "failed"
-                : "completed",
-            processed_at:
-              new Date().toISOString(),
-            campaign_id:
-              campaign.id,
+            campaign_id: campaign.id,
+            category: input.category,
+            target_url: targetUrl,
+            resource_id: input.resourceId ?? null,
+            title: input.title,
+            message: input.body,
           })
-          .eq(
-            "id",
-            job.id,
-          );
+          .eq("id", existingHistory.id);
+        if (linkHistoryError) throw linkHistoryError;
+        historyByUser.set(existingHistory.user_id, existingHistory.id);
+      }
+    }
 
-        if (
-          jobCompleteError
-        ) {
-          throw jobCompleteError;
-        }
+    if (
+      eligibleUserIds.length &&
+      historyByUser.size !== eligibleUserIds.length
+    ) {
+      const unresolvedUserIds = eligibleUserIds.filter(
+        (userId) => !historyByUser.has(userId),
+      );
+      const { data: historyRows, error: historyError } = await service
+        .from("notifications")
+        .upsert(
+          unresolvedUserIds.map((userId) => ({
+            user_id: userId,
+            campaign_id: campaign.id,
+            notification_type: input.category!,
+            category: input.category!,
+            title: input.title!,
+            message: input.body!,
+            target_url: targetUrl,
+            resource_id: input.resourceId ?? null,
+            entity_type: input.resourceId ? "resource" : "push_campaign",
+            entity_id: input.resourceId ?? campaign.id,
+          })),
+          { onConflict: "campaign_id,user_id" },
+        )
+        .select("id,user_id");
+
+      if (historyError) throw historyError;
+      for (const row of historyRows ?? [])
+        historyByUser.set(row.user_id, row.id);
+    }
+
+    const projectId = required("FIREBASE_PROJECT_ID");
+
+    console.log("Firebase configuration check", {
+      hasProjectId: Boolean(projectId),
+      hasClientEmail: Boolean(Deno.env.get("FIREBASE_CLIENT_EMAIL")),
+      hasPrivateKey: Boolean(Deno.env.get("FIREBASE_PRIVATE_KEY")),
+    });
+
+    const accessToken = eligible.length ? await googleAccessToken() : "";
+
+    const eligibleIds = new Set(eligible.map((row) => row.id));
+
+    const deliveries: Delivery[] = subscriptions
+      .filter((row) => !eligibleIds.has(row.id))
+      .map((row) => ({
+        subscription_id: row.id,
+        user_id: row.user_id,
+        status: "skipped",
+        provider_message_id: null,
+        error_code: "preference_filtered",
+        error_message: null,
+      }));
+
+    await runBounded(eligible, 8, async (subscription) => {
+      const notificationId = historyByUser.get(subscription.user_id);
+      if (!notificationId) {
+        deliveries.push({
+          subscription_id: subscription.id,
+          user_id: subscription.user_id,
+          status: "failed",
+          provider_message_id: null,
+          error_code: "history_missing",
+          error_message: "Notification history could not be created.",
+        });
+        return;
       }
 
-      const { error: auditError } = await service.from("audit_events").insert({
-        actor_id: user.id,
-        action: "push_notification_sent",
-        entity_type: "push_notification_campaign",
-        entity_id: campaign.id,
-        metadata: {
-          category: input.category,
-          audienceType: audience.type,
-          testOnly: input.testOnly,
-          sent,
-          failed,
-          skipped,
-          historyUsers: eligibleUserIds.length,
-        },
+      /* Web is deliberately data-only. The single Workbox worker owns
+       * showNotification(), preventing Firebase and Workbox from rendering
+       * the same web notification twice. */
+      const message = buildFcmMessage({
+        token: subscription.token,
+        platform: subscription.platform,
+        title: input.title!,
+        body: input.body!,
+        url: targetUrl,
+        notificationId,
+        resourceId: input.resourceId ?? "",
+        category: input.category!,
+        timestamp: String(Date.now()),
+        important: [
+          "account_security",
+          "administrative_announcement",
+          "moderation_update",
+        ].includes(input.category!),
       });
-      if (auditError) throw auditError;
 
-      return jsonResponse(
-        request,
-        {
-          campaignId:
-            campaign.id,
-          recipients:
-            eligible.length,
-          sent,
-          failed,
-          skipped,
-          status,
-        },
-      );
-    } catch (error) {
-      const details =
-        error instanceof Error
-          ? {
-              name:
-                error.name,
-              message:
-                error.message,
-              stack:
-                error.stack,
-            }
-          : typeof error ===
-                "object" &&
-              error !== null
-            ? error
-            : {
-                message:
-                  String(error),
-              };
+      const sendRequest = () =>
+        fetch(
+          `https://fcm.googleapis.com/v1/projects/${encodeURIComponent(
+            projectId,
+          )}/messages:send`,
+          {
+            method: "POST",
 
-      console.error(
-        "send-push-notification failed",
-        details,
-      );
+            headers: {
+              authorization: `Bearer ${accessToken}`,
+              "content-type": "application/json",
+            },
 
-      const status =
-        error instanceof
-        PublicError
-          ? error.status
-          : 500;
+            body: JSON.stringify({
+              message,
+            }),
+          },
+        );
 
-      return jsonResponse(
-        request,
-        {
-          error:
-            error instanceof
-            PublicError
-              ? error.code
-              : "push_notification_failed",
+      let response = await sendRequest();
 
-          message:
-            error instanceof PublicError
-              ? error.message
-              : "Push notification delivery could not be completed.",
-        },
-        status,
-      );
+      if (response.status === 429 || response.status >= 500) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        response = await sendRequest();
+      }
+
+      const result = await response.json().catch(() => ({}));
+
+      if (response.ok) {
+        deliveries.push({
+          subscription_id: subscription.id,
+          user_id: subscription.user_id,
+          status: "sent",
+          provider_message_id:
+            typeof result.name === "string" ? result.name.slice(0, 500) : null,
+          error_code: null,
+          error_message: null,
+        });
+
+        return;
+      }
+
+      const detail = errorDetails(result);
+
+      const invalidToken = isInvalidFcmTokenError(detail.code, detail.message);
+
+      deliveries.push({
+        subscription_id: subscription.id,
+        user_id: subscription.user_id,
+        status: invalidToken ? "invalid_token" : "failed",
+        provider_message_id: null,
+        error_code: detail.code.slice(0, 120),
+        error_message: detail.message,
+      });
+
+      if (invalidToken) {
+        const { error: disableError } = await service
+          .from("push_subscriptions")
+          .update({
+            enabled: false,
+          })
+          .eq("id", subscription.id);
+
+        if (disableError) {
+          console.error("Could not disable invalid subscription", {
+            subscriptionId: subscription.id,
+            message: disableError.message,
+          });
+        }
+      }
+    });
+
+    if (deliveries.length) {
+      const { error: deliveryInsertError } = await service
+        .from("notification_deliveries")
+        .upsert(
+          deliveries.map((row) => ({
+            campaign_id: campaign.id,
+            ...row,
+          })),
+          { onConflict: "campaign_id,subscription_id" },
+        );
+
+      if (deliveryInsertError) {
+        throw deliveryInsertError;
+      }
     }
-  },
-);
+
+    const sent = deliveries.filter((row) => row.status === "sent").length;
+
+    const failed = deliveries.filter(
+      (row) => row.status === "failed" || row.status === "invalid_token",
+    ).length;
+
+    const skipped = deliveries.filter((row) => row.status === "skipped").length;
+
+    const status =
+      failed === 0 ? "sent" : sent > 0 ? "partially_failed" : "failed";
+
+    const { error: campaignUpdateError } = await service
+      .from("push_notification_campaigns")
+      .update({
+        status,
+        sent_at: new Date().toISOString(),
+      })
+      .eq("id", campaign.id);
+
+    if (campaignUpdateError) {
+      throw campaignUpdateError;
+    }
+
+    if (job) {
+      const { error: jobCompleteError } = await service
+        .from("push_notification_jobs")
+        .update({
+          status: failed > 0 && sent === 0 ? "failed" : "completed",
+          processed_at: new Date().toISOString(),
+          campaign_id: campaign.id,
+        })
+        .eq("id", job.id);
+
+      if (jobCompleteError) {
+        throw jobCompleteError;
+      }
+    }
+
+    const { error: auditError } = await service.from("audit_events").insert({
+      actor_id: actorId,
+      action: "push_notification_sent",
+      entity_type: "push_notification_campaign",
+      entity_id: campaign.id,
+      metadata: {
+        category: input.category,
+        audienceType: audience.type,
+        testOnly: input.testOnly,
+        sent,
+        failed,
+        skipped,
+        historyUsers: eligibleUserIds.length,
+      },
+    });
+    if (auditError) throw auditError;
+
+    return jsonResponse(request, {
+      campaignId: campaign.id,
+      recipients: eligible.length,
+      sent,
+      failed,
+      skipped,
+      status,
+    });
+  } catch (error) {
+    const details =
+      error instanceof Error
+        ? {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+          }
+        : typeof error === "object" && error !== null
+          ? error
+          : {
+              message: String(error),
+            };
+
+    console.error("send-push-notification failed", details);
+
+    const status = error instanceof PublicError ? error.status : 500;
+
+    return jsonResponse(
+      request,
+      {
+        error:
+          error instanceof PublicError
+            ? error.code
+            : "push_notification_failed",
+
+        message:
+          error instanceof PublicError
+            ? error.message
+            : "Push notification delivery could not be completed.",
+      },
+      status,
+    );
+  }
+});

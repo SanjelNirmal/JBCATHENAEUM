@@ -5,6 +5,7 @@ import {
   jsonResponse,
   PublicError,
 } from "../_shared/http.ts";
+import { queueAndDispatchPushJob } from "../_shared/pushJobs.ts";
 
 function toHex(bytes: ArrayBuffer): string {
   return [...new Uint8Array(bytes)]
@@ -13,47 +14,79 @@ function toHex(bytes: ArrayBuffer): string {
 }
 
 async function dispatchSubmissionPush(
-  request: Request,
   userId: string,
+  submissionId: string,
+  resourceId: string,
+): Promise<void> {
+  await queueAndDispatchPushJob({
+    resourceId,
+    idempotencyKey: `resource-submitted:${submissionId}:${userId}`,
+    logContext: "submission_push",
+    payload: {
+      title: "Submission received",
+      body: "Your PDF was received and entered the manual administrator review queue.",
+      category: "submission_update",
+      targetUrl: "/my-submissions",
+      resourceId,
+      audience: { type: "users", userIds: [userId] },
+      initiatedBy: userId,
+      reuseExistingNotification: true,
+    },
+  });
+}
+
+async function dispatchSuperAdminSubmissionPush(
+  submitterId: string,
+  submissionId: string,
   resourceId: string,
 ): Promise<void> {
   const service = serviceClient();
-  const payload = {
-    title: "Submission received",
-    body: "Your PDF was received and entered the manual administrator review queue.",
-    category: "submission_update",
-    targetUrl: "/my-submissions",
-    resourceId,
-    audience: { type: "users", userIds: [userId] },
-    reuseExistingNotification: true,
-  };
-  const { data: job, error: jobError } = await service
-    .from("push_notification_jobs")
-    .upsert(
-      {
-        resource_id: resourceId,
-        idempotency_key: `resource-submitted:${resourceId}:${userId}`,
-        payload,
-        status: "queued",
-      },
-      { onConflict: "idempotency_key", ignoreDuplicates: true },
-    )
-    .select("id")
-    .maybeSingle();
-  if (!jobError && job?.id) {
-    const authorization = request.headers.get("authorization") ?? "";
-    const response = await fetch(
-      `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`,
-      {
-        method: "POST",
-        headers: { authorization, "content-type": "application/json" },
-        body: JSON.stringify({ jobId: job.id }),
-      },
-    ).catch(() => null);
-    if (!response?.ok) {
-      console.error("submission_push_dispatch_deferred", { jobId: job.id });
-    }
+  const { data: roleRows, error: rolesError } = await service
+    .from("user_roles")
+    .select("user_id")
+    .eq("role", "super_admin")
+    .neq("user_id", submitterId);
+
+  if (rolesError) {
+    console.error("super_admin_submission_roles_failed", {
+      code: rolesError.code,
+    });
+    return;
   }
+
+  const roleUserIds = [...new Set((roleRows ?? []).map((row) => row.user_id))];
+  if (!roleUserIds.length) return;
+
+  const { data: activeProfiles, error: profilesError } = await service
+    .from("profiles")
+    .select("id")
+    .in("id", roleUserIds)
+    .eq("account_status", "active");
+
+  if (profilesError) {
+    console.error("super_admin_submission_profiles_failed", {
+      code: profilesError.code,
+    });
+    return;
+  }
+
+  const superAdminIds = (activeProfiles ?? []).map((profile) => profile.id);
+  if (!superAdminIds.length) return;
+
+  await queueAndDispatchPushJob({
+    resourceId,
+    idempotencyKey: `super-admin-resource-submitted:${submissionId}`,
+    logContext: "super_admin_submission_push",
+    payload: {
+      title: "New file submitted",
+      body: "A new PDF is waiting for administrator review.",
+      category: "moderation_update",
+      targetUrl: "/admin/reviews",
+      resourceId,
+      audience: { type: "users", userIds: superAdminIds },
+      initiatedBy: submitterId,
+    },
+  });
 }
 
 Deno.serve(async (request) => {
@@ -143,7 +176,14 @@ Deno.serve(async (request) => {
       .eq("id", submissionId)
       .maybeSingle();
     if (submission?.resource_id) {
-      await dispatchSubmissionPush(request, user.id, submission.resource_id);
+      await Promise.all([
+        dispatchSubmissionPush(user.id, submissionId, submission.resource_id),
+        dispatchSuperAdminSubmissionPush(
+          user.id,
+          submissionId,
+          submission.resource_id,
+        ),
+      ]);
     }
     return jsonResponse(request, { submissionId, status: "submitted" });
   } catch (error) {

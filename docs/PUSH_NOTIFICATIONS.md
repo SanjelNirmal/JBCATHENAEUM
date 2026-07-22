@@ -6,9 +6,10 @@
 flowchart LR
   U[Signed-in user] --> C[React notification settings]
   C -->|explicit permission| F[Firebase web or native SDK]
-  F --> S[(push_subscriptions + preferences)]
+  F --> SUB[(push_subscriptions + preferences)]
   A[Admin with MFA] --> E[send-push-notification Edge Function]
-  P[Resource publication] --> J[(idempotent push job)] --> E
+  FS[File submission] --> J[(idempotent push job)] --> E
+  P[Resource publication] --> J
   E -->|OAuth 2 / FCM HTTP v1| G[Firebase Cloud Messaging]
   G --> W[Workbox web worker]
   G --> N[Capacitor Android / iOS]
@@ -16,6 +17,8 @@ flowchart LR
 ```
 
 React never sends to FCM. An authenticated, active `admin` or `super_admin` calls the Edge Function. The function uses a service account only from Supabase secrets, selects enabled and recently seen subscriptions whose account preference allows the category, and sends with a bounded concurrency of eight. Delivery logs reference subscription IDs but never copy tokens.
+
+Workflow Edge Functions can process only their own server-created, idempotent jobs through a service-role-authenticated internal call. A contributor cannot use this path to construct or send arbitrary notifications. When a PDF submission completes, the system resolves active `super_admin` accounts server-side and sends each one a moderation alert linking to `/admin/reviews`. One history row is created per super administrator, while every enabled device receives its own delivery. The submitting contributor is excluded from the administrator alert if that account is itself a super administrator.
 
 The private `notifications` table is the notification-center history. A campaign creates one row per eligible user, while `notification_deliveries` records one result per enabled subscription. Push uses the dedicated `push_subscriptions` table because an FCM token has different lifecycle and secrecy requirements.
 
@@ -78,6 +81,8 @@ supabase secrets set FIREBASE_CLIENT_EMAIL="REPLACE_WITH_SERVICE_ACCOUNT_CLIENT_
 supabase secrets set FIREBASE_PRIVATE_KEY="REPLACE_WITH_SERVICE_ACCOUNT_PRIVATE_KEY"
 supabase db push
 supabase functions deploy send-push-notification
+supabase functions deploy finalize-upload
+supabase functions deploy decide-resource-review
 supabase functions deploy publish-resource
 ```
 
@@ -97,6 +102,7 @@ Firebase Console can send to a single copied token for diagnosis, but do not pas
 6. Invalid-token cleanup, disabled preferences, publication idempotency, and duplicate foreground suppression.
 7. Foreground sound after interaction, sound disabled, quiet hours, muted categories, and rejected audio playback.
 8. One user with multiple devices: one history item and one delivery row per device.
+9. Submit a PDF as a contributor: every active Super Admin with push and moderation updates enabled receives “New file submitted”; foreground devices show the in-app popup and background devices show the OS notification.
 
 Local web testing can validate permission and foreground callbacks, but FCM delivery requires a valid VAPID key, Firebase registration, HTTPS/localhost, deployed schema/functions, and server secrets. Native receipt cannot be proven by a simulator-only or unsigned build.
 

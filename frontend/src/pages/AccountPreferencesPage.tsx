@@ -1,6 +1,9 @@
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
-import { fetchAcademicCatalog, type AcademicSubjectOption } from "../lib/supabase/academic";
+import {
+  fetchAcademicCatalog,
+  type AcademicSubjectOption,
+} from "../lib/supabase/academic";
 import { Navigate, useLocation } from "react-router-dom";
 import { useCurrentAuth } from "../app/AuthContext";
 import { AccountNav } from "../components/AccountNav";
@@ -15,19 +18,33 @@ import { toSafeErrorMessage } from "../lib/supabase/errors";
 import { NotificationSettings } from "../components/notifications/NotificationSettings";
 
 const preferenceRows: Array<{
-  key: "inAppEnabled" | "foregroundPopupEnabled" | "notificationSoundEnabled" | "emailEnabled" | "pushEnabled" | "submissionUpdates" | "resourceUpdates" | "moderationUpdates" | "systemAnnouncements" | "newResources" | "pastQuestions" | "accountSecurity";
+  key:
+    | "inAppEnabled"
+    | "foregroundPopupEnabled"
+    | "notificationSoundEnabled"
+    | "emailEnabled"
+    | "pushEnabled"
+    | "submissionUpdates"
+    | "resourceUpdates"
+    | "moderationUpdates"
+    | "systemAnnouncements"
+    | "newResources"
+    | "pastQuestions"
+    | "accountSecurity";
   label: string;
   description: string;
 }> = [
   {
     key: "foregroundPopupEnabled",
     label: "Foreground popup",
-    description: "Show a floating notification card while JBC Athenaeum is open.",
+    description:
+      "Show a floating notification card while JBC Athenaeum is open.",
   },
   {
     key: "notificationSoundEnabled",
     label: "Foreground notification sound",
-    description: "Play a subtle website sound after you have interacted with the page.",
+    description:
+      "Play a subtle website sound after you have interacted with the page.",
   },
   {
     key: "inAppEnabled",
@@ -43,8 +60,7 @@ const preferenceRows: Array<{
   {
     key: "pushEnabled",
     label: "Push notifications",
-    description:
-      "Allow operating-system notifications on enabled devices.",
+    description: "Allow operating-system notifications on enabled devices.",
   },
   {
     key: "submissionUpdates",
@@ -67,9 +83,21 @@ const preferenceRows: Array<{
     description:
       "Service and campus archive announcements. Security-critical notices may still be delivered.",
   },
-  { key: "newResources", label: "New resources", description: "Resources published for your selected academic subjects." },
-  { key: "pastQuestions", label: "Past questions", description: "New past-paper and exam-preparation resources." },
-  { key: "accountSecurity", label: "Account security", description: "Important security and account alerts." },
+  {
+    key: "newResources",
+    label: "New resources",
+    description: "Resources published for your selected academic subjects.",
+  },
+  {
+    key: "pastQuestions",
+    label: "Past questions",
+    description: "New past-paper and exam-preparation resources.",
+  },
+  {
+    key: "accountSecurity",
+    label: "Account security",
+    description: "Important security and account alerts.",
+  },
 ];
 
 export default function AccountPreferencesPage() {
@@ -79,7 +107,11 @@ export default function AccountPreferencesPage() {
   const [form, setForm] = useState(defaultNotificationPreferences);
   const [message, setMessage] = useState("");
   const [catalog, setCatalog] = useState<AcademicSubjectOption[]>([]);
-  useEffect(() => { void fetchAcademicCatalog().then(setCatalog).catch(() => setCatalog([])); }, []);
+  useEffect(() => {
+    void fetchAcademicCatalog()
+      .then(setCatalog)
+      .catch(() => setCatalog([]));
+  }, []);
   useEffect(() => {
     if (query.data) setForm(query.data);
   }, [query.data]);
@@ -168,15 +200,170 @@ export default function AccountPreferencesPage() {
             ))}
           </div>
           <fieldset className="mt-6 border-t border-slate-200 pt-6">
-            <legend className="font-bold text-[#002147]">Academic interests</legend>
+            <legend className="font-bold text-[#002147]">
+              Academic interests
+            </legend>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <label className="text-sm font-semibold">Program<select value={form.programId || ""} onChange={(event) => setForm((current) => ({ ...current, programId: event.target.value || null, termId: null, subjectIds: [] }))} className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3"><option value="">All programs</option>{Array.from(new Map(catalog.map((item) => [item.programId, item.programName]))).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
-              <label className="text-sm font-semibold">Semester / term<select value={form.termId || ""} onChange={(event) => setForm((current) => ({ ...current, termId: event.target.value || null, subjectIds: [] }))} className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3"><option value="">All terms</option>{Array.from(new Map(catalog.filter((item) => !form.programId || item.programId === form.programId).map((item) => [item.termId, item.termName]))).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+              <label className="text-sm font-semibold">
+                Program
+                <select
+                  value={form.programId || ""}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      programId: event.target.value || null,
+                      termId: null,
+                      subjectIds: [],
+                    }))
+                  }
+                  className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3"
+                >
+                  <option value="">All programs</option>
+                  {Array.from(
+                    new Map(
+                      catalog.map((item) => [item.programId, item.programName]),
+                    ),
+                  ).map(([id, name]) => (
+                    <option key={id} value={id}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-semibold">
+                Semester / term
+                <select
+                  value={form.termId || ""}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      termId: event.target.value || null,
+                      subjectIds: [],
+                    }))
+                  }
+                  className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3"
+                >
+                  <option value="">All terms</option>
+                  {Array.from(
+                    new Map(
+                      catalog
+                        .filter(
+                          (item) =>
+                            !form.programId ||
+                            item.programId === form.programId,
+                        )
+                        .map((item) => [item.termId, item.termName]),
+                    ),
+                  ).map(([id, name]) => (
+                    <option key={id} value={id}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
-            <div className="mt-4"><p className="text-sm font-semibold">Subjects</p><div className="mt-2 grid max-h-52 gap-2 overflow-auto rounded-lg border border-slate-200 p-3 sm:grid-cols-2">{catalog.filter((item) => (!form.programId || item.programId === form.programId) && (!form.termId || item.termId === form.termId)).map((item) => <label key={item.subjectId} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.subjectIds.includes(item.subjectId)} onChange={(event) => setForm((current) => ({ ...current, subjectIds: event.target.checked ? [...new Set([...current.subjectIds, item.subjectId])] : current.subjectIds.filter((id) => id !== item.subjectId) }))} />{item.subjectCode ? `${item.subjectCode} — ` : ""}{item.subjectName}</label>)}</div></div>
+            <div className="mt-4">
+              <p className="text-sm font-semibold">Subjects</p>
+              <div className="mt-2 grid max-h-52 gap-2 overflow-auto rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
+                {catalog
+                  .filter(
+                    (item) =>
+                      (!form.programId || item.programId === form.programId) &&
+                      (!form.termId || item.termId === form.termId),
+                  )
+                  .map((item) => (
+                    <label
+                      key={item.subjectId}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={form.subjectIds.includes(item.subjectId)}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            subjectIds: event.target.checked
+                              ? [
+                                  ...new Set([
+                                    ...current.subjectIds,
+                                    item.subjectId,
+                                  ]),
+                                ]
+                              : current.subjectIds.filter(
+                                  (id) => id !== item.subjectId,
+                                ),
+                          }))
+                        }
+                      />
+                      {item.subjectCode ? `${item.subjectCode} — ` : ""}
+                      {item.subjectName}
+                    </label>
+                  ))}
+              </div>
+            </div>
           </fieldset>
-          <fieldset className="mt-6 border-t border-slate-200 pt-6"><legend className="font-bold text-[#002147]">Quiet hours</legend><label className="mt-4 flex items-center gap-3 text-sm font-semibold"><input type="checkbox" checked={form.quietHoursEnabled} onChange={(event) => setForm((current) => ({ ...current, quietHoursEnabled: event.target.checked }))} />Pause ordinary alerts during quiet hours</label>{form.quietHoursEnabled && <div className="mt-4 grid gap-4 sm:grid-cols-2"><label className="text-sm">Start<input type="time" value={form.quietHoursStart || "22:00"} onChange={(event) => setForm((current) => ({ ...current, quietHoursStart: event.target.value }))} className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3" /></label><label className="text-sm">End<input type="time" value={form.quietHoursEnd || "07:00"} onChange={(event) => setForm((current) => ({ ...current, quietHoursEnd: event.target.value }))} className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3" /></label></div>}</fieldset>
-          <label className="mt-5 block text-sm font-semibold text-[#002147]">Timezone<input value={form.timezone || ""} onChange={(event) => setForm((current) => ({ ...current, timezone: event.target.value || null }))} placeholder="Asia/Kathmandu" className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3" /></label>
+          <fieldset className="mt-6 border-t border-slate-200 pt-6">
+            <legend className="font-bold text-[#002147]">Quiet hours</legend>
+            <label className="mt-4 flex items-center gap-3 text-sm font-semibold">
+              <input
+                type="checkbox"
+                checked={form.quietHoursEnabled}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    quietHoursEnabled: event.target.checked,
+                  }))
+                }
+              />
+              Pause ordinary alerts during quiet hours
+            </label>
+            {form.quietHoursEnabled && (
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <label className="text-sm">
+                  Start
+                  <input
+                    type="time"
+                    value={form.quietHoursStart || "22:00"}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        quietHoursStart: event.target.value,
+                      }))
+                    }
+                    className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3"
+                  />
+                </label>
+                <label className="text-sm">
+                  End
+                  <input
+                    type="time"
+                    value={form.quietHoursEnd || "07:00"}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        quietHoursEnd: event.target.value,
+                      }))
+                    }
+                    className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3"
+                  />
+                </label>
+              </div>
+            )}
+          </fieldset>
+          <label className="mt-5 block text-sm font-semibold text-[#002147]">
+            Timezone
+            <input
+              value={form.timezone || ""}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  timezone: event.target.value || null,
+                }))
+              }
+              placeholder="Asia/Kathmandu"
+              className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </label>
           {message && (
             <p
               role="status"
@@ -206,7 +393,13 @@ export default function AccountPreferencesPage() {
         </form>
       )}
       <div className="mt-6">
-        <NotificationSettings onEnabledChange={(enabled) => setForm((current) => ({ ...current, pushEnabled: enabled }))} />
+        <NotificationSettings
+          onEnabledChange={(enabled) => {
+            const next = { ...form, pushEnabled: enabled };
+            setForm(next);
+            void save(next);
+          }}
+        />
       </div>
     </main>
   );

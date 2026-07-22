@@ -2,11 +2,29 @@ import { assertMatch } from "jsr:@std/assert@1";
 
 const source = await Deno.readTextFile(new URL("./index.ts", import.meta.url));
 
-Deno.test("notification sending requires AAL2 and an administrator role", () => {
-  assertMatch(source, /await requireAal2\(/);
-  assertMatch(source, /Administrator role is required/);
-  assertMatch(source, /\.in\("role", \[/);
+Deno.test(
+  "notification sending requires AAL2 and an administrator role",
+  () => {
+    assertMatch(source, /await requireAal2\(/);
+    assertMatch(source, /Administrator role is required/);
+    assertMatch(source, /\.in\("role", \[/);
+  },
+);
+
+Deno.test("trusted service requests can process queued jobs only", () => {
+  assertMatch(source, /isServiceRoleRequest/);
+  assertMatch(source, /isJobOnlyRequest/);
+  assertMatch(source, /Trusted internal requests may process queued jobs only/);
+  assertMatch(source, /Notification job is already being processed/);
 });
+
+Deno.test(
+  "submission and moderation preferences are loaded for delivery",
+  () => {
+    assertMatch(source, /"submission_updates"/);
+    assertMatch(source, /"moderation_updates"/);
+  },
+);
 
 Deno.test("notification sending is rate limited and audited", () => {
   assertMatch(source, /recentCampaigns/);
