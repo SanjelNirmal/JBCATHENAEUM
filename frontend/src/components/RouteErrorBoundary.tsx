@@ -12,7 +12,6 @@ function isChunkLoadError(error: unknown): boolean {
     message.includes("importing a module script failed") ||
     message.includes("failed to load module script") ||
     message.includes("expected a javascript-or-wasm module script") ||
-    message.includes("cannot read properties of undefined (reading 'default')") ||
     message.includes("error loading dynamically imported module")
   );
 }

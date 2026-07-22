@@ -23,14 +23,16 @@ function filesIn(directory) {
 
 const inspectable = filesIn(root).filter((path) => /\.(?:html|js|css)$/.test(path));
 const referencedAssets = new Set();
-const assetPattern = /(?:^|["'`(=,])\/?(assets\/[A-Za-z0-9_.-]+\.(?:js|css|png|jpg|jpeg|svg|ico|woff2?))/g;
+const assetPattern = /(?:^|["'`(=,])\/?(assets\/[A-Za-z0-9_.-]+\.(?:js|css|png|jpg|jpeg|svg|ico|woff2?)(?:\?__jbc_build=[A-Za-z0-9]+)?)/g;
 
 for (const path of inspectable) {
   const contents = readFileSync(path, "utf8");
   for (const match of contents.matchAll(assetPattern)) referencedAssets.add(match[1]);
 }
 
-const missing = [...referencedAssets].filter((asset) => !existsSync(resolve(root, asset)));
+const missing = [...referencedAssets].filter(
+  (asset) => !existsSync(resolve(root, asset.split("?")[0])),
+);
 
 if (missing.length) {
   throw new Error(

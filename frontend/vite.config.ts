@@ -6,6 +6,10 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => {
   const nativeBuild = mode === "native";
+  // A fresh entry request per build prevents an old Cloudflare fallback
+  // response from shadowing the real application entry when identical source
+  // is rebuilt. The underlying hashed asset remains available to Workbox.
+  const entryBuildId = Date.now().toString(36);
 
   const environment = loadEnv(
     mode,
@@ -40,11 +44,26 @@ export default defineConfig(({ mode }) => {
     },
   };
 
+  const entryCacheBuster: Plugin = {
+    name: "jbc-entry-cache-buster",
+    enforce: "post",
+
+    transformIndexHtml(html) {
+      if (nativeBuild) return html;
+
+      return html.replace(
+        /(<script\b[^>]*\bsrc="\/assets\/[^"]+\.js)"/,
+        `$1?__jbc_build=${entryBuildId}"`,
+      );
+    },
+  };
+
   return {
     plugins: [
       react(),
       tailwindcss(),
       firebaseWorkerConfig,
+      entryCacheBuster,
 
       VitePWA({
         // Native WebView bundles do not need a service worker.
@@ -61,8 +80,9 @@ export default defineConfig(({ mode }) => {
         workbox: {
           importScripts: ["firebase-messaging-sw.js"],
 
-          // Use an absolute path for SPA navigation fallback.
-          navigateFallback: "/index.html",
+          // Disable vite-plugin-pwa's default precached index NavigationRoute;
+          // it would otherwise run before the NetworkFirst rule below.
+          navigateFallback: "",
 
           // Immediately activate the latest service worker.
           skipWaiting: true,
@@ -70,6 +90,10 @@ export default defineConfig(({ mode }) => {
 
           // Remove caches belonging to old deployments.
           cleanupOutdatedCaches: true,
+
+          // The HTML entry uses this per-build cache key. Ignoring it lets the
+          // active worker satisfy later offline loads from the precache.
+          ignoreURLParametersMatching: [/^__jbc_build$/],
 
           globPatterns: [
             "**/*.{js,css,html,png,jpg,jpeg,svg,ico,mp3,woff,woff2}",
@@ -100,6 +124,12 @@ export default defineConfig(({ mode }) => {
                 expiration: {
                   maxEntries: 20,
                   maxAgeSeconds: 60 * 60,
+                },
+
+                // If both the network and a previously cached navigation are
+                // unavailable, show the precached offline document.
+                precacheFallback: {
+                  fallbackURL: "/offline.html",
                 },
               },
             },

@@ -83,4 +83,31 @@ describe("RouteErrorBoundary", () => {
     );
     await waitFor(() => expect(replace).toHaveBeenCalled());
   });
+
+  it("does not mislabel a generic application exception as a stale deployment", () => {
+    const replace = vi.fn();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: {
+        ...window.location,
+        href: "https://example.test/resources",
+        pathname: "/resources",
+        replace,
+      },
+    });
+    routeErrorMocks.error = new TypeError(
+      "Cannot read properties of undefined (reading 'default')",
+    );
+
+    render(
+      <MemoryRouter>
+        <RouteErrorBoundary />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "This page could not be loaded" }),
+    ).toBeVisible();
+    expect(replace).not.toHaveBeenCalled();
+  });
 });

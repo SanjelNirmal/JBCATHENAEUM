@@ -7,7 +7,7 @@ if (!input) {
 }
 
 const origin = new URL(input).origin;
-const assetPattern = /(?:^|["'`(=,])\/?(assets\/[A-Za-z0-9_.-]+\.(?:js|css|png|jpg|jpeg|svg|ico|woff2?))/g;
+const assetPattern = /(?:^|["'`(=,])\/?(assets\/[A-Za-z0-9_.-]+\.(?:js|css|png|jpg|jpeg|svg|ico|woff2?)(?:\?__jbc_build=[A-Za-z0-9]+)?)/g;
 const discovered = new Set();
 const pending = [];
 
@@ -51,16 +51,17 @@ while (pending.length) {
         headers: { accept: asset.endsWith(".js") ? "application/javascript" : "*/*" },
       });
       const contentType = response.headers.get("content-type") || "";
-      const expected = asset.endsWith(".js")
+      const assetPath = asset.split("?")[0];
+      const expected = assetPath.endsWith(".js")
         ? "javascript"
-        : asset.endsWith(".css")
+        : assetPath.endsWith(".css")
           ? "text/css"
           : "";
       if (!response.ok || (expected && !contentType.includes(expected))) {
         failures.push(`${asset} -> HTTP ${response.status}, ${contentType || "no content type"}`);
         return;
       }
-      if (asset.endsWith(".js") || asset.endsWith(".css")) discover(await response.text());
+      if (assetPath.endsWith(".js") || assetPath.endsWith(".css")) discover(await response.text());
     }),
   );
 }

@@ -48,6 +48,8 @@ describe("PWA safety configuration", () => {
     ).toMatch(/offline/i);
     const config = readFileSync(resolve(root, "vite.config.ts"), "utf8");
     expect(config).toContain('registerType: "autoUpdate"');
+    expect(config).not.toContain('navigateFallback: "/index.html"');
+    expect(config).toContain('fallbackURL: "/offline.html"');
     const manager = readFileSync(
       resolve(root, "src/components/PwaManager.tsx"),
       "utf8",
@@ -73,6 +75,9 @@ describe("PWA safety configuration", () => {
     expect(redirects).toContain("/admin/* /index.html 200");
     expect(readFileSync(resolve(root, "public/404.html"), "utf8")).toContain(
       "Page not found",
+    );
+    expect(readFileSync(resolve(root, "vite.config.ts"), "utf8")).toContain(
+      "jbc-entry-cache-buster",
     );
   });
 
