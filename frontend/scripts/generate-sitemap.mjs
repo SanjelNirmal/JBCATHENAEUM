@@ -7,6 +7,7 @@ const SITEMAP_PATH = resolve("public/sitemap.xml");
 const staticRoutes = [
   { path: "/", changefreq: "daily", priority: "1.0" },
   { path: "/resources", changefreq: "daily", priority: "0.9" },
+  { path: "/posts", changefreq: "daily", priority: "0.9" },
   { path: "/faculties", changefreq: "weekly", priority: "0.8" },
   { path: "/policies", changefreq: "monthly", priority: "0.4" },
   { path: "/privacy", changefreq: "monthly", priority: "0.3" },
@@ -42,7 +43,10 @@ function loadEnvFile(filePath) {
     const separator = trimmed.indexOf("=");
     if (separator === -1) continue;
     const key = trimmed.slice(0, separator).trim();
-    const value = trimmed.slice(separator + 1).trim().replace(/^['"]|['"]$/g, "");
+    const value = trimmed
+      .slice(separator + 1)
+      .trim()
+      .replace(/^['"]|['"]$/g, "");
     if (key && process.env[key] === undefined) process.env[key] = value;
   }
 }
@@ -113,13 +117,64 @@ async function fetchPublishedResources() {
       .filter((row) => typeof row.slug === "string" && row.slug.length > 0)
       .map((row) => ({
         loc: absoluteUrl(`/resources/${row.slug}`),
-        lastmod: formatDate(row.updated_at ?? row.published_at ?? row.created_at),
+        lastmod: formatDate(
+          row.updated_at ?? row.published_at ?? row.created_at,
+        ),
         changefreq: "weekly",
         priority: "0.7",
       }));
   } catch (error) {
     console.warn(
       `Sitemap resource fetch skipped: ${error instanceof Error ? error.message : "unknown error"}.`,
+    );
+    return [];
+  }
+}
+
+async function fetchPublishedAcademicPosts() {
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) return [];
+
+  const endpoint = new URL("/rest/v1/academic_posts", supabaseUrl);
+  endpoint.searchParams.set(
+    "select",
+    "slug,updated_at,published_at,created_at",
+  );
+  endpoint.searchParams.set("status", "eq.published");
+  endpoint.searchParams.set("deleted_at", "is.null");
+  endpoint.searchParams.set("published_at", `lte.${new Date().toISOString()}`);
+  endpoint.searchParams.set("order", "published_at.desc");
+  endpoint.searchParams.set("limit", "50000");
+
+  try {
+    const response = await fetch(endpoint, {
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`,
+      },
+    });
+    if (!response.ok) {
+      console.warn(
+        `Sitemap academic post fetch skipped: Supabase returned ${response.status}.`,
+      );
+      return [];
+    }
+    const rows = await response.json();
+    if (!Array.isArray(rows)) return [];
+    return rows
+      .filter((row) => typeof row.slug === "string" && row.slug.length > 0)
+      .map((row) => ({
+        loc: absoluteUrl(`/posts/${row.slug}`),
+        lastmod: formatDate(
+          row.updated_at ?? row.published_at ?? row.created_at,
+        ),
+        changefreq: "weekly",
+        priority: "0.7",
+      }));
+  } catch (error) {
+    console.warn(
+      `Sitemap academic post fetch skipped: ${error instanceof Error ? error.message : "unknown error"}.`,
     );
     return [];
   }
@@ -138,9 +193,12 @@ async function main() {
       priority: route.priority,
     })),
     ...(await fetchPublishedResources()),
+    ...(await fetchPublishedAcademicPosts()),
   ];
 
-  const deduped = [...new Map(entries.map((entry) => [entry.loc, entry])).values()];
+  const deduped = [
+    ...new Map(entries.map((entry) => [entry.loc, entry])).values(),
+  ];
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

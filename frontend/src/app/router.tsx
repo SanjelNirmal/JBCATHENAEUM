@@ -62,6 +62,20 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "posts",
+        element: lazyElement(
+          () => import("../pages/AcademicPostsPage"),
+          "Loading academic posts",
+        ),
+      },
+      {
+        path: "posts/:slug",
+        element: lazyElement(
+          () => import("../pages/AcademicPostDetailPage"),
+          "Loading academic post",
+        ),
+      },
+      {
         path: "programs/:programSlug",
         element: lazyElement(
           () => import("../pages/AcademicDirectoryPage"),

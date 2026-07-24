@@ -15,6 +15,7 @@ import {
 } from "../components/AsyncState";
 import { Hero } from "../components/Hero";
 import { Seo } from "../components/Seo";
+import { HomeAcademicPostsSection } from "../features/academic-posts/HomeAcademicPostsSection";
 import {
   fetchPublicStats,
   searchResources,
@@ -197,6 +198,8 @@ onNavigateSemesters={() => navigate("/faculties")}
           )}
         </div>
       </section>
+
+      <HomeAcademicPostsSection />
     </main>
   );
 }

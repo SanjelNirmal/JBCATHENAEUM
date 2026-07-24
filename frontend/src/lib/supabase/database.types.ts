@@ -1,4 +1,4 @@
-// Typed schema snapshot for migrations through 202607220018. Compare it with
+// Typed schema snapshot for migrations through 202607240019. Compare it with
 // `supabase gen types typescript --linked` after every linked deployment.
 export type Json =
   | string
@@ -30,6 +30,8 @@ export type SubmissionStatus =
 export type ReportStatus = "open" | "investigating" | "resolved" | "dismissed";
 export type ResourceVisibility =
   "public" | "authenticated" | "restricted" | "private";
+export type AcademicPostStatus =
+  "draft" | "published" | "scheduled" | "archived";
 
 type Table<Row extends Record<string, unknown>> = {
   Row: Row;
@@ -414,6 +416,55 @@ export interface Database {
         status: ReportStatus;
         created_at: string;
       }>;
+      academic_post_categories: Table<{
+        id: string;
+        name: string;
+        slug: string;
+        description: string | null;
+        is_active: boolean;
+        sort_order: number;
+        created_at: string;
+        updated_at: string;
+      }>;
+      academic_posts: Table<{
+        id: string;
+        title: string;
+        slug: string;
+        excerpt: string;
+        body: string;
+        program_id: string | null;
+        category_id: string;
+        author_id: string | null;
+        author_name: string | null;
+        cover_image_path: string | null;
+        cover_image_url: string | null;
+        drive_url: string | null;
+        resource_count: number;
+        reading_time_minutes: number;
+        status: AcademicPostStatus;
+        is_featured: boolean;
+        featured_order: number | null;
+        published_at: string | null;
+        scheduled_for: string | null;
+        archived_at: string | null;
+        view_count: number;
+        drive_open_count: number;
+        share_count: number;
+        seo_title: string | null;
+        seo_description: string | null;
+        created_at: string;
+        updated_at: string;
+        deleted_at: string | null;
+        search_document: string;
+      }>;
+      academic_post_events: Table<{
+        id: string;
+        post_id: string;
+        event_type: "view" | "drive_open" | "share";
+        user_id: string | null;
+        session_key: string | null;
+        created_at: string;
+      }>;
       audit_events: Table<{
         id: number;
         actor_id: string | null;
@@ -693,6 +744,57 @@ export interface Database {
         Args: { subscriber_email: string };
         Returns: string;
       };
+      can_manage_academic_posts: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
+      publish_due_academic_posts: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      increment_academic_post_view: {
+        Args: {
+          post_slug: string;
+          supplied_session_key?: string | null;
+        };
+        Returns: number;
+      };
+      record_academic_post_event: {
+        Args: {
+          post_slug: string;
+          requested_event_type: "drive_open" | "share";
+          supplied_session_key?: string | null;
+        };
+        Returns: undefined;
+      };
+      publish_academic_post: {
+        Args: { target_post_id: string };
+        Returns: undefined;
+      };
+      unpublish_academic_post: {
+        Args: { target_post_id: string };
+        Returns: undefined;
+      };
+      archive_academic_post: {
+        Args: { target_post_id: string };
+        Returns: undefined;
+      };
+      restore_academic_post: {
+        Args: { target_post_id: string };
+        Returns: undefined;
+      };
+      set_featured_academic_post: {
+        Args: { target_post_id: string; should_feature: boolean };
+        Returns: undefined;
+      };
+      soft_delete_academic_post: {
+        Args: { target_post_id: string };
+        Returns: undefined;
+      };
+      restore_deleted_academic_post: {
+        Args: { target_post_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       app_role: AppRole;
@@ -700,6 +802,7 @@ export interface Database {
       resource_status: ResourceStatus;
       submission_status: SubmissionStatus;
       report_status: ReportStatus;
+      academic_post_status: AcademicPostStatus;
     };
     CompositeTypes: Record<string, never>;
   };

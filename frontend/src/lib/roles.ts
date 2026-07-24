@@ -37,3 +37,12 @@ export function isAdminRole(role: AppRole): boolean {
 export function canReviewResources(role: AppRole): boolean {
   return role === "moderator" || isAdminRole(role);
 }
+
+export function canManageAcademicPosts(role: AppRole): boolean {
+  return (
+    role === "faculty" ||
+    role === "moderator" ||
+    role === "admin" ||
+    role === "super_admin"
+  );
+}

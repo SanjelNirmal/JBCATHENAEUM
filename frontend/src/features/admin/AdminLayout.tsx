@@ -6,6 +6,7 @@ import {
   Mail,
   BellRing,
   Menu,
+  Newspaper,
   ScrollText,
   Settings,
   ShieldAlert,
@@ -15,41 +16,51 @@ import {
 import { useCallback, useRef, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useDialogFocus } from "../../lib/useDialogFocus";
+import { useCurrentAuth } from "../../app/AuthContext";
+import { canReviewResources } from "../../lib/roles";
 
 const links = [
-  ["/admin", "Overview", BarChart3],
-  ["/admin/reviews", "Reviews", ClipboardCheck],
-  ["/admin/resources", "Resources", FileText],
-  ["/admin/users", "Users", Users],
-  ["/admin/academic-structure", "Academic structure", BookOpen],
-  ["/admin/reports", "Reports", ShieldAlert],
-  ["/admin/newsletter", "Newsletter", Mail],
-  ["/admin/notifications", "Push notifications", BellRing],
-  ["/admin/audit-logs", "Audit logs", ScrollText],
-  ["/admin/settings", "Settings", Settings],
+  ["/admin", "Overview", BarChart3, "review"],
+  ["/admin/reviews", "Reviews", ClipboardCheck, "review"],
+  ["/admin/resources", "Resources", FileText, "review"],
+  ["/admin/posts", "Academic Posts", Newspaper, "posts"],
+  ["/admin/users", "Users", Users, "review"],
+  ["/admin/academic-structure", "Academic structure", BookOpen, "review"],
+  ["/admin/reports", "Reports", ShieldAlert, "review"],
+  ["/admin/newsletter", "Newsletter", Mail, "review"],
+  ["/admin/notifications", "Push notifications", BellRing, "review"],
+  ["/admin/audit-logs", "Audit logs", ScrollText, "review"],
+  ["/admin/settings", "Settings", Settings, "review"],
 ] as const;
 
 export default function AdminLayout() {
+  const auth = useCurrentAuth();
   const [open, setOpen] = useState(false);
   const drawer = useRef<HTMLElement>(null);
   const closeMenu = useCallback(() => setOpen(false), []);
   useDialogFocus(open, drawer, closeMenu);
   const navigation = (
     <nav aria-label="Administration" className="space-y-1">
-      {links.map(([to, label, Icon]) => (
-        <NavLink
-          end={to === "/admin"}
-          key={to}
-          to={to}
-          onClick={() => setOpen(false)}
-          className={({ isActive }) =>
-            `flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold focus-visible:outline-2 ${isActive ? "bg-[#002147] text-white" : "text-slate-700 hover:bg-slate-100"}`
-          }
-        >
-          <Icon size={18} />
-          {label}
-        </NavLink>
-      ))}
+      {links
+        .filter(
+          ([, , , access]) =>
+            access === "posts" ||
+            (auth.profile && canReviewResources(auth.profile.role)),
+        )
+        .map(([to, label, Icon]) => (
+          <NavLink
+            end={to === "/admin"}
+            key={to}
+            to={to}
+            onClick={() => setOpen(false)}
+            className={({ isActive }) =>
+              `flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold focus-visible:outline-2 ${isActive ? "bg-[#002147] text-white" : "text-slate-700 hover:bg-slate-100"}`
+            }
+          >
+            <Icon size={18} />
+            {label}
+          </NavLink>
+        ))}
     </nav>
   );
   return (

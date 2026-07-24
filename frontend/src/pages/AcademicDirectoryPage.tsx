@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { EmptyState, ErrorState, LoadingState } from "../components/AsyncState";
 import { Seo } from "../components/Seo";
+import { AcademicPostsSection } from "../features/academic-posts/AcademicPostsSection";
 import { fetchAcademicCatalog } from "../lib/supabase/academic";
 
 export default function AcademicDirectoryPage() {
@@ -196,6 +197,7 @@ export default function AcademicDirectoryPage() {
           })}
         </div>
       )}
+      <AcademicPostsSection />
     </main>
   );
 }

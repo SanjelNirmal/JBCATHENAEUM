@@ -17,4 +17,4 @@ export const supabase = createClient<Database>(safeUrl, safeKey, {
   },
 });
 
-export const LATEST_DATABASE_MIGRATION = "202607200017_push_notifications";
+export const LATEST_DATABASE_MIGRATION = "202607240019_academic_posts_cms";
