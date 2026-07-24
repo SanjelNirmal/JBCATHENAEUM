@@ -2,16 +2,821 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="noindex" />
-    <title>Page not found | JBC Athenaeum</title>
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="theme-color" content="#002147" />
+    <meta name="color-scheme" content="light" />
+
+    <title>Page Not Found | JBC Athenaeum</title>
+
+    <link rel="icon" href="/src/assets/logo.png" sizes="any" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/src/assets/logo.png"
+    />
+
+    <style>
+      :root {
+        --navy: #002147;
+        --navy-deep: #00152f;
+        --navy-soft: #0f3a68;
+        --gold: #b7843d;
+        --gold-light: #e8c98d;
+        --paper: #f8fafc;
+        --paper-warm: #fffdf8;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --line: rgba(15, 23, 42, 0.11);
+        --white: #ffffff;
+        --shadow:
+          0 30px 80px rgba(0, 33, 71, 0.18),
+          0 8px 24px rgba(15, 23, 42, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--paper);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+        color: var(--ink);
+        background:
+          radial-gradient(
+            circle at 12% 18%,
+            rgba(232, 201, 141, 0.2),
+            transparent 29rem
+          ),
+          radial-gradient(
+            circle at 88% 80%,
+            rgba(0, 33, 71, 0.12),
+            transparent 32rem
+          ),
+          linear-gradient(145deg, #f8fafc 0%, #ffffff 48%, #f8f5ed 100%);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .skip-link {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 100;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        color: var(--white);
+        background: var(--navy);
+        font-weight: 800;
+        text-decoration: none;
+        transform: translateY(-180%);
+        transition: transform 180ms ease;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .page-shell {
+        position: relative;
+        isolation: isolate;
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding:
+          max(1.25rem, env(safe-area-inset-top))
+          max(1.25rem, env(safe-area-inset-right))
+          max(1.25rem, env(safe-area-inset-bottom))
+          max(1.25rem, env(safe-area-inset-left));
+      }
+
+      .page-shell::before,
+      .page-shell::after {
+        position: fixed;
+        z-index: -2;
+        width: 28rem;
+        height: 28rem;
+        border-radius: 999px;
+        content: "";
+        filter: blur(10px);
+        opacity: 0.85;
+        pointer-events: none;
+      }
+
+      .page-shell::before {
+        top: -12rem;
+        right: -9rem;
+        background: radial-gradient(
+          circle,
+          rgba(183, 132, 61, 0.23),
+          transparent 69%
+        );
+        animation: float-orb 11s ease-in-out infinite;
+      }
+
+      .page-shell::after {
+        bottom: -13rem;
+        left: -10rem;
+        background: radial-gradient(
+          circle,
+          rgba(0, 33, 71, 0.18),
+          transparent 68%
+        );
+        animation: float-orb 13s ease-in-out infinite reverse;
+      }
+
+      .grid-pattern {
+        position: fixed;
+        inset: 0;
+        z-index: -3;
+        background-image:
+          linear-gradient(rgba(0, 33, 71, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 33, 71, 0.035) 1px, transparent 1px);
+        background-size: 42px 42px;
+        mask-image: radial-gradient(circle at center, black 18%, transparent 76%);
+        pointer-events: none;
+      }
+
+      .error-card {
+        position: relative;
+        width: min(100%, 72rem);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.76);
+        border-radius: 2rem;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+        animation: card-enter 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      .error-card::before {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background:
+          linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.88),
+            transparent 36%
+          ),
+          radial-gradient(
+            circle at 100% 0,
+            rgba(232, 201, 141, 0.2),
+            transparent 28rem
+          );
+        content: "";
+        pointer-events: none;
+      }
+
+      .card-layout {
+        position: relative;
+        display: grid;
+        min-height: 38rem;
+        grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.95fr);
+      }
+
+      .content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: clamp(2rem, 6vw, 5.5rem);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: fit-content;
+        margin-bottom: 2.4rem;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 2.7rem;
+        height: 2.7rem;
+        place-items: center;
+        border-radius: 0.85rem;
+        color: var(--white);
+        background:
+          linear-gradient(145deg, var(--navy-soft), var(--navy-deep));
+        box-shadow: 0 10px 24px rgba(0, 33, 71, 0.24);
+      }
+
+      .brand-mark svg {
+        width: 1.45rem;
+        height: 1.45rem;
+      }
+
+      .brand-copy {
+        display: grid;
+        gap: 0.1rem;
+      }
+
+      .brand-name {
+        color: var(--navy);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-subtitle {
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin: 0;
+        color: #85591f;
+        font-size: 0.75rem;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 2.25rem;
+        height: 2px;
+        background: var(--gold);
+        content: "";
+      }
+
+      h1 {
+        max-width: 11ch;
+        margin: 1rem 0 0;
+        color: var(--navy);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(2.7rem, 6vw, 5.4rem);
+        line-height: 0.96;
+        letter-spacing: -0.055em;
+      }
+
+      .lead {
+        max-width: 38rem;
+        margin: 1.5rem 0 0;
+        color: #475569;
+        font-size: clamp(1rem, 1.6vw, 1.16rem);
+        line-height: 1.8;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        margin-top: 2rem;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 3.15rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        padding: 0.85rem 1.2rem;
+        border: 1px solid transparent;
+        border-radius: 0.9rem;
+        font-size: 0.92rem;
+        font-weight: 850;
+        text-decoration: none;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease,
+          border-color 180ms ease,
+          background 180ms ease;
+      }
+
+      .button svg {
+        width: 1.05rem;
+        height: 1.05rem;
+        flex: 0 0 auto;
+      }
+
+      .button-primary {
+        color: var(--white);
+        background: var(--navy);
+        box-shadow: 0 12px 28px rgba(0, 33, 71, 0.23);
+      }
+
+      .button-secondary {
+        border-color: #cbd5e1;
+        color: var(--navy);
+        background: rgba(255, 255, 255, 0.82);
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+      }
+
+      .button-primary:hover {
+        background: #073568;
+        box-shadow: 0 16px 34px rgba(0, 33, 71, 0.29);
+      }
+
+      .button-secondary:hover {
+        border-color: rgba(0, 33, 71, 0.38);
+        background: var(--white);
+      }
+
+      .button:focus-visible,
+      .brand:focus-visible,
+      .quick-link:focus-visible {
+        outline: 3px solid rgba(183, 132, 61, 0.42);
+        outline-offset: 4px;
+      }
+
+      .quick-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--line);
+      }
+
+      .quick-label {
+        width: 100%;
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.73rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .quick-link {
+        color: var(--navy);
+        font-size: 0.88rem;
+        font-weight: 750;
+        text-decoration-color: rgba(0, 33, 71, 0.3);
+        text-underline-offset: 0.25rem;
+      }
+
+      .quick-link:hover {
+        text-decoration-color: currentColor;
+      }
+
+      .visual {
+        position: relative;
+        display: grid;
+        overflow: hidden;
+        place-items: center;
+        min-height: 100%;
+        background:
+          radial-gradient(
+            circle at 50% 45%,
+            rgba(232, 201, 141, 0.28),
+            transparent 28%
+          ),
+          linear-gradient(145deg, #062e5a 0%, #001b3c 58%, #00152f 100%);
+      }
+
+      .visual::before {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 35px 35px;
+        content: "";
+        mask-image: linear-gradient(to bottom, black, transparent 88%);
+      }
+
+      .visual::after {
+        position: absolute;
+        bottom: -8rem;
+        width: 31rem;
+        height: 15rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+        content: "";
+        filter: blur(1px);
+      }
+
+      .error-visual {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        width: min(85%, 25rem);
+        place-items: center;
+        animation: visual-float 5.5s ease-in-out infinite;
+      }
+
+      .error-code {
+        position: relative;
+        margin: 0;
+        color: transparent;
+        background:
+          linear-gradient(
+            180deg,
+            #fff8e9 0%,
+            var(--gold-light) 52%,
+            var(--gold) 100%
+          );
+        -webkit-background-clip: text;
+        background-clip: text;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(7rem, 17vw, 12.5rem);
+        font-weight: 900;
+        line-height: 0.85;
+        letter-spacing: -0.1em;
+        filter: drop-shadow(0 22px 30px rgba(0, 0, 0, 0.22));
+      }
+
+      .error-code::after {
+        position: absolute;
+        right: 9%;
+        bottom: -1.35rem;
+        left: 9%;
+        height: 1.25rem;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.24);
+        content: "";
+        filter: blur(10px);
+        animation: shadow-pulse 5.5s ease-in-out infinite;
+      }
+
+      .book {
+        position: relative;
+        width: 12rem;
+        height: 6.2rem;
+        margin-top: 1.4rem;
+        perspective: 700px;
+      }
+
+      .book-page {
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background:
+          repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 13px,
+            rgba(0, 33, 71, 0.1) 14px
+          ),
+          linear-gradient(#fffdf7, #f4ead7);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.17);
+      }
+
+      .book-page-left {
+        right: 50%;
+        border-radius: 0.5rem 0.15rem 0.3rem 0.8rem;
+        transform: rotateY(18deg);
+        transform-origin: right center;
+      }
+
+      .book-page-right {
+        left: 50%;
+        border-radius: 0.15rem 0.5rem 0.8rem 0.3rem;
+        transform: rotateY(-18deg);
+        transform-origin: left center;
+      }
+
+      .book-spine {
+        position: absolute;
+        top: 0.2rem;
+        bottom: 0.25rem;
+        left: calc(50% - 1px);
+        width: 2px;
+        background: rgba(0, 33, 71, 0.32);
+        box-shadow: 0 0 9px rgba(0, 0, 0, 0.18);
+      }
+
+      .orbit {
+        position: absolute;
+        border: 1px solid rgba(232, 201, 141, 0.28);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      .orbit-one {
+        width: 20rem;
+        height: 20rem;
+        animation: orbit-spin 19s linear infinite;
+      }
+
+      .orbit-two {
+        width: 26rem;
+        height: 26rem;
+        border-style: dashed;
+        animation: orbit-spin 27s linear infinite reverse;
+      }
+
+      .orbit::before {
+        position: absolute;
+        top: -0.35rem;
+        left: 50%;
+        width: 0.65rem;
+        height: 0.65rem;
+        border-radius: 999px;
+        background: var(--gold-light);
+        box-shadow: 0 0 18px rgba(232, 201, 141, 0.9);
+        content: "";
+      }
+
+      .footer-note {
+        position: absolute;
+        right: 1.6rem;
+        bottom: 1.3rem;
+        left: 1.6rem;
+        z-index: 2;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      @keyframes card-enter {
+        from {
+          opacity: 0;
+          transform: translateY(22px) scale(0.985);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes visual-float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+
+      @keyframes shadow-pulse {
+        0%,
+        100% {
+          opacity: 0.75;
+          transform: scaleX(1);
+        }
+
+        50% {
+          opacity: 0.42;
+          transform: scaleX(0.82);
+        }
+      }
+
+      @keyframes orbit-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes float-orb {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        50% {
+          transform: translate3d(0, 1.5rem, 0) scale(1.06);
+        }
+      }
+
+      @media (max-width: 860px) {
+        .page-shell {
+          padding: 1rem;
+        }
+
+        .card-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .content {
+          order: 2;
+          padding: 2.2rem 1.4rem 2rem;
+        }
+
+        .visual {
+          min-height: 21rem;
+        }
+
+        .brand {
+          margin-bottom: 1.8rem;
+        }
+
+        h1 {
+          max-width: 13ch;
+        }
+
+        .error-code {
+          font-size: clamp(7rem, 32vw, 10rem);
+        }
+
+        .orbit-one {
+          width: 16rem;
+          height: 16rem;
+        }
+
+        .orbit-two {
+          width: 20rem;
+          height: 20rem;
+        }
+
+        .book {
+          width: 10rem;
+          height: 5.2rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .error-card {
+          border-radius: 1.4rem;
+        }
+
+        .visual {
+          min-height: 17rem;
+        }
+
+        .content {
+          padding-inline: 1.2rem;
+        }
+
+        .actions {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+
+        .button {
+          width: 100%;
+        }
+
+        .quick-links {
+          display: grid;
+        }
+
+        .footer-note {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+
+      @media (forced-colors: active) {
+        .error-card,
+        .button,
+        .brand-mark {
+          border: 1px solid CanvasText;
+        }
+
+        .error-code {
+          color: CanvasText;
+          background: none;
+        }
+      }
+    </style>
   </head>
+
   <body>
-    <main>
-      <p>404</p>
-      <h1>Page not found</h1>
-      <p>The requested page or file does not exist.</p>
-      <p><a href="/">Return to JBC Athenaeum</a></p>
+    <a class="skip-link" href="#main-content">Skip to page information</a>
+
+    <div class="grid-pattern" aria-hidden="true"></div>
+
+    <main id="main-content" class="page-shell">
+      <section class="error-card" aria-labelledby="error-title">
+        <div class="card-layout">
+          <div class="content">
+            <a class="brand" href="/" aria-label="Return to JBC Athenaeum home">
+              <span class="brand-mark" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+                  <path d="M8 7h8" />
+                  <path d="M8 11h6" />
+                </svg>
+              </span>
+
+              <span class="brand-copy">
+                <span class="brand-name">JBC Athenaeum</span>
+                <span class="brand-subtitle">Academic Resource Archive</span>
+              </span>
+            </a>
+
+            <p class="eyebrow">Page not found</p>
+
+            <h1 id="error-title">This page wandered off.</h1>
+
+            <p class="lead">
+              The address may have changed, the resource may have been removed,
+              or the link may be incomplete. Your academic journey can continue
+              from one of the pages below.
+            </p>
+
+            <div class="actions">
+              <a class="button button-primary" href="/">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m3 11 9-8 9 8" />
+                  <path d="M5 10v10h14V10" />
+                  <path d="M9 20v-6h6v6" />
+                </svg>
+                Return home
+              </a>
+
+              <a class="button button-secondary" href="/resources">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+                Browse resources
+              </a>
+            </div>
+
+            <nav class="quick-links" aria-label="Helpful destinations">
+              <p class="quick-label">Helpful destinations</p>
+
+              <a class="quick-link" href="/posts">Academic posts</a>
+              <a class="quick-link" href="/faculties">Academic directory</a>
+              <a class="quick-link" href="/contribute">Contribute a resource</a>
+            </nav>
+          </div>
+
+          <div class="visual" aria-hidden="true">
+            <span class="orbit orbit-one"></span>
+            <span class="orbit orbit-two"></span>
+
+            <div class="error-visual">
+              <p class="error-code">404</p>
+
+              <div class="book">
+                <span class="book-page book-page-left"></span>
+                <span class="book-page book-page-right"></span>
+                <span class="book-spine"></span>
+              </div>
+            </div>
+
+            <p class="footer-note">
+              Jana Bhawana Campus · Academic Resources
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   </body>
 </html>
