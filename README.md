@@ -95,9 +95,9 @@
 
 **JBC Athenaeum** is a modern academic-resource platform for students and faculty of **Jana Bhawana Campus**.
 
-It is built with **React 19, TypeScript, Vite, Tailwind CSS, Supabase, Cloudflare Pages, and Capacitor 8**. The platform is designed to help students discover, contribute, review, and access verified academic materials through a secure and moderated workflow.
+It is built with **React 19, TypeScript, Vite, Tailwind CSS, TanStack Query, Supabase, Cloudflare Pages, and Capacitor 8**. The platform helps students discover, contribute, review, and access moderated academic materials through secure resource, academic-post, and administration workflows.
 
-The project supports both web and native mobile delivery while sharing the same React and Supabase application core.
+The project supports web and native mobile delivery while sharing the same React and Supabase application core. Public discovery includes academic resources, faculty and program directories, campus news, admission notices, Markdown-based academic posts, and optional Google Drive resource links.
 
 <div align="center">
 
@@ -143,6 +143,9 @@ The project supports both web and native mobile delivery while sharing the same 
 - Program, semester, subject, and category filters
 - Old and current BCA curriculum support
 - New and 2025 syllabus classification
+- Public academic-post archive and detail routes
+- Campus notices, admission updates, news, and Drive-linked resource posts
+- Dynamic SEO metadata, canonical URLs, Open Graph, and X/Twitter cards
 
 </td>
 <td width="50%" valign="top">
@@ -157,6 +160,8 @@ The project supports both web and native mobile delivery while sharing the same 
 - Review comments
 - Rejection feedback
 - Corrected-file resubmission
+- Admin-managed academic posts with draft, scheduled, published, and archived states
+- Markdown post editor with optional cover image and Google Drive links
 
 </td>
 </tr>
@@ -204,6 +209,8 @@ The project supports both web and native mobile delivery while sharing the same 
 - Terms and semesters
 - Subjects
 - Resource categories
+- Academic post categories
+- Academic posts and publication states
 - Academic metadata relationships
 
 </td>
@@ -225,6 +232,56 @@ The project supports both web and native mobile delivery while sharing the same 
 </table>
 
 
+
+<div align="center">
+
+<img
+  src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=29&duration=2200&pause=1200&color=0EA5E9&center=true&vCenter=true&repeat=true&width=760&height=65&lines=%F0%9F%93%B0+Academic+Posts+CMS;%F0%9F%94%8E+SEO%2C+News%2C+and+Drive+Resources"
+  alt="Animated academic posts and SEO heading"
+/>
+
+</div>
+
+## Academic Posts, News, and Google Drive Resources
+
+JBC Athenaeum includes a database-backed academic-post publishing system for campus communication and curated learning resources.
+
+### Public publishing
+
+- `/posts` archive with search, filters, sorting, pagination, loading, error, and empty states
+- `/posts/:slug` detail pages with Markdown content, metadata, related content, and optional Drive links
+- Latest published posts surfaced on the homepage and academic directory
+- Support for BCA, BICTE, BBS, MBS, and general campus content
+- Categories for Admission, News, Notices, Notes, Past Questions, Projects, Practical Files, Results, and Important Updates
+- Google Drive actions are hidden automatically when no Drive URL exists
+
+### Administrative workflow
+
+- Create and edit posts
+- Save drafts
+- Publish, unpublish, schedule, archive, restore, and feature posts
+- Manage categories
+- Upload optional JPEG, PNG, or WebP cover images
+- Set excerpt, reading time, resource count, SEO title, and SEO description
+- Preview content before publication
+- Restrict administrative operations through Supabase authorization and Row Level Security
+
+### Search-engine and sharing support
+
+- Route-aware document titles and descriptions
+- Canonical URL normalization
+- `index` and `noindex` controls
+- Open Graph metadata
+- X/Twitter cards
+- Article publication and modification timestamps
+- Default social-preview fallback image
+- Public sitemap entries for published resources and posts
+- `robots.txt` exclusions for authentication, contribution, notification, and administration routes
+
+> [!IMPORTANT]
+> The static sitemap must be regenerated whenever published resource or post URLs change. A future automated sitemap workflow should query Supabase and include only public, non-archived records.
+
+---
 
 <div align="center">
 
@@ -285,11 +342,14 @@ The project supports both web and native mobile delivery while sharing the same 
 | Styling | Tailwind CSS |
 | Routing | React Router |
 | Server state | TanStack Query |
+| Content publishing | Academic Posts CMS with safe Markdown |
 | Authentication | Supabase Auth |
 | Database | PostgreSQL |
 | Search | PostgreSQL full-text search and trigram matching |
 | File storage | Supabase Storage |
 | Server logic | Supabase Edge Functions and PostgreSQL functions |
+| SEO and discovery | Dynamic metadata, canonical URLs, sitemap and robots rules |
+| PWA | Web app manifest, install icons and standalone display |
 | Web hosting | Cloudflare Pages |
 | Mobile wrapper | Capacitor 8 |
 | Testing | Vitest and Playwright |
@@ -317,7 +377,7 @@ The project supports both web and native mobile delivery while sharing the same 
                              ▼
 ┌───────────────────────────────────────────────────────────┐
 │                      Application Layer                    │
-│ React Router • TanStack Query • Auth Context • UI State  │
+│ React Router • TanStack Query • Auth • SEO • CMS State  │
 └────────────────────────────┬──────────────────────────────┘
                              │
                              ▼
@@ -331,7 +391,7 @@ The project supports both web and native mobile delivery while sharing the same 
 │                   Security and Governance                 │
 │ RLS • MFA/AAL2 • Signed URLs • Audit Logs • Moderation   │
 └───────────────────────────────────────────────────────────┘
-````
+```
 
 ### Document Lifecycle
 
@@ -413,6 +473,26 @@ VITE_SUPABASE_ANON_KEY=your-public-anonymous-key
 > Never place a Supabase service-role key, database password, Cloudflare API token, SMTP password, signing secret, or other privileged credential in a `VITE_` variable.
 
 All variables prefixed with `VITE_` are embedded into the frontend bundle and must be considered public.
+
+
+### Public SEO and PWA assets
+
+The production frontend expects these public files:
+
+```text
+frontend/public/
+├── icons/
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   └── icon-maskable-512.png
+├── images/
+│   └── jbc-athenaeum-social-preview.jpg
+├── robots.txt
+├── sitemap.xml
+└── site.webmanifest
+```
+
+The social-preview image should use a landscape aspect ratio, ideally **1200 × 630 pixels**. File names referenced by `index.html`, `site.webmanifest`, and the SEO component must match the files deployed in `frontend/public`.
 
 
 
@@ -578,6 +658,11 @@ npx playwright install chromium
 * [ ] Database migrations are reviewed
 * [ ] Storage policies are verified
 * [ ] Mobile projects are synchronized when applicable
+* [ ] Canonical URLs match the production domain
+* [ ] Open Graph and X/Twitter metadata render correctly
+* [ ] `robots.txt`, `sitemap.xml`, and `site.webmanifest` are accessible
+* [ ] Only published resources and academic posts are included in the sitemap
+* [ ] Private, draft, scheduled, archived, and admin routes remain non-indexable
 
 
 
@@ -620,10 +705,12 @@ Apply migrations in filename order and deploy Edge Functions only after reviewin
 7. Deploy Edge Functions
 8. Configure authentication redirect URLs
 9. Configure Cloudflare Pages variables
-10. Deploy the frontend
-11. Run production smoke tests
-12. Verify monitoring and backup procedures
-13. Begin limited campus beta
+10. Verify public icons, social-preview image, manifest, robots, and sitemap
+11. Deploy the frontend
+12. Run production smoke tests
+13. Submit or refresh the sitemap in Google Search Console
+14. Verify monitoring and backup procedures
+15. Begin limited campus beta
 ```
 
 
@@ -657,6 +744,8 @@ The following owner-controlled systems must be verified separately:
 * Campus governance approval
 * Mobile store compliance
 * Institutional data-handling policies
+* Google Search Console ownership and sitemap status
+* Public social-preview and PWA asset availability
 
 > [!WARNING]
 > Do not describe the platform as production-ready solely because the local build and test suite pass.
@@ -690,6 +779,8 @@ JBC Athenaeum follows these core principles:
 | Explicit verification      | Payment returns, deep links, and callbacks never grant trust automatically |
 | Controlled deletion        | Resource deletion follows reviewed and traceable workflows                 |
 | Data minimization          | The platform avoids collecting unnecessary payment and banking information |
+| Public indexing boundaries  | Only public, published content is indexable; private and administrative routes are excluded |
+| Canonical consistency       | Public pages resolve to stable production-domain canonical URLs |
 
 
 
@@ -710,12 +801,19 @@ JBCATHENAEUM/
 │   ├── src/
 │   │   ├── app/
 │   │   ├── components/
+│   │   ├── features/
+│   │   │   └── academic-posts/
 │   │   ├── config/
 │   │   ├── hooks/
 │   │   ├── lib/
 │   │   ├── pages/
 │   │   └── styles/
 │   ├── public/
+│   │   ├── icons/
+│   │   ├── images/
+│   │   ├── robots.txt
+│   │   ├── sitemap.xml
+│   │   └── site.webmanifest
 │   ├── android/
 │   ├── ios/
 │   ├── SUPABASE_SETUP.md
@@ -763,6 +861,8 @@ Before submitting a pull request:
 6. Run all quality gates.
 7. Document migration or deployment changes.
 8. Avoid weakening RLS, MFA, storage, or moderation controls.
+9. Update SEO metadata and sitemap behavior when adding public routes.
+10. Keep academic-post and resource titles specific, professional, and searchable.
 
 Example workflow:
 
@@ -807,6 +907,8 @@ Academic materials should be:
 * Free from malicious content
 * Reviewed before publication
 * Removed when a valid legal or institutional request is approved
+* Clearly identified as official, faculty-verified, moderated, or student-contributed where applicable
+* Published with accurate canonical URLs and indexable metadata only when publicly available
 
 See the campus governance documentation for operational responsibilities and approval requirements.
 
