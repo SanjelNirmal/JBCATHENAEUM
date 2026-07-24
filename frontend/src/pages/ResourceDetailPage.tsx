@@ -11,6 +11,9 @@ import {
 import { useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
+import { AcademicTrustSection } from "../components/AcademicTrustSection";
+import { JsonLd } from "../components/JsonLd";
+import { ResourceVerificationBadge } from "../components/ResourceVerificationBadge";
 import { Seo } from "../components/Seo";
 import { ResourceEngagementPanel } from "../features/engagement/ResourceEngagementPanel";
 import { PublicResourceRatings } from "../features/engagement/PublicResourceRatings";
@@ -22,6 +25,7 @@ import {
   getDownloadUrl,
   getPublicResourceAccessUrl,
   reportResource,
+  searchResources,
 } from "../lib/supabase/resources";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
 import { navigationAdapter, publicAppUrl, shareAdapter } from "../platform";
@@ -47,6 +51,21 @@ export default function ResourceDetailPage() {
   const [pendingDownloadCount, setPendingDownloadCount] = useState<
     number | null
   >(null);
+  const relatedResources = useQuery({
+    queryKey: ["resource-related", query.data?.subjectId, query.data?.id],
+    queryFn: () =>
+      searchResources(
+        {
+          q: "",
+          subject: query.data!.subjectId,
+          sort: "popular",
+          page: 1,
+          pageSize: 4,
+        },
+        undefined,
+      ),
+    enabled: Boolean(query.data?.subjectId),
+  });
   if (query.isLoading)
     return (
       <main id="main-content">
@@ -161,11 +180,50 @@ export default function ResourceDetailPage() {
         className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
       >
         <Seo
-          title={item.title}
+          title={item.seoTitle || item.title}
           description={
-            item.description || `Academic resource for ${item.subjectName}.`
+            item.seoDescription ||
+            item.abstract ||
+            item.description ||
+            `Academic resource for ${item.subjectName}.`
           }
           path={`/resources/${item.slug}`}
+        />
+        <JsonLd
+          id={`resource-${item.id}`}
+          data={[
+            {
+              "@context": "https://schema.org",
+              "@type": ["CreativeWork", "LearningResource", "DigitalDocument"],
+              name: item.title,
+              description:
+                item.abstract || item.description || "Academic learning resource",
+              inLanguage: "en",
+              datePublished: item.createdAt,
+              dateModified: item.updatedAt,
+              url: resourceUrl,
+              educationalUse: "study",
+              learningResourceType: item.categoryName,
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Resources",
+                  item: "https://jbc.nirmalsanjel.com.np/resources",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: item.subjectName,
+                  item: resourceUrl,
+                },
+              ],
+            },
+          ]}
         />
         <nav aria-label="Breadcrumb" className="text-sm text-slate-600">
           <Link to="/resources" className="underline">
@@ -206,7 +264,7 @@ export default function ResourceDetailPage() {
                 className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#d8b37a] px-5 font-bold text-[#001b3a] shadow-sm"
               >
                 <ExternalLink aria-hidden="true" size={18} />
-                Open readable PDF
+                Open PDF
               </button>
               <button
                 type="button"
@@ -237,7 +295,7 @@ export default function ResourceDetailPage() {
                 className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
               >
                 <ExternalLink aria-hidden="true" size={17} />
-                Open in new window
+                  Open PDF
               </button>
               <button
                 type="button"
@@ -272,7 +330,7 @@ export default function ResourceDetailPage() {
                   className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#002147] px-4 font-bold text-white"
                 >
                   <ExternalLink aria-hidden="true" size={17} />
-                  Open external source
+                  View external resource
                 </a>
               )}
               {auth.user ? (
@@ -350,8 +408,24 @@ export default function ResourceDetailPage() {
               {item.title}
             </h1>
             <p className="mt-4 text-sm leading-6 text-slate-600">
-              {item.description || "No description was provided."}
+              {item.abstract || item.description || "No description was provided."}
             </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {item.verificationLevel === "faculty_verified" && item.verifiedBy && (
+                <ResourceVerificationBadge kind="faculty_verified" />
+              )}
+              <ResourceVerificationBadge kind="moderation_reviewed" />
+              {item.contributorId && (
+                <ResourceVerificationBadge kind="student_contributed" />
+              )}
+              {new Date(item.updatedAt).getTime() >
+                new Date(item.createdAt).getTime() && (
+                <ResourceVerificationBadge kind="updated_resource" />
+              )}
+              {item.downloadCount >= 50 && (
+                <ResourceVerificationBadge kind="popular_resource" />
+              )}
+            </div>
             <dl className="mt-6 space-y-3 text-sm">
               <Meta label="Program" value={item.programName} />
               <Meta
@@ -367,6 +441,11 @@ export default function ResourceDetailPage() {
                 label="Academic year"
                 value={String(item.academicYear ?? "—")}
               />
+              <Meta label="Updated" value={new Date(item.updatedAt).toLocaleDateString()} />
+              <Meta label="Views" value={item.viewCount.toLocaleString()} />
+              <Meta label="Reviewed date" value={item.reviewedAt ? new Date(item.reviewedAt).toLocaleDateString() : "—"} />
+              <Meta label="Verified date" value={item.verifiedAt ? new Date(item.verifiedAt).toLocaleDateString() : "—"} />
+              <Meta label="Reviewer" value={item.verificationLevel === "faculty_verified" ? "Faculty reviewer" : "Moderation team"} />
               <Meta
                 label="Contributor"
                 value={
@@ -408,8 +487,73 @@ export default function ResourceDetailPage() {
                   : "Preview access is short-lived. Refresh this page if the signed preview expires."}
               </p>
             </div>
+            {(item.topicsCovered.length > 0 || item.learningOutcomes.length > 0) && (
+              <section className="mt-6 border-t border-slate-200 pt-6">
+                <h2 className="font-serif text-xl font-bold text-[#002147]">
+                  What this resource covers
+                </h2>
+                {item.topicsCovered.length > 0 && (
+                  <>
+                    <h3 className="mt-4 text-sm font-bold text-slate-700">Topics</h3>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                      {item.topicsCovered.map((topic) => (
+                        <li key={topic}>{topic}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {item.learningOutcomes.length > 0 && (
+                  <>
+                    <h3 className="mt-4 text-sm font-bold text-slate-700">
+                      Learning outcomes
+                    </h3>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                      {item.learningOutcomes.map((outcome) => (
+                        <li key={outcome}>{outcome}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </section>
+            )}
           </aside>
         </div>
+        <section className="mt-10">
+          <h2 className="font-serif text-3xl font-bold text-[#002147]">
+            Related resources
+          </h2>
+          {relatedResources.isLoading ? (
+            <LoadingState label="Loading related resources" />
+          ) : relatedResources.data?.items?.length ? (
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {relatedResources.data.items
+                .filter((related) => related.id !== item.id)
+                .slice(0, 3)
+                .map((related) => (
+                  <Link
+                    key={related.id}
+                    to={`/resources/${related.slug}`}
+                    className="rounded-xl border border-slate-200 bg-white p-5"
+                  >
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#85591f]">
+                      {related.programName} · {related.termName}
+                    </p>
+                    <h3 className="mt-2 font-bold text-[#002147]">{related.title}</h3>
+                    <p className="mt-2 text-sm text-slate-600">
+                      {related.downloadCount.toLocaleString()} downloads
+                    </p>
+                  </Link>
+                ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-slate-500">
+              No related resources are currently published.
+            </p>
+          )}
+        </section>
+        <section className="mt-10">
+          <AcademicTrustSection compact />
+        </section>
       </main>
     </>
   );

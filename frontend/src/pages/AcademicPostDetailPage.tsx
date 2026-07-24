@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "../components/AsyncState";
+import { JsonLd } from "../components/JsonLd";
 import { Seo } from "../components/Seo";
 import { AcademicPostCard } from "../features/academic-posts/AcademicPostCard";
 import { MarkdownContent } from "../features/academic-posts/MarkdownContent";
@@ -88,6 +89,39 @@ export default function AcademicPostDetailPage() {
           description="The requested academic post is unavailable."
           path={`/posts/${slug}`}
           noIndex
+        />
+        <JsonLd
+          id={`post-${item.id}`}
+          data={[
+            {
+              "@context": "https://schema.org",
+              "@type": ["Article", "NewsArticle"],
+              headline: item.title,
+              description: item.seoDescription || item.excerpt,
+              datePublished: item.publishedAt,
+              dateModified: item.updatedAt,
+              author: { "@type": "Person", name: item.authorName },
+              mainEntityOfPage: `https://jbc.nirmalsanjel.com.np/posts/${item.slug}`,
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Academic Posts",
+                  item: "https://jbc.nirmalsanjel.com.np/posts",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: item.title,
+                  item: `https://jbc.nirmalsanjel.com.np/posts/${item.slug}`,
+                },
+              ],
+            },
+          ]}
         />
         <h1 className="font-serif text-4xl font-bold text-[#002147]">
           Post not found
@@ -176,7 +210,9 @@ export default function AcademicPostDetailPage() {
           <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8">
             <img
               src={item.coverImageUrl}
-              alt=""
+              alt={`Cover image for ${item.title}`}
+              loading="lazy"
+              decoding="async"
               className="max-h-[34rem] w-full rounded-2xl object-cover shadow-xl"
             />
           </div>

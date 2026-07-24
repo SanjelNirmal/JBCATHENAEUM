@@ -3,6 +3,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { EmptyState, ErrorState, LoadingState } from "../components/AsyncState";
+import { ResourceVerificationBadge } from "../components/ResourceVerificationBadge";
 import { Seo } from "../components/Seo";
 import { fetchAcademicCatalog } from "../lib/supabase/academic";
 import {
@@ -287,15 +288,23 @@ export default function ResourceCatalogPage() {
           <LoadingState label="Preparing resource results" />
         ) : results.data.items.length === 0 ? (
           <EmptyState
-            title="No resources found"
-            message="Try fewer filters or a different search term."
+            title="We do not have this resource yet."
+            message="No matching resources were found. Request this material or contribute the first reviewed upload."
             action={
-              <button
-                onClick={clear}
-                className="font-bold text-[#002147] underline"
-              >
-                Clear all filters
-              </button>
+              <div className="flex flex-wrap justify-center gap-3">
+                <Link to="/resource-requests" className="font-bold text-[#002147] underline">
+                  Request this resource
+                </Link>
+                <Link to="/contribute" className="font-bold text-[#002147] underline">
+                  Contribute the first resource
+                </Link>
+                <button onClick={clear} className="font-bold text-[#002147] underline">
+                  Clear filters
+                </button>
+                <Link to="/faculties" className="font-bold text-[#002147] underline">
+                  Browse related subjects
+                </Link>
+              </div>
             }
           />
         ) : (
@@ -320,6 +329,12 @@ export default function ResourceCatalogPage() {
                   {item.description || "No description supplied."}
                 </p>
                 <div className="mt-auto pt-5 text-xs text-slate-500">
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    <ResourceVerificationBadge kind="moderation_reviewed" />
+                    {item.contributorId && (
+                      <ResourceVerificationBadge kind="student_contributed" />
+                    )}
+                  </div>
                   <p>
                     {item.subjectName} · {item.categoryName}
                   </p>

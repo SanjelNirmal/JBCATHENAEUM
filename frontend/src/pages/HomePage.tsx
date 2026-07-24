@@ -14,9 +14,12 @@ import {
   LoadingState,
 } from "../components/AsyncState";
 import { Hero } from "../components/Hero";
+import { AcademicTrustSection } from "../components/AcademicTrustSection";
+import { JsonLd } from "../components/JsonLd";
 import { Seo } from "../components/Seo";
 import { HomeAcademicPostsSection } from "../features/academic-posts/HomeAcademicPostsSection";
 import {
+  fetchHomepageDiscovery,
   fetchPublicStats,
   searchResources,
 } from "../lib/supabase/resources";
@@ -42,22 +45,64 @@ export default function HomePage() {
     queryKey: ["public-stats"],
     queryFn: fetchPublicStats,
   });
+ const discovery = useQuery({
+   queryKey: ["homepage-discovery"],
+   queryFn: () => fetchHomepageDiscovery(4),
+ });
 
-  return (
-    <main id="main-content">
-      <Seo
-        title="TU BCA & BICTE Notes & Academic Resources"
-        description="Find reviewed JBC BCA notes, BICTE notes, past questions, project reports, PDFs, and academic resources for Jana Bhawana Campus students."
-        path="/"
-        keywords="Jana Bhawana Campus, JBC Athenaeum, JBC BCA notes, BCA notes, BICTE notes, TU notes, Tribhuvan University notes, BCA 4th semester notes, TU BCA resources, Jana Bhawana Campus notes, Nirmal Sanjel"
-      />
+ return (
+   <main id="main-content">
+     <Seo
+       title="TU BCA, BICTE, BBS and MBS Notes | JBC Athenaeum"
+       description="Browse reviewed TU BCA, BICTE, BBS and MBS notes, past questions, project reports and practical resources for Jana Bhawana Campus students."
+       path="/"
+       image="/jana-bhawana-campus.jpg"
+       keywords="TU BCA notes, BICTE notes, BBS notes, MBS notes, Jana Bhawana Campus resources"
+     />
+     <JsonLd
+       id="homepage-website"
+       data={[
+         {
+           "@context": "https://schema.org",
+           "@type": "WebSite",
+           name: "JBC Athenaeum",
+           url: "https://jbc.nirmalsanjel.com.np/",
+           potentialAction: {
+             "@type": "SearchAction",
+             target:
+               "https://jbc.nirmalsanjel.com.np/resources?q={search_term_string}",
+             "query-input": "required name=search_term_string",
+           },
+         },
+         {
+           "@context": "https://schema.org",
+           "@type": "EducationalOrganization",
+           name: "JBC Athenaeum",
+           description:
+             "Student-built academic archive for Jana Bhawana Campus students.",
+           url: "https://jbc.nirmalsanjel.com.np/",
+         },
+       ]}
+     />
 
-      {/* Advanced hero slider */}
-<Hero
-  onNavigateResources={() => navigate("/resources")}
-onNavigateSemesters={() => navigate("/faculties")}
-  onNavigateContribute={() => navigate("/contribute")}
-/>
+     {/* Advanced hero slider */}
+     <Hero
+       onNavigateResources={() => navigate("/resources")}
+       onNavigateSemesters={() => navigate("/faculties")}
+       onNavigateContribute={() => navigate("/contribute")}
+     />
+     <section className="mx-auto max-w-7xl px-5 py-10 sm:py-12">
+       <h1 className="font-serif text-3xl font-bold text-[#002147] sm:text-5xl">
+         Study smarter with reviewed TU notes and resources
+       </h1>
+       <p className="mt-3 text-base leading-8 text-slate-700">
+         Browse reviewed notes, past questions, project reports, practical
+         files and academic resources for Jana Bhawana Campus students.
+       </p>
+       <p className="mt-2 text-sm font-semibold text-slate-600">
+         TU BCA, BICTE, BBS and MBS Notes and Resources for Jana Bhawana Campus
+       </p>
+     </section>
 
 
       {/* Platform statistics */}
@@ -199,7 +244,74 @@ onNavigateSemesters={() => navigate("/faculties")}
         </div>
       </section>
 
+      <section
+        aria-labelledby="popular-discovery-heading"
+        className="mx-auto max-w-7xl px-5 pb-16 sm:pb-20"
+      >
+        <h2
+          id="popular-discovery-heading"
+          className="font-serif text-3xl font-bold text-[#002147]"
+        >
+          Most downloaded this week
+        </h2>
+        {discovery.isLoading ? (
+          <LoadingState label="Loading popular resources" />
+        ) : discovery.isError ? (
+          <ErrorState
+            message="Popular resources are unavailable right now."
+            retry={() => void discovery.refetch()}
+          />
+        ) : (
+          <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {discovery.data?.mostDownloaded.map((item) => (
+              <article
+                key={item.id}
+                className="rounded-2xl border border-slate-200 bg-white p-5"
+              >
+                <p className="text-xs font-bold uppercase tracking-wider text-[#85591f]">
+                  {item.programName} · {item.termName}
+                </p>
+                <h3 className="mt-3 text-base font-bold text-[#002147]">
+                  <Link to={`/resources/${item.slug}`}>{item.title}</Link>
+                </h3>
+                <p className="mt-3 text-xs text-slate-600">
+                  {item.subjectName} · {item.weeklyDownloads.toLocaleString()}{" "}
+                  downloads this week
+                </p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+      <section className="mx-auto max-w-7xl px-5 pb-16 sm:pb-20">
+        <h2 className="font-serif text-3xl font-bold text-[#002147]">
+          Top rated resources
+        </h2>
+        <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {discovery.data?.topRated.map((item) => (
+            <article
+              key={item.id}
+              className="rounded-2xl border border-slate-200 bg-white p-5"
+            >
+              <p className="text-xs font-bold uppercase tracking-wider text-[#85591f]">
+                {item.programName} · {item.termName}
+              </p>
+              <h3 className="mt-3 text-base font-bold text-[#002147]">
+                <Link to={`/resources/${item.slug}`}>{item.title}</Link>
+              </h3>
+              <p className="mt-3 text-xs text-slate-600">
+                {item.averageRating.toFixed(1)} average from{" "}
+                {item.ratingCount.toLocaleString()} ratings
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <HomeAcademicPostsSection />
+      <section className="mx-auto max-w-7xl px-5 pb-16 sm:pb-24">
+        <AcademicTrustSection />
+      </section>
     </main>
   );
 }

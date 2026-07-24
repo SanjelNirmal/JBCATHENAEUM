@@ -14,7 +14,10 @@ import logo from "../assets/logo.png";
 
 const platformLinks = [
   ["Resources", "/resources"],
+  ["Resource requests", "/resource-requests"],
   ["Academic directory", "/faculties"],
+  ["Contributors", "/contributors"],
+  ["About", "/about"],
   ["Contribute", "/contribute"],
   ["Removal request", "/copyright/removal"],
 ] as const;
@@ -116,7 +119,7 @@ export function SiteFooter() {
                     type="email"
                     value={subscriberEmail}
                     onChange={(event) => setSubscriberEmail(event.target.value)}
-                    placeholder="Email for new resources"
+                    placeholder="Email for new notes and resources"
                     disabled={newsletterStatus === "loading"}
                     className="min-h-10 min-w-0 flex-1 bg-transparent px-3 text-sm text-white placeholder:text-slate-400 focus:outline-none disabled:opacity-60"
                   />
@@ -125,11 +128,19 @@ export function SiteFooter() {
                     disabled={newsletterStatus === "loading"}
                     className="inline-flex min-h-10 items-center justify-center gap-2 border-l border-white/10 bg-[#c49b63] px-3 text-xs font-bold uppercase tracking-wider text-[#001b3a] transition hover:bg-[#d8b37a] disabled:opacity-60"
                   >
-                    {newsletterStatus === "loading" ? "Joining" : "Join"}
+                    {newsletterStatus === "loading"
+                      ? "Saving"
+                      : "Get new BCA notes"}
                   </button>
                 </div>
+                <p className="mt-2 text-xs text-slate-400">
+                  Get notified when new notes, past questions and practical
+                  resources are published.
+                </p>
                 {newsletterMessage && (
                   <p
+                    role="status"
+                    aria-live="polite"
                     className={`mt-2 text-xs ${
                       newsletterStatus === "error"
                         ? "text-red-200"
@@ -139,6 +150,9 @@ export function SiteFooter() {
                     {newsletterMessage}
                   </p>
                 )}
+                <p className="mt-1 text-xs text-slate-400">
+                  We only use your email for academic updates.
+                </p>
               </form>
             </div>
           </section>

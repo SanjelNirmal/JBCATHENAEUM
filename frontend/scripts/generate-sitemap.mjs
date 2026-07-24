@@ -9,6 +9,10 @@ const staticRoutes = [
   { path: "/resources", changefreq: "daily", priority: "0.9" },
   { path: "/posts", changefreq: "daily", priority: "0.9" },
   { path: "/faculties", changefreq: "weekly", priority: "0.8" },
+  { path: "/resource-requests", changefreq: "daily", priority: "0.7" },
+  { path: "/contributors", changefreq: "weekly", priority: "0.6" },
+  { path: "/about", changefreq: "monthly", priority: "0.6" },
+  { path: "/about/review-process", changefreq: "monthly", priority: "0.5" },
   { path: "/policies", changefreq: "monthly", priority: "0.4" },
   { path: "/privacy", changefreq: "monthly", priority: "0.3" },
   { path: "/terms", changefreq: "monthly", priority: "0.3" },
@@ -160,6 +164,54 @@ async function fetchPublishedAcademicPosts() {
       );
       return [];
     }
+
+    async function fetchAcademicStructureRoutes() {
+      const supabaseUrl = process.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+      if (!supabaseUrl || !supabaseAnonKey) return [];
+
+      const headers = {
+        apikey: supabaseAnonKey,
+        Authorization: `******
+      };
+      const fetchRows = async (path, select) => {
+        const endpoint = new URL(path, `${supabaseUrl}/rest/v1/`);
+        endpoint.searchParams.set("select", select);
+        endpoint.searchParams.set("is_active", "eq.true");
+        endpoint.searchParams.set("limit", "50000");
+        const response = await fetch(endpoint, { headers });
+        if (!response.ok) return [];
+        const rows = await response.json();
+        return Array.isArray(rows) ? rows : [];
+      };
+
+      try {
+        const [faculties, programs, subjects] = await Promise.all([
+          fetchRows("faculties", "slug,updated_at,created_at"),
+          fetchRows("programs", "slug,updated_at,created_at"),
+          fetchRows("subjects", "slug,updated_at,created_at"),
+        ]);
+        const build = (path, row) => ({
+          loc: absoluteUrl(`${path}/${row.slug}`),
+          lastmod: formatDate(row.updated_at ?? row.created_at),
+          changefreq: "weekly",
+          priority: "0.6",
+        });
+        return [
+          ...faculties
+            .filter((row) => typeof row.slug === "string" && row.slug)
+            .map((row) => build("/faculties", row)),
+          ...programs
+            .filter((row) => typeof row.slug === "string" && row.slug)
+            .map((row) => build("/programs", row)),
+          ...subjects
+            .filter((row) => typeof row.slug === "string" && row.slug)
+            .map((row) => build("/subjects", row)),
+        ];
+      } catch {
+        return [];
+      }
+    }
     const rows = await response.json();
     if (!Array.isArray(rows)) return [];
     return rows
@@ -194,6 +246,7 @@ async function main() {
     })),
     ...(await fetchPublishedResources()),
     ...(await fetchPublishedAcademicPosts()),
+    ...(await fetchAcademicStructureRoutes()),
   ];
 
   const deduped = [

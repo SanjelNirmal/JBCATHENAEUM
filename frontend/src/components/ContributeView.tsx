@@ -17,6 +17,7 @@ import {
   createUploadSession,
   fetchAcademicCatalog,
   fetchContributorSubmissions,
+  findDuplicateResourceTitles,
   finalizeResourceUpload,
   loadContributionDraft,
   ResourceUploadInput,
@@ -25,6 +26,10 @@ import {
 } from "../lib/api";
 import { toSafeErrorMessage } from "../lib/supabase/errors";
 import { uploadPolicyAcceptance } from "../features/legal/config/legalConfig";
+import {
+  buildSuggestedResourceTitle,
+  isProfessionalResourceTitle,
+} from "../lib/resourceTitles";
 
 const MAX_PDF_BYTES = 25 * 1024 * 1024;
 
@@ -73,6 +78,7 @@ export function ContributeView({
   const [resubmitResourceId, setResubmitResourceId] = useState<string | null>(
     null,
   );
+  const [duplicateTitles, setDuplicateTitles] = useState<string[]>([]);
   const pendingUploadRef = useRef<PendingUpload | null>(null);
   const abortUploadRef = useRef<(() => void) | null>(null);
 
@@ -139,6 +145,13 @@ export function ContributeView({
 
   useEffect(() => {
     const selection = catalog.find((item) => item.subjectId === subjectId);
+    const suggestedTitle = buildSuggestedResourceTitle({
+      subjectName: selection?.subjectName ?? "",
+      subjectCode: selection?.subjectCode ?? null,
+      categoryName:
+        selection?.categories.find((category) => category.id === categoryId)?.name ??
+        "Study Notes",
+    });
     if (!selection || !categoryId || !title.trim() || !description.trim())
       return;
     saveContributionDraft({
@@ -256,6 +269,13 @@ export function ContributeView({
     if (!selection || !categoryId || !file) {
       setUploadState("error");
       setMessage("Select academic metadata and a PDF before submitting.");
+      return;
+    }
+    if (!isProfessionalResourceTitle(title)) {
+      setUploadState("error");
+      setMessage(
+        "Use the format: Subject Name (Subject Code) — Resource Type or Unit.",
+      );
       return;
     }
     if (!policyAccepted) {
@@ -405,14 +425,26 @@ export function ContributeView({
           />
         </div>
         <h1 className="mb-4 font-serif text-4xl font-black tracking-tight text-[#002147] sm:mb-6 sm:text-5xl md:text-7xl">
-          Share a Resource
+          Share once. Help an entire class.
         </h1>
         <p className="mx-auto max-w-2xl text-base font-light leading-8 text-slate-500 sm:text-lg sm:leading-relaxed">
-          Share notes, past questions, project reports, or other academic
-          materials. Once reviewed, your contribution will become part of the
-          JBC archive.
+          Upload notes, practical files, past questions or project guidance.
+          Every approved contribution helps Jana Bhawana Campus students study
+          more effectively.
         </p>
       </div>
+      <section className="mb-8 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          "Public contributor recognition",
+          "Contribution history visibility",
+          "Leaderboard eligibility",
+          "Download and impact insights",
+        ].map((item) => (
+          <p key={item} className="text-sm font-semibold text-slate-700">
+            {item}
+          </p>
+        ))}
+      </section>
 
       {!isAuthenticated || !emailVerified ? (
         <div className="rounded-3xl border border-amber-200 bg-amber-50 p-10 text-center">
@@ -491,9 +523,38 @@ export function ContributeView({
                   minLength={3}
                   maxLength={240}
                   value={title}
-                  onChange={(event) => setTitle(event.target.value)}
+                  onChange={(event) => {
+                    setTitle(event.target.value);
+                    setDuplicateTitles([]);
+                  }}
+                  onBlur={() => {
+                    void findDuplicateResourceTitles(title)
+                      .then((duplicates) => setDuplicateTitles(duplicates))
+                      .catch(() => setDuplicateTitles([]));
+                  }}
                   className="w-full rounded-xl border border-slate-300 p-3 focus:border-[#002147] focus:outline-none"
                 />
+                <span className="block text-xs font-normal text-slate-500">
+                  Suggested format: Subject Name (Subject Code) — Resource Type
+                  or Unit
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setTitle(suggestedTitle)}
+                  className="text-xs font-bold text-[#002147] underline"
+                >
+                  Use suggested title
+                </button>
+                {title.trim() && !isProfessionalResourceTitle(title) && (
+                  <span className="block text-xs font-normal text-amber-700">
+                    Title should include an em dash and clear academic context.
+                  </span>
+                )}
+                {duplicateTitles.length > 0 && (
+                  <span className="block text-xs font-normal text-amber-700">
+                    Similar title already exists. Review before submitting.
+                  </span>
+                )}
               </label>
               <label className="space-y-2 text-sm font-semibold text-slate-700">
                 Program

@@ -9,6 +9,7 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import type { Subject } from "../lib/api";
+import { campusImages } from "../content/campusImages";
 
 interface HeroProps {
   onNavigateResources?: () => void;
@@ -53,9 +54,8 @@ const slides: HeroSlide[] = [
     highlightedTitle: "resources, organized.",
     description:
       "Search reviewed notes, project reports, PDFs, past questions, and learning materials prepared for Jana Bhawana Campus students.",
-    image: "/jana-bhawana-campus.jpg",
-    imageAlt:
-      "Red-brick Jana Bhawana Campus building in Chapagaun, Lalitpur",
+    image: campusImages.campusBuilding.src,
+    imageAlt: campusImages.campusBuilding.alt,
     imagePosition: "object-center",
     icon: "graduation",
     primaryButton: {
@@ -77,9 +77,8 @@ const slides: HeroSlide[] = [
     highlightedTitle: "reviewed materials.",
     description:
       "Explore organized academic resources arranged by program, semester, subject, and category for focused and reliable study.",
-    image:
-      "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=85&w=2400&auto=format&fit=crop",
-    imageAlt: "Academic library containing organized books and resources",
+    image: campusImages.library.src,
+    imageAlt: campusImages.library.alt,
     imagePosition: "object-center",
     icon: "book",
     primaryButton: {
@@ -101,9 +100,8 @@ const slides: HeroSlide[] = [
     highlightedTitle: "Strengthen your campus.",
     description:
       "Contribute your notes, project reports, and academic PDFs. Every submission is reviewed before publication.",
-    image:
-      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=85&w=2400&auto=format&fit=crop",
-    imageAlt: "University students collaborating on academic work",
+    image: campusImages.studentStudy.src,
+    imageAlt: campusImages.studentStudy.alt,
     imagePosition: "object-center",
     icon: "upload",
     primaryButton: {
@@ -350,7 +348,7 @@ export function Hero({
                   </div>
 
                   {/* Heading */}
-                  <h1 className="mt-6 max-w-[780px] font-serif text-[2.65rem] font-black leading-[0.98] tracking-[-0.035em] text-white sm:text-[3.65rem] lg:text-[3.9rem] xl:text-[4.4rem]">
+                  <h2 className="mt-6 max-w-[780px] font-serif text-[2.65rem] font-black leading-[0.98] tracking-[-0.035em] text-white sm:text-[3.65rem] lg:text-[3.9rem] xl:text-[4.4rem]">
                     <span className="block">
                       {currentSlide.title}
                     </span>
@@ -358,7 +356,7 @@ export function Hero({
                     <span className="mt-1 block text-[#d7ab70]">
                       {currentSlide.highlightedTitle}
                     </span>
-                  </h1>
+                  </h2>
 
                   {/* Description */}
                   <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-200/90 sm:text-base sm:leading-8 lg:text-[17px]">
@@ -500,6 +498,9 @@ export function Hero({
                   }}
                   src={currentSlide.image}
                   alt={currentSlide.imageAlt}
+                  loading={activeSlide === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  fetchPriority={activeSlide === 0 ? "high" : "auto"}
                   className={`absolute inset-0 h-full w-full object-cover ${currentSlide.imagePosition}`}
                   draggable={false}
                 />
