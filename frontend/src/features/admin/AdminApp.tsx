@@ -28,6 +28,7 @@ const AcademicPostPreview = lazy(
 const AcademicPostCategories = lazy(
   () => import("./AdminAcademicPostCategoriesPage"),
 );
+const ResourceRequests = lazy(() => import("./AdminResourceRequestsPage"));
 
 export default function AdminApp() {
   const auth = useCurrentAuth();
@@ -138,6 +139,16 @@ export default function AdminApp() {
             path="settings"
             element={
               reviewAccess ? <Settings /> : <Navigate to="/not-found" replace />
+            }
+          />
+          <Route
+            path="resource-requests"
+            element={
+              reviewAccess ? (
+                <ResourceRequests />
+              ) : (
+                <Navigate to="/not-found" replace />
+              )
             }
           />
           <Route path="posts" element={<AcademicPosts />} />

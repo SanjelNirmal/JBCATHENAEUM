@@ -27,6 +27,7 @@ const links = [
   ["/admin/users", "Users", Users, "review"],
   ["/admin/academic-structure", "Academic structure", BookOpen, "review"],
   ["/admin/reports", "Reports", ShieldAlert, "review"],
+  ["/admin/resource-requests", "Resource Requests", FileText, "review"],
   ["/admin/newsletter", "Newsletter", Mail, "review"],
   ["/admin/notifications", "Push notifications", BellRing, "review"],
   ["/admin/audit-logs", "Audit logs", ScrollText, "review"],

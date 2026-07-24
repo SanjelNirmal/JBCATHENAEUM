@@ -10,6 +10,7 @@ export interface ResourceCard {
   title: string;
   slug: string;
   description: string | null;
+  abstract: string | null;
   academicYear: number | null;
   resourceType: string;
   programId: string;
@@ -32,6 +33,17 @@ export interface ResourceCard {
   downloadCount: number;
   legacyUrl: string | null;
   createdAt: string;
+  updatedAt: string;
+  viewCount: number;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  verificationLevel: string | null;
+  verifiedBy: string | null;
+  verifiedAt: string | null;
+  moderationNotes: string | null;
+  reviewedAt: string | null;
+  topicsCovered: string[];
+  learningOutcomes: string[];
 }
 
 export interface ResourcePage {
@@ -46,6 +58,7 @@ interface SearchRow {
   title: string;
   slug: string;
   description: string | null;
+  abstract: string | null;
   academic_year: number | null;
   resource_type: string;
   program_id: string;
@@ -65,6 +78,17 @@ interface SearchRow {
   page_count: number | null;
   download_count: number;
   created_at: string;
+  updated_at: string;
+  view_count: number;
+  seo_title: string | null;
+  seo_description: string | null;
+  verification_level: string | null;
+  verified_by: string | null;
+  verified_at: string | null;
+  moderation_notes: string | null;
+  reviewed_at: string | null;
+  topics_covered: string[] | null;
+  learning_outcomes: string[] | null;
   total_count: number;
 }
 
@@ -74,6 +98,7 @@ function mapSearchRow(row: SearchRow): ResourceCard {
     title: row.title,
     slug: row.slug,
     description: row.description,
+    abstract: row.abstract,
     academicYear: row.academic_year,
     resourceType: row.resource_type,
     programId: row.program_id,
@@ -93,6 +118,17 @@ function mapSearchRow(row: SearchRow): ResourceCard {
     legacyUrl: validateLegacyResourceUrl(row.legacy_url),
     downloadCount: row.download_count,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    viewCount: row.view_count,
+    seoTitle: row.seo_title,
+    seoDescription: row.seo_description,
+    verificationLevel: row.verification_level,
+    verifiedBy: row.verified_by,
+    verifiedAt: row.verified_at,
+    moderationNotes: row.moderation_notes,
+    reviewedAt: row.reviewed_at,
+    topicsCovered: row.topics_covered ?? [],
+    learningOutcomes: row.learning_outcomes ?? [],
   };
 }
 
@@ -135,7 +171,7 @@ export async function fetchResource(
   const request = supabase
     .from("resources")
     .select(
-      "id,title,slug,description,academic_year,resource_type,program_id,term_id,subject_id,category_id,author_name,download_count,created_at,current_version_id,file_url",
+      "id,title,slug,description,abstract,academic_year,resource_type,program_id,term_id,subject_id,category_id,author_name,download_count,view_count,created_at,updated_at,current_version_id,file_url,seo_title,seo_description,verification_level,verified_by,verified_at,moderation_notes,reviewed_at,topics_covered,learning_outcomes",
     );
   const { data: resource, error } = await request
     .eq(lookup.column, lookup.value)
@@ -172,6 +208,7 @@ export async function fetchResource(
     title: resource.title,
     slug: resource.slug,
     description: resource.description,
+    abstract: resource.abstract ?? null,
     academicYear: resource.academic_year,
     resourceType: resource.resource_type,
     programId: academic.programId,
@@ -194,6 +231,17 @@ export async function fetchResource(
     legacyUrl: validateLegacyResourceUrl(resource.file_url),
     downloadCount: resource.download_count,
     createdAt: resource.created_at,
+    updatedAt: resource.updated_at,
+    viewCount: resource.view_count,
+    seoTitle: resource.seo_title ?? null,
+    seoDescription: resource.seo_description ?? null,
+    verificationLevel: resource.verification_level ?? null,
+    verifiedBy: resource.verified_by ?? null,
+    verifiedAt: resource.verified_at ?? null,
+    moderationNotes: resource.moderation_notes ?? null,
+    reviewedAt: resource.reviewed_at ?? null,
+    topicsCovered: resource.topics_covered ?? [],
+    learningOutcomes: resource.learning_outcomes ?? [],
   };
 }
 
@@ -314,6 +362,79 @@ export async function fetchPublicStats(): Promise<{
     subjects: value.subjects ?? 0,
     downloads: value.downloads ?? 0,
   };
+}
+
+export interface HomepageDiscoveryResource {
+  id: string;
+  slug: string;
+  title: string;
+  subjectName: string;
+  programName: string;
+  termName: string;
+  downloadCount: number;
+  weeklyDownloads: number;
+  averageRating: number;
+  ratingCount: number;
+}
+
+export async function fetchHomepageDiscovery(
+  limit = 4,
+): Promise<{
+  mostDownloaded: HomepageDiscoveryResource[];
+  topRated: HomepageDiscoveryResource[];
+}> {
+  const { data, error } = await supabase.rpc("get_homepage_resource_discovery", {
+    result_limit: limit,
+  });
+  if (error) throw error;
+  const rows = (data ?? []) as Array<{
+    bucket: "most_downloaded" | "top_rated";
+    id: string;
+    slug: string;
+    title: string;
+    subject_name: string;
+    program_name: string;
+    term_name: string;
+    download_count: number;
+    weekly_downloads: number;
+    average_rating: number;
+    rating_count: number;
+  }>;
+  const mapRow = (row: (typeof rows)[number]): HomepageDiscoveryResource => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    subjectName: row.subject_name,
+    programName: row.program_name,
+    termName: row.term_name,
+    downloadCount: Number(row.download_count ?? 0),
+    weeklyDownloads: Number(row.weekly_downloads ?? 0),
+    averageRating: Number(row.average_rating ?? 0),
+    ratingCount: Number(row.rating_count ?? 0),
+  });
+  return {
+    mostDownloaded: rows
+      .filter((item) => item.bucket === "most_downloaded")
+      .map(mapRow),
+    topRated: rows.filter((item) => item.bucket === "top_rated").map(mapRow),
+  };
+}
+
+export async function findDuplicateResourceTitles(
+  title: string,
+): Promise<string[]> {
+  const normalized = title.trim();
+  if (normalized.length < 5) return [];
+  const page = await searchResources({
+    q: normalized,
+    sort: "title",
+    page: 1,
+    pageSize: 8,
+  });
+  const target = normalized.toLocaleLowerCase();
+  return page.items
+    .map((item) => item.title.trim())
+    .filter((item) => item.toLocaleLowerCase() === target);
 }
 
 export function getPublicResourceAccessUrl(resourceId: string): string {

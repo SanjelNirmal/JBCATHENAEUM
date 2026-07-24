@@ -41,6 +41,31 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "about",
+        element: lazyElement(() => import("../pages/AboutPage"), "Loading about"),
+      },
+      {
+        path: "about/review-process",
+        element: lazyElement(
+          () => import("../pages/AboutReviewProcessPage"),
+          "Loading review process",
+        ),
+      },
+      {
+        path: "resource-requests",
+        element: lazyElement(
+          () => import("../pages/ResourceRequestsPage"),
+          "Loading resource requests",
+        ),
+      },
+      {
+        path: "contributors",
+        element: lazyElement(
+          () => import("../pages/ContributorsLeaderboardPage"),
+          "Loading contributor leaderboard",
+        ),
+      },
+      {
         path: "contributors/:userId",
         element: lazyElement(
           () => import("../pages/PublicContributorPage"),

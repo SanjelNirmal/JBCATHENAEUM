@@ -44,6 +44,10 @@ import { fetchAcademicCatalog } from "../../lib/supabase/academic";
 import { fetchUsers } from "../../lib/supabase/profiles";
 import { pageCount } from "../../lib/supabase/pagination";
 import { useDebouncedValue } from "../../lib/useDebouncedValue";
+import {
+  buildSuggestedResourceTitle,
+  isProfessionalResourceTitle,
+} from "../../lib/resourceTitles";
 
 export function canPermanentlyDeleteResource(role: AppRole | undefined) {
   return role === "super_admin";
@@ -618,6 +622,23 @@ export default function ResourceManagementPage() {
                 maxLength={240}
                 className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3"
               />
+              <span className="mt-1 block text-xs font-normal text-slate-500">
+                Use the official format: Subject Name (Subject Code) — Resource
+                Type or Unit
+              </span>
+              {!isProfessionalResourceTitle(editor.title) && (
+                <span className="mt-1 block text-xs font-normal text-amber-700">
+                  Current title does not follow the recommended naming pattern.
+                </span>
+              )}
+              <span className="mt-1 block text-xs font-normal text-slate-500">
+                Suggested:{" "}
+                {buildSuggestedResourceTitle({
+                  subjectName: editor.subjectName,
+                  subjectCode: editor.subjectCode,
+                  categoryName: editor.categoryName,
+                })}
+              </span>
             </label>
             <label className="block text-sm font-semibold">
               Description

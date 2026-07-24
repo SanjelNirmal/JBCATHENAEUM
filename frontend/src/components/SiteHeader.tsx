@@ -1,6 +1,7 @@
 import {
   Bell,
   BookOpen,
+  ClipboardList,
   GraduationCap,
   LogOut,
   Menu,
@@ -27,7 +28,9 @@ import logo from "../assets/logo.png";
 
 const links = [
   { to: "/resources", label: "Resources", icon: BookOpen },
+  { to: "/posts", label: "Posts", icon: Newspaper },
   { to: "/faculties", label: "Academics", icon: GraduationCap },
+  { to: "/resource-requests", label: "Requests", icon: ClipboardList },
   { to: "/contribute", label: "Contribute", icon: UploadCloud },
 ];
 
@@ -310,13 +313,16 @@ export function SiteHeader() {
 }
 
 function MobileBottomNav({ openMenu }: { openMenu: () => void }) {
+  const bottomLinks = links.filter((item) =>
+    ["/resources", "/posts", "/resource-requests"].includes(item.to),
+  );
   return (
     <nav
       aria-label="Mobile quick navigation"
       className="safe-area-inline fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur min-[960px]:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
-        {links.map((item) => (
+        {bottomLinks.map((item) => (
           <MobileNavLink
             key={item.to}
             to={item.to}
@@ -358,3 +364,4 @@ function MobileNavLink({
     </NavLink>
   );
 }
+  Newspaper,
