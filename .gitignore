@@ -56,3 +56,5 @@ mobile-build/
 # Firebase service-account credentials
 supabase/secrets/
 *-firebase-adminsdk-*.json
+
+happy.md
