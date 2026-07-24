@@ -1,12 +1,26 @@
 {
+  "id": "/",
   "name": "JBC Athenaeum",
-  "short_name": "Athenaeum",
-  "description": "Reviewed TU BCA notes and academic resources for Jana Bhawana Campus students.",
+  "short_name": "JBC Athenaeum",
+  "description": "Browse TU BCA, BICTE, BBS and MBS notes, past questions, practical files, project reports and academic resources for Jana Bhawana Campus students.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
   "background_color": "#F8FAFC",
   "theme_color": "#002147",
+  "categories": [
+    "education",
+    "productivity",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -25,6 +39,47 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Resources",
+      "short_name": "Resources",
+      "description": "Browse published academic resources",
+      "url": "/resources",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Academic Posts",
+      "short_name": "Posts",
+      "description": "Read academic posts and campus updates",
+      "url": "/posts",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Academic Directory",
+      "short_name": "Academics",
+      "description": "Browse faculties, programs, terms and subjects",
+      "url": "/faculties",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

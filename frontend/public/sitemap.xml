@@ -1,219 +1,260 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+>
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/posts</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/faculties</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/policies</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/privacy</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/terms</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/copyright</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/policies/upload</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/policies/content-removal</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/policies/acceptable-use</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/policies/account-deletion</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/policies/retention</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/policies/reporting</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/copyright/removal</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+
+  <!-- Published resources -->
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/project-i-guide-af414aa4</loc>
     <lastmod>2026-07-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/advance-java-part-1-e36aa149</loc>
     <lastmod>2026-07-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/operating-systems-note-56746bf4</loc>
     <lastmod>2026-07-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/numerical-method-lab-report-f2451878</loc>
     <lastmod>2026-07-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/dbms-complete-note-by-pmc-66d1c22f</loc>
     <lastmod>2026-07-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/dbms-complete-note-826cd2b3</loc>
     <lastmod>2026-07-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/software-engineeringm-board-exam-old-question-7bd53a47</loc>
     <lastmod>2026-07-20</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/numerical-method-old-question-89079b60</loc>
     <lastmod>2026-07-20</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/operating-system-old-question-a1ab6425</loc>
     <lastmod>2026-07-20</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/software-engineering-cheat-7b008238</loc>
     <lastmod>2026-07-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/dbms-cheatsheet-c89e83ea</loc>
     <lastmod>2026-07-20</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/javascript-jquery-the-missing-manual-3rd-edition-book-653a6335</loc>
     <lastmod>2026-07-18</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/php-and-mysql-web-development-fifth-edition-e757844d</loc>
     <lastmod>2026-07-18</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/operating-system-concepts-8th-edition-d506204c</loc>
     <lastmod>2026-07-18</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/lab-report-on-database-management-system-4a59d1fe</loc>
     <lastmod>2026-07-18</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/lostlink-project-proposal-project-1-9173631d</loc>
     <lastmod>2026-07-20</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/resources/lostlink-project-jbc-presentation-d37d8840</loc>
     <lastmod>2026-07-18</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <!-- Published academic posts -->
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/posts/bca-4th-semester-dbms-complete-notes</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
-    <loc>https://jbc.nirmalsanjel.com.np/posts/admission-open-2083</loc>
+    <loc>https://jbc.nirmalsanjel.com.np/posts/bca-admission-open-2026/loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/posts/operating-system-lab-manual</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://jbc.nirmalsanjel.com.np/posts/bicte-teaching-practice-materials</loc>
     <lastmod>2026-07-24</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 </urlset>

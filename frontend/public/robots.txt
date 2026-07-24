@@ -1,11 +1,19 @@
 User-agent: *
 Allow: /
+
 Disallow: /admin
+Disallow: /admin/
 Disallow: /contribute
 Disallow: /my-submissions
 Disallow: /notifications
 Disallow: /login
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /auth/
+Disallow: /*?*page=
+Disallow: /*?*sort=
+Disallow: /*?*q=
+Disallow: /*?*category=
+Disallow: /*?*program=
 
 Sitemap: https://jbc.nirmalsanjel.com.np/sitemap.xml

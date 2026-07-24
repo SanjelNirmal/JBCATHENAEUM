@@ -2,112 +2,322 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <link rel="icon" type="image/png" sizes="192x192" href="src/assets/logo.png" />
+
+    <title>
+      JBC Athenaeum | TU BCA, BICTE, BBS &amp; MBS Academic Resources
+    </title>
+
+    <meta
+      name="description"
+      content="Browse TU BCA, BICTE, BBS and MBS notes, past questions, practical files, project reports and academic resources for Jana Bhawana Campus students."
+    />
+
+    <meta
+      name="author"
+      content="Nirmal Sanjel"
+    />
+
+    <meta
+      name="application-name"
+      content="JBC Athenaeum"
+    />
+
+    <meta
+      name="generator"
+      content="React, Vite and Supabase"
+    />
+
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <meta
+      name="googlebot"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <meta
+      name="referrer"
+      content="strict-origin-when-cross-origin"
+    />
+
+    <meta
+      name="format-detection"
+      content="telephone=no"
+    />
+
+    <meta
+      name="color-scheme"
+      content="light"
+    />
+
+    <meta
+      name="theme-color"
+      content="#002147"
+    />
+
+    <meta
+      name="msapplication-TileColor"
+      content="#002147"
+    />
+
+    <!-- Canonical URL -->
+    <link
+      rel="canonical"
+      href="https://jbc.nirmalsanjel.com.np/"
+    />
+
+    <!-- Favicons and PWA -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/icons/favicon-32x32.png"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/icons/favicon-16x16.png"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/icons/icon-192x192.png"
+    />
+
     <link
       rel="apple-touch-icon"
       sizes="180x180"
       href="/icons/apple-touch-icon.png"
     />
-    <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#002147" />
 
-    <!-- Primary Meta Tags -->
-    <title>JBC Athenaeum | TU BCA &amp; BICTE Notes &amp; Academic Resources</title>
-    <meta
-      name="title"
-      content="JBC Athenaeum | TU BCA &amp; BICTE Notes &amp; Academic Resources"
+    <link
+      rel="mask-icon"
+      href="/icons/safari-pinned-tab.svg"
+      color="#002147"
     />
-    <meta
-      name="description"
-      content="Find reviewed JBC BCA notes, BICTE notes, TU notes, past questions, project reports, PDFs, and academic resources for Jana Bhawana Campus students."
-    />
-    <meta
-      name="keywords"
-      content="JBC Athenaeum, Jana Bhawana Campus, JBC BCA notes, BCA notes, BICTE notes, TU notes, Tribhuvan University notes, BCA PDFs, BCA past questions, BCA project report, Jana Bhawana Campus notes, Nirmal Sanjel"
-    />
-    <meta name="robots" content="index, follow" />
 
+    <link
+      rel="manifest"
+      href="/site.webmanifest"
+    />
+
+    <!-- Open Graph -->
+    <meta
+      property="og:type"
+      content="website"
+    />
+
+    <meta
+      property="og:site_name"
+      content="JBC Athenaeum"
+    />
+
+    <meta
+      property="og:locale"
+      content="en_NP"
+    />
+
+    <meta
+      property="og:url"
+      content="https://jbc.nirmalsanjel.com.np/"
+    />
+
+    <meta
+      property="og:title"
+      content="JBC Athenaeum | TU Academic Resources for Jana Bhawana Campus"
+    />
+
+    <meta
+      property="og:description"
+      content="Browse TU BCA, BICTE, BBS and MBS notes, past questions, project reports, practical files and academic resources for Jana Bhawana Campus students."
+    />
+
+    <meta
+      property="og:image"
+      content="https://jbc.nirmalsanjel.com.np/images/jbc-athenaeum-social-preview.jpg"
+    />
+
+    <meta
+      property="og:image:secure_url"
+      content="https://jbc.nirmalsanjel.com.np/images/jbc-athenaeum-social-preview.jpg"
+    />
+
+    <meta
+      property="og:image:type"
+      content="image/jpeg"
+    />
+
+    <meta
+      property="og:image:width"
+      content="1200"
+    />
+
+    <meta
+      property="og:image:height"
+      content="630"
+    />
+
+    <meta
+      property="og:image:alt"
+      content="JBC Athenaeum academic resource platform for Jana Bhawana Campus students"
+    />
+
+    <!-- X / Twitter -->
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+
+    <meta
+      name="twitter:title"
+      content="JBC Athenaeum | TU Academic Resources for Jana Bhawana Campus"
+    />
+
+    <meta
+      name="twitter:description"
+      content="Browse TU BCA, BICTE, BBS and MBS notes, past questions, practical files and project resources for Jana Bhawana Campus students."
+    />
+
+    <meta
+      name="twitter:image"
+      content="https://jbc.nirmalsanjel.com.np/images/jbc-athenaeum-social-preview.jpg"
+    />
+
+    <meta
+      name="twitter:image:alt"
+      content="JBC Athenaeum academic resource platform"
+    />
+
+    <!-- Google Search Console -->
+    <meta
+      name="google-site-verification"
+      content="SWKQR7qyH1dgZBozYNxGHCcR3og5Zvg6H-NM7TTyBag"
+    />
+
+    <!-- Structured data: Website -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
+        "@id": "https://jbc.nirmalsanjel.com.np/#website",
+        "url": "https://jbc.nirmalsanjel.com.np/",
         "name": "JBC Athenaeum",
         "alternateName": [
-          "Jana Bhawana Campus Notes",
+          "JBC Academic Resource Archive",
+          "Jana Bhawana Campus Resources",
           "JBC BCA Notes",
           "TU BCA Notes",
-          "BICTE Notes",
-          "JBC Notes"
+          "BICTE Notes"
         ],
-        "url": "https://jbc.nirmalsanjel.com.np/",
-        "description": "Reviewed JBC BCA notes, BICTE notes, Jana Bhawana Campus PDFs, past questions, project reports, and academic resources.",
+        "description": "An academic resource archive containing TU BCA, BICTE, BBS and MBS notes, past questions, practical files and project materials for Jana Bhawana Campus students.",
         "inLanguage": "en",
-        "creator": { "@type": "Person", "name": "Nirmal Sanjel" },
-        "about": [
-          { "@type": "CollegeOrUniversity", "name": "Jana Bhawana Campus" },
-          {
-            "@type": "EducationalOrganization",
-            "name": "Tribhuvan University"
-          },
-          {
-            "@type": "Course",
-            "name": "Bachelor of Computer Applications (BCA)"
-          }
-        ],
+        "publisher": {
+          "@id": "https://jbc.nirmalsanjel.com.np/#organization"
+        },
         "potentialAction": {
           "@type": "SearchAction",
-          "target": "https://jbc.nirmalsanjel.com.np/resources?q={search_term_string}",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://jbc.nirmalsanjel.com.np/resources?q={search_term_string}"
+          },
           "query-input": "required name=search_term_string"
         }
       }
     </script>
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="JBC Athenaeum" />
-    <meta property="og:url" content="https://jbc.nirmalsanjel.com.np/" />
-    <meta
-      property="og:title"
-      content="JBC Athenaeum | TU BCA &amp; BICTE Notes and Jana Bhawana Campus Resources"
-    />
-    <meta
-      property="og:description"
-      content="Search reviewed JBC BCA notes, BICTE notes, PDFs, past questions, project reports, and academic resources for Jana Bhawana Campus."
-    />
-    <meta
-      property="og:image"
-      content="https://jbc.nirmalsanjel.com.np/logo.png"
-    />
+    <!-- Structured data: Platform organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": "https://jbc.nirmalsanjel.com.np/#organization",
+        "name": "JBC Athenaeum",
+        "url": "https://jbc.nirmalsanjel.com.np/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://jbc.nirmalsanjel.com.np/icons/icon-512x512.png",
+          "width": 512,
+          "height": 512
+        },
+        "founder": {
+          "@type": "Person",
+          "name": "Nirmal Sanjel",
+          "url": "https://nirmalsanjel.com.np/"
+        },
+        "description": "A student-built academic archive created to organize learning resources for Jana Bhawana Campus students.",
+        "areaServed": {
+          "@type": "Place",
+          "name": "Lalitpur, Nepal"
+        }
+      }
+    </script>
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://jbc.nirmalsanjel.com.np/" />
-    <meta
-      property="twitter:title"
-      content="JBC Athenaeum | TU BCA &amp; BICTE Notes and Jana Bhawana Campus Resources"
-    />
-    <meta
-      property="twitter:description"
-      content="Search reviewed JBC BCA notes, BICTE notes, PDFs, past questions, project reports, and academic resources for Jana Bhawana Campus."
-    />
-    <meta
-      property="twitter:image"
-      content="https://jbc.nirmalsanjel.com.np/logo.png"
-    />
-
-    <link rel="canonical" href="https://jbc.nirmalsanjel.com.np/" />
-
-    <meta
-      name="google-site-verification"
-      content="SWKQR7qyH1dgZBozYNxGHCcR3og5Zvg6H-NM7TTyBag"
-    />
+    <!-- Structured data: Educational focus -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "@id": "https://jbc.nirmalsanjel.com.np/#academic-resources",
+        "url": "https://jbc.nirmalsanjel.com.np/",
+        "name": "TU Academic Resources for Jana Bhawana Campus",
+        "description": "A collection of notes, past questions, project reports, practical files and academic materials for BCA, BICTE, BBS and MBS students.",
+        "isPartOf": {
+          "@id": "https://jbc.nirmalsanjel.com.np/#website"
+        },
+        "about": [
+          {
+            "@type": "Course",
+            "name": "Bachelor of Computer Applications"
+          },
+          {
+            "@type": "Course",
+            "name": "Bachelor of Information and Communication Technology Education"
+          },
+          {
+            "@type": "Course",
+            "name": "Bachelor of Business Studies"
+          },
+          {
+            "@type": "Course",
+            "name": "Master of Business Studies"
+          },
+          {
+            "@type": "EducationalOrganization",
+            "name": "Tribhuvan University"
+          },
+          {
+            "@type": "CollegeOrUniversity",
+            "name": "Jana Bhawana Campus"
+          }
+        ]
+      }
+    </script>
   </head>
+
   <body>
+    <noscript>
+      <div>
+        JBC Athenaeum requires JavaScript to browse academic resources. Please
+        enable JavaScript in your browser and reload this page.
+      </div>
+    </noscript>
+
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <script
+      type="module"
+      src="/src/main.tsx"
+    ></script>
   </body>
 </html>
