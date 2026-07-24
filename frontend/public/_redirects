@@ -1,29 +1,48 @@
-# Application routes only. Do not use a global /* SPA fallback: it turns a
-# missing /assets/*.js file into index.html and browsers reject it as a module.
+# Application routes only.
+# Do not use a global /* SPA fallback because a missing /assets/*.js file
+# could return index.html and then fail as a JavaScript module.
+
 /resources / 200
 /resources/* / 200
+
+/posts / 200
+/posts/* / 200
+
+/contributors / 200
 /contributors/* / 200
+
 /faculties / 200
 /faculties/* / 200
+
 /programs/* / 200
 /subjects/* / 200
+
 /contribute / 200
 /my-submissions / 200
 /notifications / 200
+
 /profile / 200
 /profile/* / 200
+
 /account / 200
 /account/* / 200
+
 /login / 200
 /forgot-password / 200
 /reset-password / 200
 /auth/callback / 200
 /payment/return / 200
+
+/admin / 200
 /admin/* / 200
+
 /policies / 200
 /policies/* / 200
+
 /privacy / 200
 /terms / 200
+
 /copyright / 200
 /copyright/* / 200
+
 /not-found / 200
